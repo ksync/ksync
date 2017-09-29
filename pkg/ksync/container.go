@@ -21,7 +21,6 @@ func (this *Container) String() string {
 func getContainer(pod *apiv1.Pod, containerName string) (*Container, error) {
 	// TODO: runtime error because there are no container statuses while
 	// k8s master is restarting.
-	log.Print(pod.Status.ContainerStatuses)
 	if containerName == "" {
 		return &Container{
 			pod.Status.ContainerStatuses[0].ContainerID[9:],

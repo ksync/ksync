@@ -44,8 +44,9 @@ func runList(_ *cobra.Command, args []string) {
 		log.Fatal("Must specify a container path.")
 	}
 
-	// REMOVE ME
-	ksync.PrepareNodes()
+	if len(args) > 1 {
+		log.Fatal("Only specify a single path.")
+	}
 
 	path := args[0]
 

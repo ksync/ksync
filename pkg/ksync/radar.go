@@ -132,8 +132,36 @@ func InitRadarOpts() {
 	grpcOpts = append(grpcOpts, grpc.WithInsecure())
 }
 
+func radarPodName(nodeName string) (string, error) {
+	// TODO: error handling for nodes that don't exist.
+	pods, err := KubeClient.CoreV1().Pods(radarNamespace).List(
+		metav1.ListOptions{
+			LabelSelector: "app=radar",
+			FieldSelector: fmt.Sprintf("spec.nodeName=%s", nodeName),
+		})
+
+	if err != nil {
+		return "", nil
+	}
+
+	// TODO: provide a better error here, explain to users how to fix it.
+	if len(pods.Items) != 1 {
+		return "", fmt.Errorf(
+			"unexpected result looking up radar pod (count:%s) (node:%s)",
+			len(pods.Items),
+			nodeName)
+	}
+
+	return pods.Items[0].Name, nil
+}
+
 func NewRadarConnection(nodeName string) (*grpc.ClientConn, error) {
-	tun := NewTunnel("ksync-radar-1jf5p")
+	podName, err := radarPodName(nodeName)
+	if err != nil {
+		return nil, err
+	}
+
+	tun := NewTunnel(podName)
 	if err := tun.Start(); err != nil {
 		return nil, err
 	}
