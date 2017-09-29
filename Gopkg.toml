@@ -1,0 +1,79 @@
+
+# Gopkg.toml example
+#
+# Refer to https://github.com/golang/dep/blob/master/docs/Gopkg.toml.md
+# for detailed Gopkg.toml documentation.
+#
+# required = ["github.com/user/thing/cmd/thing"]
+# ignored = ["github.com/user/project/pkgX", "bitbucket.org/user/project/pkgA/pkgY"]
+#
+# [[constraint]]
+#   name = "github.com/user/project"
+#   version = "1.0.0"
+#
+# [[constraint]]
+#   name = "github.com/user/project2"
+#   branch = "dev"
+#   source = "github.com/myfork/project2"
+#
+# [[override]]
+#  name = "github.com/x/y"
+#  version = "2.4.0"
+
+[[constraint]]
+  version = "v1.13.1"
+  name = "github.com/docker/docker"
+  source = "https://github.com/moby/moby.git"
+
+[[constraint]]
+  name = "github.com/golang/protobuf"
+
+[[constraint]]
+  name = "github.com/grpc-ecosystem/go-grpc-middleware"
+
+[[constraint]]
+  name = "github.com/mitchellh/go-homedir"
+
+[[constraint]]
+  name = "github.com/sirupsen/logrus"
+
+[[constraint]]
+  name = "github.com/spf13/cobra"
+
+[[constraint]]
+  name = "github.com/spf13/pflag"
+  branch = "master"
+
+[[constraint]]
+  name = "github.com/spf13/viper"
+
+[[constraint]]
+  branch = "master"
+  name = "golang.org/x/net"
+
+[[constraint]]
+  branch = "master"
+  name = "golang.org/x/text"
+
+[[constraint]]
+  name = "google.golang.org/grpc"
+
+[[constraint]]
+  branch = "release-1.7"
+  name = "k8s.io/apimachinery"
+
+[[constraint]]
+  name = "k8s.io/apiextensions-apiserver"
+  branch = "release-1.7"
+
+[[constraint]]
+  name = "k8s.io/client-go"
+  branch = "release-4.0"
+
+[[constraint]]
+  name = "github.com/docker/spdystream"
+  revision = "bc6354cbbc295e925e4c611ffe90c1f287ee54db"
+
+[[override]]
+  name = "github.com/ugorji/go"
+  revision = "8c0409fcbb70099c748d71f714529204975f6c3f"

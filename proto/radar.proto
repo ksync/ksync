@@ -1,0 +1,27 @@
+
+syntax = "proto3";
+
+package proto.radar;
+
+import "google/protobuf/timestamp.proto";
+
+service Radar {
+  rpc ListContainerFiles(ContainerPath) returns (Files) {}
+}
+
+message ContainerPath {
+  string container_id = 1;
+  string path_name = 2;
+}
+
+message Files {
+  repeated File file = 1;
+}
+
+message File {
+  string path = 1;
+  int64 size = 2;
+  uint32 mode = 3;
+  google.protobuf.Timestamp mod_time = 4;
+  bool is_dir = 5;
+}
