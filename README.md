@@ -15,14 +15,29 @@ TODO
 
 ## Dependencies
 
-- protoc
+- [protoc][protoc]
 
-    brew install protobuf
+```bash
+brew install protobuf
+```
 
-- protoc-gen-go
+- [protoc-gen-go][protoc-gen-go]
 
-    go get -u github.com/golang/protobuf/protoc-gen-go
+```bash
+go get -u github.com/golang/protobuf/protoc-gen-go
+```
 
-- glide
+- [dep][dep]
 
-    curl https://glide.sh/get | sh
+```bash
+go get -u github.com/golang/dep/cmd/dep
+```
+
+# Outstanding
+
+- Tests
+- Add an option to resolve symlinks?
+
+[protoc]: https://github.com/golang/protobuf/
+[protoc-gen-go]: https://github.com/golang/protobuf/
+[dep]: https://github.com/golang/dep/

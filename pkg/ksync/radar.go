@@ -42,6 +42,7 @@ var (
 					Annotations: map[string]string{
 						// TODO: this should only be set on --upgrade --force
 						"forceUpdate": fmt.Sprint(time.Now().Unix()),
+						// TODO: set inotify sysctl high enough.
 					},
 				},
 				Spec: v1.PodSpec{
@@ -54,6 +55,31 @@ var (
 							Ports: []v1.ContainerPort{
 								{ContainerPort: 40321, Name: "grpc"},
 							},
+							// TODO: resources
+							VolumeMounts: []v1.VolumeMount{
+								v1.VolumeMount{
+									Name:      "dockerfs",
+									MountPath: "/var/lib/docker",
+								},
+								v1.VolumeMount{
+									Name:      "dockersock",
+									MountPath: "/var/run/docker.sock",
+								},
+								v1.VolumeMount{
+									Name:      "kubelet",
+									MountPath: "/var/lib/kubelet",
+								},
+							},
+						},
+						{
+							Name: "mirror",
+							// TODO: configurable
+							Image:           "gcr.io/elated-embassy-152022/ksync/mirror:canary",
+							ImagePullPolicy: "Always",
+							Ports: []v1.ContainerPort{
+								{ContainerPort: 49172, Name: "grpc"},
+							},
+							// TODO: resources
 							VolumeMounts: []v1.VolumeMount{
 								v1.VolumeMount{
 									Name:      "dockerfs",
