@@ -74,6 +74,13 @@
   name = "github.com/docker/spdystream"
   revision = "bc6354cbbc295e925e4c611ffe90c1f287ee54db"
 
+[[constraint]]
+  name = "github.com/olekukonko/tablewriter"
+
+[[constraint]]
+  name = "github.com/buger/goterm"
+
 [[override]]
   name = "github.com/ugorji/go"
   revision = "8c0409fcbb70099c748d71f714529204975f6c3f"
+

@@ -25,9 +25,11 @@ var (
 // TODO: upgrade currently doesn't work because the template doesn't change
 // (when on canary).
 func runInit(_ *cobra.Command, _ []string) {
-	ksync.InitRadar(viper.GetBool("upgrade"))
-
-	log.Print("wee")
+	err := ksync.InitRadar(viper.GetBool("upgrade"))
+	// TODO: need a better error with instructions on how to fix it.
+	if err != nil {
+		log.Fatalf("could not start radar: %v", err)
+	}
 }
 
 func init() {
@@ -38,6 +40,11 @@ func init() {
 		"u",
 		false,
 		"Upgrade the currently running version.")
+
+	initCmd.Flags().Bool(
+		"force",
+		false,
+		"Force the upgrade to occur.")
 
 	viper.BindPFlag("upgrade", initCmd.Flags().Lookup("upgrade"))
 }

@@ -15,13 +15,13 @@ message ContainerPath {
 }
 
 message Files {
-  repeated File file = 1;
+  repeated File items = 1;
 }
 
 message File {
   string path = 1;
   int64 size = 2;
-  uint32 mode = 3;
+  string mode = 3;
   google.protobuf.Timestamp mod_time = 4;
   bool is_dir = 5;
 }

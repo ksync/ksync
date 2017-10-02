@@ -2,7 +2,7 @@ FROM alpine
 
 ENV HOME /tmp
 
-COPY radar /radar
+COPY bin/radar /radar
 
 EXPOSE 40321
 

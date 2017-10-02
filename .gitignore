@@ -15,3 +15,5 @@ vendor
 
 bin
 rootfs/radar
+
+.DS_Store

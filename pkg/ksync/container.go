@@ -11,11 +11,18 @@ import (
 // TODO: is NodeName always there on the spec post-start?
 type Container struct {
 	ID       string
+	Name     string
 	NodeName string
+	PodName  string
 }
 
 func (this *Container) String() string {
-	return fmt.Sprintf("ID: %s, NodeName: %s", this.ID, this.NodeName)
+	return fmt.Sprintf(
+		"Name: %s, ID: %s, NodeName: %s, PodName: %s",
+		this.Name,
+		this.ID,
+		this.NodeName,
+		this.PodName)
 }
 
 func getContainer(pod *apiv1.Pod, containerName string) (*Container, error) {
@@ -24,7 +31,9 @@ func getContainer(pod *apiv1.Pod, containerName string) (*Container, error) {
 	if containerName == "" {
 		return &Container{
 			pod.Status.ContainerStatuses[0].ContainerID[9:],
-			pod.Spec.NodeName}, nil
+			pod.Status.ContainerStatuses[0].Name,
+			pod.Spec.NodeName,
+			pod.Name}, nil
 	}
 
 	for _, status := range pod.Status.ContainerStatuses {
@@ -34,7 +43,9 @@ func getContainer(pod *apiv1.Pod, containerName string) (*Container, error) {
 
 		return &Container{
 			status.ContainerID[9:],
+			status.Name,
 			pod.Spec.NodeName,
+			pod.Name,
 		}, nil
 	}
 

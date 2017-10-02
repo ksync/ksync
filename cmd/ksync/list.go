@@ -4,10 +4,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"golang.org/x/net/context"
 
 	"github.com/vapor-ware/ksync/pkg/ksync"
-	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
 
 var (
@@ -16,7 +14,8 @@ var (
     List the files from a remote container.
     `
 
-	// TODO: add path in here. Should it be something like the ssh form? (see oc rsync)
+	// TODO: this is technically working like `find` right now. Should it be a
+	// find or more like list?
 	listCmd = &cobra.Command{
 		Use:     "list [flags] [path]",
 		Short:   "List files from a remote container.",
@@ -26,11 +25,6 @@ var (
 		// TODO: BashCompletionFunction
 	}
 )
-
-func getContainers(
-	selector string, container string) ([]*pb.ContainerPath, error) {
-	return nil, nil
-}
 
 func runList(_ *cobra.Command, args []string) {
 	// Usage validation ------------------------------------
@@ -73,25 +67,16 @@ func runList(_ *cobra.Command, args []string) {
 	}
 
 	// TODO: make this into a channel?
+	// TODO: handle multi-container output
 	for _, cntr := range containerList {
-		conn, err := ksync.NewRadarConnection(cntr.NodeName)
-		if err != nil {
-			log.Fatalf("Could not connect to radar: %v", err)
-		}
-		defer conn.Close()
-
-		log.WithFields(log.Fields{
-			"node": cntr.NodeName,
-		}).Debug("radar connected")
-
-		files, err := pb.NewRadarClient(conn).ListContainerFiles(
-			context.Background(), &pb.ContainerPath{cntr.ID, path})
-		if err != nil {
-			log.Fatalf("Failed getting files: %v", err)
+		list := &ksync.FileList{cntr, path, nil}
+		if err := list.Get(); err != nil {
+			log.Fatalf("%v", err)
 		}
 
-		// TODO: improve output
-		log.Debugf("%s", files)
+		if err := list.Output(); err != nil {
+			log.Fatalf("%v", err)
+		}
 	}
 }
 

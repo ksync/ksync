@@ -39,6 +39,10 @@ var (
 			Template: v1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: labels,
+					Annotations: map[string]string{
+						// TODO: this should only be set on --upgrade --force
+						"forceUpdate": fmt.Sprint(time.Now().Unix()),
+					},
 				},
 				Spec: v1.PodSpec{
 					Containers: []v1.Container{
