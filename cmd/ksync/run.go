@@ -1,20 +1,14 @@
 package main
 
 import (
-	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"golang.org/x/net/context"
-	"k8s.io/apimachinery/pkg/util/runtime"
 
 	"github.com/vapor-ware/ksync/pkg/ksync"
-	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
 
 var (
@@ -70,69 +64,14 @@ func runStart(_ *cobra.Command, args []string) {
 			err)
 	}
 
-	client, err := container.Radar()
-	if err != nil {
+	mirror := &ksync.Mirror{
+		Container:  container,
+		LocalPath:  localPath,
+		RemotePath: remotePath,
+	}
+	if err := mirror.Run(); err != nil {
 		log.Fatal(err)
 	}
-
-	path, err := client.GetAbsPath(
-		context.Background(), &pb.ContainerPath{container.ID, remotePath})
-	if err != nil {
-		log.Fatalf("Could not get root path: %v", err)
-	}
-
-	tun, err := ksync.NewTunnel(container.NodeName, 49172)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if err := tun.Start(); err != nil {
-		log.Fatalf("Error starting tunnel: %v", err)
-	}
-
-	cmdArgs := []string{
-		"-Xmx2G",
-		"-XX:+HeapDumpOnOutOfMemoryError",
-		"-cp", "/home/thomas/work/bin/mirror-all.jar",
-		"mirror.Mirror",
-		"client",
-		"-h", "localhost",
-		"-p", fmt.Sprintf("%d", tun.LocalPort),
-		"-l", localPath,
-		"-r", path.Full,
-	}
-
-	cmd := exec.Command("java", cmdArgs...)
-
-	// cmd := exec.Command("/bin/bash", "-c", "while true; do sleep 1; echo 'adsf'; done")
-
-	if err := ksync.LogCmdStream(cmd); err != nil {
-		log.Fatal(err)
-	}
-
-	// Setup the k8s runtime to fail on unreturnable error (instead of looping).
-	// This helps cleanup zombie java processes.
-	runtime.ErrorHandlers = append(runtime.ErrorHandlers, func(err error) {
-		cmd.Process.Kill()
-		// TODO: this makes me feel dirty, there must be a better way.
-		if strings.Contains(err.Error(), "Connection refused") {
-			log.Fatal(
-				"Lost connection to remote radar pod. Please try again (it should restart).")
-		}
-
-		log.Fatalf("unreturnable error: %v", err)
-	})
-
-	if err := cmd.Start(); err != nil {
-		log.Fatalf("%v", err)
-	}
-
-	log.WithFields(log.Fields{
-		"cmd":  cmd.Path,
-		"args": cmd.Args,
-	}).Debug("starting mirror")
-
-	cmd.Wait()
 }
 
 func init() {
