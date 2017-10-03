@@ -42,7 +42,7 @@ var (
 					Annotations: map[string]string{
 						// TODO: this should only be set on --upgrade --force
 						"forceUpdate": fmt.Sprint(time.Now().Unix()),
-						// TODO: set inotify sysctl high enough.
+						// TODO: set inotify sysctl high en
 					},
 				},
 				Spec: v1.PodSpec{
@@ -186,12 +186,10 @@ func radarPodName(nodeName string) (string, error) {
 }
 
 func NewRadarConnection(nodeName string) (*grpc.ClientConn, error) {
-	podName, err := radarPodName(nodeName)
+	tun, err := NewTunnel(nodeName, radarPort)
 	if err != nil {
 		return nil, err
 	}
-
-	tun := NewTunnel(podName)
 	if err := tun.Start(); err != nil {
 		return nil, err
 	}

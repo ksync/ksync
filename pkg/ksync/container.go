@@ -6,6 +6,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	apiv1 "k8s.io/client-go/pkg/api/v1"
+
+	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
 
 // TODO: is NodeName always there on the spec post-start?
@@ -23,6 +25,28 @@ func (this *Container) String() string {
 		this.ID,
 		this.NodeName,
 		this.PodName)
+}
+
+func (this *Container) Fields() log.Fields {
+	return log.Fields{
+		"node": this.NodeName,
+		"pod":  this.PodName,
+		"name": this.Name,
+		"id":   this.ID,
+	}
+}
+
+func (this *Container) Radar() (pb.RadarClient, error) {
+	conn, err := NewRadarConnection(this.NodeName)
+	if err != nil {
+		return nil, fmt.Errorf("Could not connect to radar: %v", err)
+	}
+	// TODO: what's a better way to handle this?
+	// defer conn.Close()
+
+	log.WithFields(this.Fields()).Debug("radar connected")
+
+	return pb.NewRadarClient(conn), nil
 }
 
 func getContainer(pod *apiv1.Pod, containerName string) (*Container, error) {

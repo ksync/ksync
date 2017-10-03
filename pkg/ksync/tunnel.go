@@ -12,20 +12,27 @@ import (
 )
 
 type Tunnel struct {
-	LocalPort int
-	PodName   string
-	stopChan  chan struct{}
-	readyChan chan struct{}
-	Out       *bytes.Buffer
+	LocalPort  int
+	RemotePort int
+	PodName    string
+	stopChan   chan struct{}
+	readyChan  chan struct{}
+	Out        *bytes.Buffer
 }
 
-func NewTunnel(podName string) *Tunnel {
-	return &Tunnel{
-		PodName:   podName,
-		stopChan:  make(chan struct{}, 1),
-		readyChan: make(chan struct{}, 1),
-		Out:       new(bytes.Buffer),
+func NewTunnel(nodeName string, remotePort int) (*Tunnel, error) {
+	podName, err := radarPodName(nodeName)
+	if err != nil {
+		return nil, err
 	}
+
+	return &Tunnel{
+		RemotePort: remotePort,
+		PodName:    podName,
+		stopChan:   make(chan struct{}, 1),
+		readyChan:  make(chan struct{}, 1),
+		Out:        new(bytes.Buffer),
+	}, nil
 }
 
 func (tunnel *Tunnel) Close() {
@@ -53,7 +60,7 @@ func (tunnel *Tunnel) Start() error {
 
 	log.WithFields(log.Fields{
 		"local":  tunnel.LocalPort,
-		"remote": radarPort,
+		"remote": tunnel.RemotePort,
 		"pod":    tunnel.PodName,
 		"url":    req.URL(),
 		// TODO: node name?
@@ -61,7 +68,7 @@ func (tunnel *Tunnel) Start() error {
 
 	pf, err := portforward.New(
 		dialer,
-		[]string{fmt.Sprintf("%d:%d", tunnel.LocalPort, radarPort)},
+		[]string{fmt.Sprintf("%d:%d", tunnel.LocalPort, tunnel.RemotePort)},
 		tunnel.stopChan,
 		tunnel.readyChan,
 		// TODO: there's better places to put this, really anywhere.
@@ -82,7 +89,7 @@ func (tunnel *Tunnel) Start() error {
 		return fmt.Errorf(
 			"error forwarding ports (local:%d) (remote:%d) (pod:%s): %v\n%s",
 			tunnel.LocalPort,
-			radarPort,
+			tunnel.RemotePort,
 			tunnel.PodName,
 			err,
 			tunnel.Out.String(),
@@ -90,7 +97,7 @@ func (tunnel *Tunnel) Start() error {
 	case <-pf.Ready:
 		log.WithFields(log.Fields{
 			"local":  tunnel.LocalPort,
-			"remote": radarPort,
+			"remote": tunnel.RemotePort,
 			"pod":    tunnel.PodName,
 			// TODO: node name?
 		}).Debug("tunnel running")

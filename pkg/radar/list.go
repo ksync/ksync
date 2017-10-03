@@ -20,7 +20,10 @@ type ContainerFileList struct {
 	rootPath string
 }
 
-func (this *ContainerFileList) walk(path string, info os.FileInfo, err error) error {
+func (this *ContainerFileList) walk(
+	path string,
+	info os.FileInfo, err error) error {
+
 	if err != nil {
 		log.WithFields(log.Fields{
 			"path":  path,

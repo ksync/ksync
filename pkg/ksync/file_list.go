@@ -8,7 +8,6 @@ import (
 	tm "github.com/buger/goterm"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/olekukonko/tablewriter"
-	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 
 	pb "github.com/vapor-ware/ksync/pkg/proto"
@@ -21,20 +20,12 @@ type FileList struct {
 }
 
 func (this *FileList) Get() error {
-	conn, err := NewRadarConnection(this.Container.NodeName)
+	client, err := this.Container.Radar()
 	if err != nil {
-		return fmt.Errorf("Could not connect to radar: %v", err)
+		return fmt.Errorf("%v", err)
 	}
-	defer conn.Close()
 
-	log.WithFields(log.Fields{
-		"node": this.Container.NodeName,
-		"pod":  this.Container.PodName,
-		"name": this.Container.Name,
-		"id":   this.Container.ID,
-	}).Debug("radar connected")
-
-	this.Files, err = pb.NewRadarClient(conn).ListContainerFiles(
+	this.Files, err = client.ListContainerFiles(
 		context.Background(), &pb.ContainerPath{this.Container.ID, this.Path})
 	if err != nil {
 		return fmt.Errorf("Could not list files: %v", err)
@@ -59,6 +50,7 @@ func (this *FileList) Output() error {
 	for _, file := range this.Files.Items {
 		modTime, _ := ptypes.Timestamp(file.ModTime)
 
+		// TODO: show link path eg. foo -> ../bar
 		table.Append([]string{
 			file.Mode,
 			// TODO: make size human readable (via config?)
@@ -78,6 +70,8 @@ func (this *FileList) pathColor(file *pb.File) int {
 		// TODO: this isn't the best blue ... is there a better way to handle this?
 		return tm.BLUE
 	}
+
+	// TODO: color links cyan
 
 	return tm.WHITE
 }
