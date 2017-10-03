@@ -11,6 +11,36 @@ TODO
 
 TODO
 
+## Commands
+
+- `ksync init`
+
+  Sets the cluster up by starting the radar daemonset.
+
+- `ksync list` TODO: current functionality should be renamed, as it should list the syncs not files.
+
+  Lists the files for a specific set of containers (selector, pod name, container name)
+
+- `ksync add`
+
+  Add a pattern to sync. This gets watched and started/stopped automatically.
+
+- `ksync remove`
+
+  Remove a pattern to sync.
+
+- `ksync run`
+
+  Runs a specific sync for the lifetime of a pod.
+
+- `ksync status` TODO: is this maybe a better sync list? can show running and waiting ones.
+
+  Fetch the status of all current syncs
+
+- `ksync watch`
+
+  Watch for matching pods in the background (based off pod name and selector). Start syncs for any that come online.
+
 # Development
 
 ## Dependencies

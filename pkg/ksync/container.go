@@ -79,7 +79,7 @@ func getContainer(pod *apiv1.Pod, containerName string) (*Container, error) {
 		pod.Name)
 }
 
-func getByName(podName string, containerName string) (*Container, error) {
+func GetByName(podName string, containerName string) (*Container, error) {
 	pod, err := KubeClient.CoreV1().Pods(Namespace).Get(podName, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
@@ -128,7 +128,7 @@ func GetContainers(
 	containerList := []*Container{}
 
 	if podName != "" {
-		container, err := getByName(podName, containerName)
+		container, err := GetByName(podName, containerName)
 		if err != nil {
 			return nil, err
 		}

@@ -22,6 +22,7 @@ var (
 	}
 )
 
+// TODO: add instructions for watchman and limits (and detect them)
 // TODO: upgrade currently doesn't work because the template doesn't change
 // (when on canary).
 func runInit(_ *cobra.Command, _ []string) {
@@ -47,4 +48,6 @@ func init() {
 		"Force the upgrade to occur.")
 
 	viper.BindPFlag("upgrade", initCmd.Flags().Lookup("upgrade"))
+
+	// TODO: client only flag
 }

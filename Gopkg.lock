@@ -207,6 +207,18 @@
   revision = "5b9ff866471762aa2ab2dced63c9fb6f53921342"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/kardianos/osext"
+  packages = ["."]
+  revision = "ae77be60afb1dcacde03767a8c37337fad28ac14"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/kardianos/service"
+  packages = ["."]
+  revision = "f53685ef760d69d07e653aba30ffbde7b0a1bcaf"
+
+[[projects]]
   name = "github.com/magiconair/properties"
   packages = ["."]
   revision = "be5ece7dd465ab0765a9682137865547526d1dfb"
@@ -328,7 +340,7 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
-  packages = ["unix","windows"]
+  packages = ["unix","windows","windows/registry","windows/svc","windows/svc/eventlog","windows/svc/mgr"]
   revision = "314a259e304ff91bd6985da2a7149bbf91237993"
 
 [[projects]]
@@ -388,6 +400,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "d5a2862fccee2ffde1889357dbbbcf649418656061d17d661a96f30889fe3640"
+  inputs-digest = "db055ecbc61655d9871e314751608fb0a6fb56eaa84496d9c7e30f37a63e9a69"
   solver-name = "gps-cdcl"
   solver-version = 1

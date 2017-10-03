@@ -6,6 +6,7 @@ import (
 	"net"
 	"strconv"
 
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/client-go/tools/portforward"
 	"k8s.io/client-go/tools/remotecommand"
@@ -23,7 +24,7 @@ type Tunnel struct {
 func NewTunnel(nodeName string, remotePort int) (*Tunnel, error) {
 	podName, err := radarPodName(nodeName)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "cannot create tunnel")
 	}
 
 	return &Tunnel{
@@ -54,7 +55,7 @@ func (tunnel *Tunnel) Start() error {
 
 	local, err := getAvailablePort()
 	if err != nil {
-		return fmt.Errorf("could not find an available port: %s", err)
+		return errors.Wrap(err, "could not find an available port")
 	}
 	tunnel.LocalPort = local
 
@@ -76,7 +77,7 @@ func (tunnel *Tunnel) Start() error {
 		tunnel.Out)
 
 	if err != nil {
-		return err
+		return errors.Wrap(err, "unable to forward port")
 	}
 
 	errChan := make(chan error)
@@ -86,14 +87,14 @@ func (tunnel *Tunnel) Start() error {
 
 	select {
 	case err = <-errChan:
-		return fmt.Errorf(
-			"error forwarding ports (local:%d) (remote:%d) (pod:%s): %v\n%s",
-			tunnel.LocalPort,
-			tunnel.RemotePort,
-			tunnel.PodName,
+		return errors.Wrap(
 			err,
-			tunnel.Out.String(),
-		)
+			fmt.Sprintf(
+				"error forwarding ports (local:%d) (remote:%d) (pod:%s)\n%s",
+				tunnel.LocalPort,
+				tunnel.RemotePort,
+				tunnel.PodName,
+				tunnel.Out.String()))
 	case <-pf.Ready:
 		log.WithFields(log.Fields{
 			"local":  tunnel.LocalPort,
