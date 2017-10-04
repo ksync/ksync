@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/vapor-ware/ksync/pkg/input"
 	"github.com/vapor-ware/ksync/pkg/ksync"
 )
 
@@ -21,6 +22,7 @@ var (
 		Short:   "List files from a remote container.",
 		Long:    listHelp,
 		Aliases: []string{"ls"},
+		Args:    cobra.ExactArgs(1),
 		Run:     runList,
 		// TODO: BashCompletionFunction
 	}
@@ -29,17 +31,9 @@ var (
 )
 
 func runList(_ *cobra.Command, args []string) {
-	loc := ksync.GetLocator(listViper)
+	loc := input.GetLocator(listViper)
 	// Usage validation ------------------------------------
 	loc.Validator()
-
-	if len(args) == 0 {
-		log.Fatal("Must specify a container path.")
-	}
-
-	if len(args) > 1 {
-		log.Fatal("Only specify a single path.")
-	}
 
 	path := args[0]
 
@@ -65,5 +59,5 @@ func runList(_ *cobra.Command, args []string) {
 func init() {
 	RootCmd.AddCommand(listCmd)
 
-	ksync.LocatorFlags(listCmd, listViper)
+	input.LocatorFlags(listCmd, listViper)
 }

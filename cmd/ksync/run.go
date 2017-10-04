@@ -1,13 +1,11 @@
 package main
 
 import (
-	"os"
-	"path/filepath"
-
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/vapor-ware/ksync/pkg/input"
 	"github.com/vapor-ware/ksync/pkg/ksync"
 )
 
@@ -38,20 +36,8 @@ func runStart(_ *cobra.Command, args []string) {
 		log.Fatal("Must specify --pod.")
 	}
 
-	localPath := args[0]
-	remotePath := args[1]
-
-	if !filepath.IsAbs(localPath) {
-		log.Fatal("Local path must be absolute.")
-	}
-
-	if _, err := os.Stat(localPath); os.IsNotExist(err) {
-		log.Fatal("Local path must exist.")
-	}
-
-	if !filepath.IsAbs(remotePath) {
-		log.Fatal("Local path must be absolute.")
-	}
+	paths := input.GetPaths(args)
+	paths.Validator()
 
 	container, err := ksync.GetByName(
 		runViper.GetString("pod"),
@@ -66,8 +52,8 @@ func runStart(_ *cobra.Command, args []string) {
 
 	mirror := &ksync.Mirror{
 		Container:  container,
-		LocalPath:  localPath,
-		RemotePath: remotePath,
+		LocalPath:  paths.Local,
+		RemotePath: paths.Remote,
 	}
 	if err := mirror.Run(); err != nil {
 		log.Fatal(err)

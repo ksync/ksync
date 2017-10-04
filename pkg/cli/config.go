@@ -9,12 +9,14 @@ import (
 )
 
 func InitConfig(name string) {
+	viper.SupportedExts = []string{"yaml", "yml"}
+
 	if viper.GetString("config") != "" {
 		viper.SetConfigFile(viper.GetString("config"))
 	} else {
 		home, err := homedir.Dir()
 		if err != nil {
-			log.Fatalf("%v", err)
+			log.Fatal(err)
 		}
 
 		viper.AddConfigPath(home)

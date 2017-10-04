@@ -1,4 +1,4 @@
-package ksync
+package input
 
 import (
 	"fmt"
@@ -6,6 +6,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/vapor-ware/ksync/pkg/ksync"
 )
 
 type Locator struct {
@@ -30,8 +32,8 @@ func (this *Locator) Validator() {
 	}
 }
 
-func (this *Locator) Containers() ([]*Container, error) {
-	containerList, err := GetContainers(
+func (this *Locator) Containers() ([]*ksync.Container, error) {
+	containerList, err := ksync.GetContainers(
 		this.PodName, this.Selector, this.ContainerName)
 	if err != nil {
 		return nil, fmt.Errorf(

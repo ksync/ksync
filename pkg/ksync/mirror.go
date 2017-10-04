@@ -94,6 +94,10 @@ func (this *Mirror) initErrorHandler() {
 	})
 }
 
+// TODO: this takes maybe 5 seconds or so to start, show a progress bar.
+// TODO: the output for this needs some thought. There should be:
+//   - debug output (raw sync), this is a little tough to read right now
+//   -
 func (this *Mirror) Run() error {
 	path, err := this.path()
 	if err != nil {

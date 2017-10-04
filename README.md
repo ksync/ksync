@@ -71,6 +71,9 @@ go get -u github.com/golang/dep/cmd/dep
   This might work for a one time sync for remote -> local, but it would break things during any kind of general work.
 
 - TLS for mirror
+- Put some details into the task bar (see https://github.com/cratonica/trayhost)
+  - Active syncs
+  - Files being updated
 
 [protoc]: https://github.com/golang/protobuf/
 [protoc-gen-go]: https://github.com/golang/protobuf/
