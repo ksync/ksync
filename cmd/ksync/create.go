@@ -23,7 +23,7 @@ var (
 		Use:     "create [flags] [local path] [remote path]",
 		Short:   "create a new sync between a local and remote directory.",
 		Long:    createHelp,
-		Aliases: []string{"a"},
+		Aliases: []string{"c"},
 		Args:    cobra.ExactArgs(2),
 		Run:     runCreate,
 		// TODO: BashCompletionFunction

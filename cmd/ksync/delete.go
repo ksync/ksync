@@ -17,7 +17,7 @@ var (
 		Use:     "delete [flags] [name]",
 		Short:   "delete an existing sync.",
 		Long:    deleteHelp,
-		Aliases: []string{"r"},
+		Aliases: []string{"d"},
 		Args:    cobra.ExactArgs(1),
 		Run:     rundelete,
 		// TODO: BashCompletionFunction
