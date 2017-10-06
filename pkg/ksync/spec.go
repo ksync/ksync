@@ -48,7 +48,7 @@ func AllSpecs() (*SpecMap, error) {
 	return &all, nil
 }
 
-func (this *SpecMap) Add(name string, spec *Spec, force bool) error {
+func (this *SpecMap) Create(name string, spec *Spec, force bool) error {
 	if !force {
 		if this.Has(name) {
 			// TODO: make this into a type?
@@ -64,7 +64,7 @@ func (this *SpecMap) Add(name string, spec *Spec, force bool) error {
 	return nil
 }
 
-func (this *SpecMap) Remove(name string) error {
+func (this *SpecMap) Delete(name string) error {
 	if !this.Has(name) {
 		return fmt.Errorf("does not exist")
 	}

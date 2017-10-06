@@ -21,11 +21,11 @@ TODO
 
   Lists the files for a specific set of containers (selector, pod name, container name)
 
-- `ksync add`
+- `ksync create`
 
   Add a pattern to sync. This gets watched and started/stopped automatically.
 
-- `ksync remove`
+- `ksync delete`
 
   Remove a pattern to sync.
 
@@ -33,7 +33,7 @@ TODO
 
   Runs a specific sync for the lifetime of a pod.
 
-- `ksync status` TODO: is this maybe a better sync list? can show running and waiting ones.
+- `ksync get` TODO: is this maybe a better sync list? can show running and waiting ones.
 
   Fetch the status of all current syncs
 
