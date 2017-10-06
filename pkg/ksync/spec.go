@@ -64,6 +64,15 @@ func (this *SpecMap) Add(name string, spec *Spec, force bool) error {
 	return nil
 }
 
+func (this *SpecMap) Remove(name string) error {
+	if !this.Has(name) {
+		return fmt.Errorf("does not exist")
+	}
+
+	delete(this.Items, name)
+	return nil
+}
+
 func (this *SpecMap) Save() error {
 	cfgPath := viper.ConfigFileUsed()
 	if cfgPath == "" {
