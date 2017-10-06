@@ -1,6 +1,10 @@
 package main
 
 import (
+	"math/rand"
+	"time"
+
+	"github.com/dustinkirkland/golang-petname"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -15,8 +19,6 @@ var (
     Add a new sync between a local and remote directory.
     `
 
-	// TODO: this is technically working like `find` right now. Should it be a
-	// find or more like list?
 	addCmd = &cobra.Command{
 		Use:     "add [flags] [local path] [remote path]",
 		Short:   "Add a new sync between a local and remote directory.",
@@ -38,7 +40,13 @@ func runAdd(_ *cobra.Command, args []string) {
 	loc.Validator()
 	paths.Validator()
 
-	specList, err := ksync.AllSpecs()
+	name := addViper.GetString("name")
+	if name == "" {
+		rand.Seed(time.Now().UnixNano())
+		name = petname.Generate(2, "-")
+	}
+
+	specMap, err := ksync.AllSpecs()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -51,8 +59,10 @@ func runAdd(_ *cobra.Command, args []string) {
 		RemotePath: paths.Remote,
 	}
 
-	specList.Add(newSpec)
-	if err := specList.Save(); err != nil {
+	if err := specMap.Add(name, newSpec, addViper.GetBool("force")); err != nil {
+		log.Fatalf("Could not add, --force to ignore: %v", err)
+	}
+	if err := specMap.Save(); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -67,6 +77,14 @@ func init() {
 		"",
 		"Friendly name to describe this sync.")
 
-	addViper.BindPFlag("name", runCmd.Flags().Lookup("name"))
+	addViper.BindPFlag("name", addCmd.Flags().Lookup("name"))
 	addViper.BindEnv("name", "KSYNC_NAME")
+
+	addCmd.Flags().Bool(
+		"force",
+		false,
+		"Force addition, ignoring similarity.")
+
+	addViper.BindPFlag("force", addCmd.Flags().Lookup("force"))
+	addViper.BindEnv("force", "KSYNC_FORCE")
 }

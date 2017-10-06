@@ -14,8 +14,8 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-type SpecList struct {
-	Items []*Spec
+type SpecMap struct {
+	Items map[string]*Spec
 }
 
 type Spec struct {
@@ -28,32 +28,43 @@ type Spec struct {
 
 // TODO: test non-existant file
 // TODO: test missing specs
-func AllSpecs() (*SpecList, error) {
-	var all SpecList
+func AllSpecs() (*SpecMap, error) {
+	var all SpecMap
+	all.Items = map[string]*Spec{}
 
 	if !viper.IsSet("spec") {
 		return &all, nil
 	}
 
-	for _, raw := range viper.Get("spec").([]interface{}) {
+	for name, raw := range viper.GetStringMap("spec") {
 		var spec Spec
 		if err := mapstructure.Decode(raw, &spec); err != nil {
 			return nil, errors.Wrap(err, "cannot get current specs")
 		}
 
-		all.Items = append(all.Items, &spec)
+		all.Items[name] = &spec
 	}
 
 	return &all, nil
 }
 
-func (this *SpecList) Add(spec *Spec) {
-	if !this.Has(spec) {
-		this.Items = append(this.Items, spec)
+func (this *SpecMap) Add(name string, spec *Spec, force bool) error {
+	if !force {
+		if this.Has(name) {
+			// TODO: make this into a type?
+			return fmt.Errorf("name already exists.")
+		}
+
+		if this.HasLike(spec) {
+			return fmt.Errorf("similar spec exists.")
+		}
 	}
+
+	this.Items[name] = spec
+	return nil
 }
 
-func (this *SpecList) Save() error {
+func (this *SpecMap) Save() error {
 	cfgPath := viper.ConfigFileUsed()
 	if cfgPath == "" {
 		home, err := homedir.Dir()
@@ -75,6 +86,7 @@ func (this *SpecList) Save() error {
 		"path": cfgPath,
 	}).Debug("writing config file")
 
+	viper.Set("spec", this.Items)
 	buf, err := yaml.Marshal(viper.AllSettings())
 	if err != nil {
 		return err
@@ -87,14 +99,19 @@ func (this *SpecList) Save() error {
 	return nil
 }
 
-// TODO: need some better equality logic here for ones that maybe need updating
-// instead of addition/removal
-func (this *SpecList) Has(target *Spec) bool {
-	for _, current := range this.Items {
-		if reflect.DeepEqual(current, target) {
+// TODO: is this the best way to do this?
+func (this *SpecMap) HasLike(target *Spec) bool {
+	for _, spec := range this.Items {
+		if reflect.DeepEqual(target, spec) {
 			return true
 		}
 	}
+	return false
+}
 
+func (this *SpecMap) Has(target string) bool {
+	if _, ok := this.Items[target]; ok {
+		return true
+	}
 	return false
 }

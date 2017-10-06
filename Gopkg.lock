@@ -75,6 +75,12 @@
   revision = "bc6354cbbc295e925e4c611ffe90c1f287ee54db"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/dustinkirkland/golang-petname"
+  packages = ["."]
+  revision = "d3c2ba80e75eeef10c5cf2fc76d2c809637376b3"
+
+[[projects]]
   name = "github.com/emicklei/go-restful"
   packages = [".","log"]
   revision = "5741799b275a3c4a5a9623a993576d7545cf7b5c"
@@ -207,18 +213,6 @@
   revision = "5b9ff866471762aa2ab2dced63c9fb6f53921342"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/kardianos/osext"
-  packages = ["."]
-  revision = "ae77be60afb1dcacde03767a8c37337fad28ac14"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/kardianos/service"
-  packages = ["."]
-  revision = "f53685ef760d69d07e653aba30ffbde7b0a1bcaf"
-
-[[projects]]
   name = "github.com/magiconair/properties"
   packages = ["."]
   revision = "be5ece7dd465ab0765a9682137865547526d1dfb"
@@ -340,7 +334,7 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
-  packages = ["unix","windows","windows/registry","windows/svc","windows/svc/eventlog","windows/svc/mgr"]
+  packages = ["unix","windows"]
   revision = "314a259e304ff91bd6985da2a7149bbf91237993"
 
 [[projects]]
@@ -400,6 +394,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "db055ecbc61655d9871e314751608fb0a6fb56eaa84496d9c7e30f37a63e9a69"
+  inputs-digest = "161ce38f75bdb8d21dbf5fc5cf2566e29127dc4ae1e2a17cd3546c2e0fa47d99"
   solver-name = "gps-cdcl"
   solver-version = 1
