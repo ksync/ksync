@@ -22,6 +22,7 @@ var (
 	}
 )
 
+// Main creates the command line client and adds all subcommands
 func main() {
 	RootCmd.AddCommand(
 		(&CreateCmd{}).New(),
@@ -36,6 +37,8 @@ func main() {
 	}
 }
 
+// Init initializes a new ksync client and populates it with the default
+// commands and parameters
 func init() {
 	cobra.OnInitialize(func() { cli.InitConfig("ksync") })
 
@@ -59,12 +62,15 @@ func init() {
 	viper.BindEnv("context", "KSYNC_CONTEXT")
 }
 
+// InitPersistent initializes the functions that persitent between runs. This
+// includes the server (radar) and logging options.
 func initPersistent(cmd *cobra.Command, args []string) {
 	cli.InitLogging()
 	initClient()
 	ksync.InitRadarOpts()
 }
 
+// InitClient initializes the kubernetes client options.
 func initClient() {
 	err := ksync.InitClient(viper.GetString("context"), viper.GetString("namespace"))
 	if err != nil {

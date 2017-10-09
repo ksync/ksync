@@ -7,8 +7,10 @@ import (
 	"github.com/vapor-ware/ksync/pkg/ksync"
 )
 
+// DeleteCmd specifies the structure of the `ksync delete` command parameters
 type DeleteCmd struct{}
 
+// New creates a new `delete` command and initializes the default values
 func (this *DeleteCmd) New() *cobra.Command {
 	long := `
 		delete an existing sync.`
@@ -28,6 +30,9 @@ func (this *DeleteCmd) New() *cobra.Command {
 	return cmd
 }
 
+// run takes the newly formed `delete` command and combines it with general
+// flags. These flags are then validated, before the entire command is run to
+// create a specification map.
 func (this *DeleteCmd) run(cmd *cobra.Command, args []string) {
 	name := args[0]
 

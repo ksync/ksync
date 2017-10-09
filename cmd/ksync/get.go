@@ -10,8 +10,10 @@ import (
 	"github.com/vapor-ware/ksync/pkg/ksync"
 )
 
+// GetCmd specifies the structure of the `ksync get` command parameters
 type GetCmd struct{}
 
+// New creates a new `get` command and initializes the default values
 func (this *GetCmd) New() *cobra.Command {
 	long := ``
 	example := ``
@@ -27,6 +29,9 @@ func (this *GetCmd) New() *cobra.Command {
 	return cmd
 }
 
+// run takes the newly formed `get` command and combines it with general
+// flags. These flags are then validated, before the entire command is run and
+// any matching output displayed in a table.
 // TODO: add last_sync (last_run?)
 // TODO: make the columns configurable
 // TODO: add a quiet ouput that can be `ksync get -q | ksync delete`
