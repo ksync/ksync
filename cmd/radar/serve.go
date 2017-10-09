@@ -24,6 +24,7 @@ var (
 	serveDesc = `Start the server.`
 )
 
+// Run runs the server instance and binds it to interface and port
 func run(cmd *cobra.Command, args []string) {
 	lis, err := net.Listen(
 		"tcp", fmt.Sprintf("%s:%d", viper.GetString("bind"), viper.GetInt("port")))
@@ -54,6 +55,7 @@ func run(cmd *cobra.Command, args []string) {
 	server.Serve(lis)
 }
 
+// Init initializes the server instance with the flag options
 func init() {
 	RootCmd.AddCommand(serveCmd)
 
