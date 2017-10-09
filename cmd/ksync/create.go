@@ -49,7 +49,7 @@ func (this *CreateCmd) New() *cobra.Command {
 	flags.Bool(
 		"force",
 		false,
-		"Force createition, ignoring similarity.")
+		"Force creation, ignoring similarity.")
 
 	this.viper.BindPFlag("force", flags.Lookup("force"))
 	this.viper.BindEnv("force", "KSYNC_FORCE")
@@ -84,7 +84,8 @@ func (this *CreateCmd) run(cmd *cobra.Command, args []string) {
 		RemotePath: paths.Remote,
 	}
 
-	if err := specMap.Create(name, newSpec, this.viper.GetBool("force")); err != nil {
+	if err := specMap.Create(
+		name, newSpec, this.viper.GetBool("force")); err != nil {
 		log.Fatalf("Could not create, --force to ignore: %v", err)
 	}
 	if err := specMap.Save(); err != nil {
