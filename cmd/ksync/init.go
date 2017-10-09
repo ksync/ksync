@@ -8,46 +8,50 @@ import (
 	"github.com/vapor-ware/ksync/pkg/ksync"
 )
 
-var (
+type InitCmd struct{}
+
+func (this *InitCmd) New() *cobra.Command {
 	// TODO: update the usage instructions
-	initHelp = `
-    Prepare the cluster.
-    `
+	long := `
+    Prepare the cluster.`
+	example := ``
 
-	initCmd = &cobra.Command{
-		Use:   "init [flags]",
-		Short: "Prepare the cluster.",
-		Long:  initHelp,
-		Run:   runInit,
+	cmd := &cobra.Command{
+		Use:     "init [flags]",
+		Short:   "Prepare the cluster.",
+		Long:    long,
+		Example: example,
+		Run:     this.run,
 	}
-)
 
-// TODO: add instructions for watchman and limits (and detect them)
-// TODO: upgrade currently doesn't work because the template doesn't change
-// (when on canary).
-func runInit(_ *cobra.Command, _ []string) {
-	err := ksync.InitRadar(viper.GetBool("upgrade"))
-	// TODO: need a better error with instructions on how to fix it.
-	if err != nil {
-		log.Fatalf("could not start radar: %v", err)
-	}
-}
-
-func init() {
-	RootCmd.AddCommand(initCmd)
-
-	initCmd.Flags().BoolP(
+	flags := cmd.Flags()
+	flags.BoolP(
 		"upgrade",
 		"u",
 		false,
 		"Upgrade the currently running version.")
 
-	initCmd.Flags().Bool(
+	viper.BindPFlag("upgrade", flags.Lookup("upgrade"))
+	viper.BindEnv("upgrade", "KSYNC_UPGRADE")
+
+	flags.Bool(
 		"force",
 		false,
 		"Force the upgrade to occur.")
 
-	viper.BindPFlag("upgrade", initCmd.Flags().Lookup("upgrade"))
+	viper.BindPFlag("force", flags.Lookup("force"))
+	viper.BindEnv("force", "KSYNC_FORCE")
 
 	// TODO: client only flag
+
+	return cmd
+}
+
+// TODO: add instructions for watchman and limits (and detect them)
+func (this *InitCmd) run(cmd *cobra.Command, args []string) {
+	err := ksync.InitRadar(viper.GetBool("upgrade"))
+	// TODO: need a better error with instructions on how to fix it.
+	if err != nil {
+		log.Fatalf("could not start radar: %v", err)
+	}
 }

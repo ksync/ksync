@@ -13,34 +13,59 @@ import (
 	"github.com/vapor-ware/ksync/pkg/ksync"
 )
 
-var (
-	// TODO: update the usage instructions
-	createHelp = `
-    create a new sync between a local and remote directory.
-    `
+type CreateCmd struct {
+	viper *viper.Viper
+}
 
-	createCmd = &cobra.Command{
+func (this *CreateCmd) New() *cobra.Command {
+	long := `
+    create a new sync between a local and remote directory.`
+	example := ``
+
+	cmd := &cobra.Command{
 		Use:     "create [flags] [local path] [remote path]",
 		Short:   "create a new sync between a local and remote directory.",
-		Long:    createHelp,
+		Long:    long,
+		Example: example,
 		Aliases: []string{"c"},
 		Args:    cobra.ExactArgs(2),
-		Run:     runCreate,
+		Run:     this.run,
 		// TODO: BashCompletionFunction
 	}
+	this.viper = viper.New()
 
-	createViper = viper.New()
-)
+	// TODO: can this become a mixin?
+	input.LocatorFlags(cmd, this.viper)
 
-func runCreate(_ *cobra.Command, args []string) {
-	loc := input.GetLocator(createViper)
+	flags := cmd.Flags()
+	flags.String(
+		"name",
+		"",
+		"Friendly name to describe this sync.")
+
+	this.viper.BindPFlag("name", flags.Lookup("name"))
+	this.viper.BindEnv("name", "KSYNC_NAME")
+
+	flags.Bool(
+		"force",
+		false,
+		"Force createition, ignoring similarity.")
+
+	this.viper.BindPFlag("force", flags.Lookup("force"))
+	this.viper.BindEnv("force", "KSYNC_FORCE")
+
+	return cmd
+}
+
+func (this *CreateCmd) run(cmd *cobra.Command, args []string) {
+	loc := input.GetLocator(this.viper)
 	paths := input.GetPaths(args)
 
 	// Usage validation ------------------------------------
 	loc.Validator()
 	paths.Validator()
 
-	name := createViper.GetString("name")
+	name := this.viper.GetString("name")
 	if name == "" {
 		rand.Seed(time.Now().UnixNano())
 		name = petname.Generate(2, "-")
@@ -52,39 +77,17 @@ func runCreate(_ *cobra.Command, args []string) {
 	}
 
 	newSpec := &ksync.Spec{
-		Container:  createViper.GetString("container"),
-		Pod:        createViper.GetString("pod"),
-		Selector:   createViper.GetString("selector"),
+		Container:  this.viper.GetString("container"),
+		Pod:        this.viper.GetString("pod"),
+		Selector:   this.viper.GetString("selector"),
 		LocalPath:  paths.Local,
 		RemotePath: paths.Remote,
 	}
 
-	if err := specMap.Create(name, newSpec, createViper.GetBool("force")); err != nil {
+	if err := specMap.Create(name, newSpec, this.viper.GetBool("force")); err != nil {
 		log.Fatalf("Could not create, --force to ignore: %v", err)
 	}
 	if err := specMap.Save(); err != nil {
 		log.Fatal(err)
 	}
-}
-
-func init() {
-	RootCmd.AddCommand(createCmd)
-
-	input.LocatorFlags(createCmd, createViper)
-
-	createCmd.Flags().String(
-		"name",
-		"",
-		"Friendly name to describe this sync.")
-
-	createViper.BindPFlag("name", createCmd.Flags().Lookup("name"))
-	createViper.BindEnv("name", "KSYNC_NAME")
-
-	createCmd.Flags().Bool(
-		"force",
-		false,
-		"Force createition, ignoring similarity.")
-
-	createViper.BindPFlag("force", createCmd.Flags().Lookup("force"))
-	createViper.BindEnv("force", "KSYNC_FORCE")
 }

@@ -9,29 +9,35 @@ import (
 	"github.com/vapor-ware/ksync/pkg/ksync"
 )
 
-var (
-	// TODO: update the usage instructions
-	listHelp = `
-    List the files from a remote container.
-    `
+type ListCmd struct {
+	viper *viper.Viper
+}
 
-	// TODO: this is technically working like `find` right now. Should it be a
-	// find or more like list?
-	listCmd = &cobra.Command{
+func (this *ListCmd) New() *cobra.Command {
+	long := `
+    List the files from a remote container.`
+	example := ``
+
+	cmd := &cobra.Command{
 		Use:     "list [flags] [path]",
 		Short:   "List files from a remote container.",
-		Long:    listHelp,
+		Long:    long,
+		Example: example,
 		Aliases: []string{"ls"},
 		Args:    cobra.ExactArgs(1),
-		Run:     runList,
+		Run:     this.run,
 		// TODO: BashCompletionFunction
 	}
+	this.viper = viper.New()
 
-	listViper = viper.New()
-)
+	// TODO: can this become a mixin?
+	input.LocatorFlags(cmd, this.viper)
 
-func runList(_ *cobra.Command, args []string) {
-	loc := input.GetLocator(listViper)
+	return cmd
+}
+
+func (this *ListCmd) run(cmd *cobra.Command, args []string) {
+	loc := input.GetLocator(this.viper)
 	// Usage validation ------------------------------------
 	loc.Validator()
 
@@ -54,10 +60,4 @@ func runList(_ *cobra.Command, args []string) {
 			log.Fatalf("%v", err)
 		}
 	}
-}
-
-func init() {
-	RootCmd.AddCommand(listCmd)
-
-	input.LocatorFlags(listCmd, listViper)
 }

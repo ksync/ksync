@@ -23,6 +23,14 @@ var (
 )
 
 func main() {
+	RootCmd.AddCommand(
+		(&CreateCmd{}).New(),
+		(&DeleteCmd{}).New(),
+		(&GetCmd{}).New(),
+		(&InitCmd{}).New(),
+		(&ListCmd{}).New(),
+		(&RunCmd{}).New(),
+	)
 	if err := RootCmd.Execute(); err != nil {
 		log.Fatalf("%v", err)
 	}

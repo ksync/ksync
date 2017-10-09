@@ -7,24 +7,28 @@ import (
 	"github.com/vapor-ware/ksync/pkg/ksync"
 )
 
-var (
-	// TODO: update the usage instructions
-	deleteHelp = `
-    delete an existing sync.
-    `
+type DeleteCmd struct{}
 
-	deleteCmd = &cobra.Command{
+func (this *DeleteCmd) New() *cobra.Command {
+	long := `
+		delete an existing sync.`
+	example := ``
+
+	cmd := &cobra.Command{
 		Use:     "delete [flags] [name]",
 		Short:   "delete an existing sync.",
-		Long:    deleteHelp,
+		Long:    long,
+		Example: example,
 		Aliases: []string{"d"},
 		Args:    cobra.ExactArgs(1),
-		Run:     rundelete,
+		Run:     this.run,
 		// TODO: BashCompletionFunction
 	}
-)
 
-func rundelete(_ *cobra.Command, args []string) {
+	return cmd
+}
+
+func (this *DeleteCmd) run(cmd *cobra.Command, args []string) {
 	name := args[0]
 
 	specMap, err := ksync.AllSpecs()
@@ -42,8 +46,4 @@ func rundelete(_ *cobra.Command, args []string) {
 	if err := specMap.Save(); err != nil {
 		log.Fatal(err)
 	}
-}
-
-func init() {
-	RootCmd.AddCommand(deleteCmd)
 }
