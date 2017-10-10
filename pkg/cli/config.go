@@ -8,6 +8,8 @@ import (
 	"github.com/spf13/viper"
 )
 
+// InitConfig constructs the configuration from a local configuration file
+// or environment variables if available
 func InitConfig(name string) {
 	viper.SupportedExts = []string{"yaml", "yml"}
 

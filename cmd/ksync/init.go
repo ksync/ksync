@@ -8,8 +8,10 @@ import (
 	"github.com/vapor-ware/ksync/pkg/ksync"
 )
 
+// InitCmd specifies the structure of the `ksync init` command parameters
 type InitCmd struct{}
 
+// New creates a new `init` command and initializes the default values
 func (this *InitCmd) New() *cobra.Command {
 	// TODO: update the usage instructions
 	long := `
@@ -47,6 +49,9 @@ func (this *InitCmd) New() *cobra.Command {
 	return cmd
 }
 
+// Run initializes a cluster for installation of the server side watcher
+// (radar) and local client (ksync). It can also be run after initialization
+// to update a running server.
 // TODO: add instructions for watchman and limits (and detect them)
 func (this *InitCmd) run(cmd *cobra.Command, args []string) {
 	err := ksync.InitRadar(viper.GetBool("upgrade"))

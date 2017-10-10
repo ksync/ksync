@@ -20,12 +20,14 @@ var (
 	}
 )
 
+// Main runs the server instance
 func main() {
 	if err := RootCmd.Execute(); err != nil {
 		log.Fatalf("%v", err)
 	}
 }
 
+// Init initializes the server instance
 func init() {
 	cobra.OnInitialize(func() { cli.InitConfig("radar") })
 
