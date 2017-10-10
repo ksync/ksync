@@ -33,7 +33,7 @@ type Spec struct {
 // the specs
 // TODO: test non-existant file
 // TODO: test missing specs
-func AllSpecs() (*wSpecMap, error) {
+func AllSpecs() (*SpecMap, error) {
 	var all SpecMap
 	all.Items = map[string]*Spec{}
 
