@@ -14,10 +14,13 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
+// SpecMap defines the complete list of specifications as a map interface
 type SpecMap struct {
 	Items map[string]*Spec
 }
 
+// Spec defines the possible specifications that can be used to search for
+// resources in the cluster
 type Spec struct {
 	Container  string
 	Pod        string
@@ -26,9 +29,11 @@ type Spec struct {
 	RemotePath string
 }
 
+// AllSpecs takes in specs passed to the cli and returns a SpecMap containing
+// the specs
 // TODO: test non-existant file
 // TODO: test missing specs
-func AllSpecs() (*SpecMap, error) {
+func AllSpecs() (*wSpecMap, error) {
 	var all SpecMap
 	all.Items = map[string]*Spec{}
 
@@ -48,6 +53,8 @@ func AllSpecs() (*SpecMap, error) {
 	return &all, nil
 }
 
+// Create checks an individual input spec for likeness and duplicates
+// then adds the spec into a SpecMap
 func (this *SpecMap) Create(name string, spec *Spec, force bool) error {
 	if !force {
 		if this.Has(name) {
@@ -64,6 +71,7 @@ func (this *SpecMap) Create(name string, spec *Spec, force bool) error {
 	return nil
 }
 
+// Delete removes a given spec from a SpecMap
 func (this *SpecMap) Delete(name string) error {
 	if !this.Has(name) {
 		return fmt.Errorf("does not exist")
@@ -73,6 +81,8 @@ func (this *SpecMap) Delete(name string) error {
 	return nil
 }
 
+// Save creates an individual configuration file (at the given path) for a
+// specifc SpecMap
 func (this *SpecMap) Save() error {
 	cfgPath := viper.ConfigFileUsed()
 	if cfgPath == "" {
@@ -108,6 +118,7 @@ func (this *SpecMap) Save() error {
 	return nil
 }
 
+// HasLike checks a given spec for deep equivalence against another spec
 // TODO: is this the best way to do this?
 func (this *SpecMap) HasLike(target *Spec) bool {
 	for _, spec := range this.Items {
@@ -118,6 +129,7 @@ func (this *SpecMap) HasLike(target *Spec) bool {
 	return false
 }
 
+// Has checks a given spec for simple equivalence against another spec
 func (this *SpecMap) Has(target string) bool {
 	if _, ok := this.Items[target]; ok {
 		return true

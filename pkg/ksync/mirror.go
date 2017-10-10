@@ -14,6 +14,8 @@ import (
 	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
 
+// Mirror contains the local path, remote path, and container for constructing
+// a file mirror
 type Mirror struct {
 	Container  *Container
 	LocalPath  string
@@ -21,6 +23,7 @@ type Mirror struct {
 	cmd        *exec.Cmd
 }
 
+// scanner takes an io pipe and scans it from a buffer
 func (this *Mirror) scanner(pipe io.ReadCloser, logger func(...interface{})) {
 	scanner := bufio.NewScanner(pipe)
 	go func() {
@@ -30,6 +33,8 @@ func (this *Mirror) scanner(pipe io.ReadCloser, logger func(...interface{})) {
 	}()
 }
 
+// initLogs intializes the logging engine with the command path and arguments
+// given. Standard Error and Standard Out are piped to the engine
 func (this *Mirror) initLogs() error {
 	logger := log.WithFields(log.Fields{
 		"path": this.cmd.Path,
@@ -51,6 +56,7 @@ func (this *Mirror) initLogs() error {
 	return nil
 }
 
+// path returns the full qualified path of the remote files on a mirror
 func (this *Mirror) path() (string, error) {
 	client, err := this.Container.Radar()
 	if err != nil {
@@ -66,6 +72,7 @@ func (this *Mirror) path() (string, error) {
 	return path.Full, nil
 }
 
+// tunnel creates a tunnel to a given container
 func (this *Mirror) tunnel() (int, error) {
 	tun, err := NewTunnel(this.Container.NodeName, 49172)
 	if err != nil {
@@ -79,6 +86,8 @@ func (this *Mirror) tunnel() (int, error) {
 	return tun.LocalPort, nil
 }
 
+// initErrorHandler initilizes the error handler in order to handle errors
+// emitted from a cluster
 func (this *Mirror) initErrorHandler() {
 	// Setup the k8s runtime to fail on unreturnable error (instead of looping).
 	// This helps cleanup zombie java processes.
@@ -94,6 +103,7 @@ func (this *Mirror) initErrorHandler() {
 	})
 }
 
+// Run initilizes and runs an instance of a file mirror
 // TODO: this takes maybe 5 seconds or so to start, show a progress bar.
 // TODO: the output for this needs some thought. There should be:
 //   - debug output (raw sync), this is a little tough to read right now
@@ -112,6 +122,7 @@ func (this *Mirror) Run() error {
 	cmdArgs := []string{
 		"-Xmx2G",
 		"-XX:+HeapDumpOnOutOfMemoryError",
+		// TODO: make this generic
 		"-cp", "/home/thomas/work/bin/mirror-all.jar",
 		"mirror.Mirror",
 		"client",

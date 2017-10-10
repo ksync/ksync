@@ -12,6 +12,7 @@ import (
 	"k8s.io/client-go/tools/remotecommand"
 )
 
+// Tunnel defines the attributes of tunnel connecting to the cluster
 type Tunnel struct {
 	LocalPort  int
 	RemotePort int
@@ -21,6 +22,7 @@ type Tunnel struct {
 	Out        *bytes.Buffer
 }
 
+// NewTunnel creates a new tunnel connection to a specified node running radar
 func NewTunnel(nodeName string, remotePort int) (*Tunnel, error) {
 	podName, err := radarPodName(nodeName)
 	if err != nil {
@@ -36,11 +38,13 @@ func NewTunnel(nodeName string, remotePort int) (*Tunnel, error) {
 	}, nil
 }
 
+// Close closes an existing tunnel
 func (tunnel *Tunnel) Close() {
 	close(tunnel.stopChan)
 	close(tunnel.readyChan)
 }
 
+// Start starts a given tunnel connection
 func (tunnel *Tunnel) Start() error {
 	req := KubeClient.CoreV1().RESTClient().Post().
 		Resource("pods").
@@ -106,6 +110,8 @@ func (tunnel *Tunnel) Start() error {
 	}
 }
 
+// getAvailablePort listens on a random tcp port on the host and returns
+// the port number
 func getAvailablePort() (int, error) {
 	l, err := net.Listen("tcp", ":0")
 	if err != nil {
