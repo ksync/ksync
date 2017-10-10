@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	log "github.com/sirupsen/logrus"
+	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	apiv1 "k8s.io/client-go/pkg/api/v1"
 
@@ -129,11 +130,15 @@ func GetContainers(
 
 	if podName != "" {
 		container, err := GetByName(podName, containerName)
-		if err != nil {
+		if err != nil && !errors.IsNotFound(err) {
 			return nil, err
 		}
 
-		containerList = append(containerList, container)
+		// It is possible that a container wasn't found. We don't want to error out,
+		// instead just return an empty list.
+		if container != nil {
+			containerList = append(containerList, container)
+		}
 	}
 
 	if selector != "" {

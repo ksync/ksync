@@ -41,6 +41,10 @@ TODO
 
   Watch for matching pods in the background (based off pod name and selector). Start syncs for any that come online.
 
+- `ksync background`
+
+  Install the watcher into the local process manager and run it in the background.
+
 # Development
 
 ## Dependencies

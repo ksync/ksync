@@ -31,6 +31,7 @@ func main() {
 		(&InitCmd{}).New(),
 		(&ListCmd{}).New(),
 		(&RunCmd{}).New(),
+		(&WatchCmd{}).New(),
 	)
 	if err := RootCmd.Execute(); err != nil {
 		log.Fatalf("%v", err)

@@ -15,12 +15,12 @@ type GetCmd struct{}
 
 // New creates a new `get` command and initializes the default values
 func (this *GetCmd) New() *cobra.Command {
-	long := ``
+	long := `Get all configured syncs and their status.`
 	example := ``
 
 	cmd := &cobra.Command{
 		Use:     "get",
-		Short:   "",
+		Short:   "Get all configured syncs and their status.",
 		Long:    long,
 		Example: example,
 		Run:     this.run,
@@ -38,6 +38,7 @@ func (this *GetCmd) New() *cobra.Command {
 // TODO: output different formats (json)
 // TODO: make output configurable
 // TODO: the paths can be pretty long, keep them to a certain length?
+// TODO: check for existence of the watcher, warn if it isn't running.
 func (this *GetCmd) run(cmd *cobra.Command, args []string) {
 	specMap, err := ksync.AllSpecs()
 	if err != nil {

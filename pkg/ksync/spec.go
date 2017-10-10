@@ -84,11 +84,10 @@ func (this *SpecMap) Save() error {
 		cfgPath = filepath.Join(home, fmt.Sprintf(".%s.yaml", "ksync"))
 	}
 
-	fobj, err := os.Create(cfgPath)
+	fobj, err := os.OpenFile(cfgPath, os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
 	}
-
 	defer fobj.Close()
 
 	log.WithFields(log.Fields{

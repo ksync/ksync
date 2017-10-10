@@ -50,7 +50,7 @@ func (this *ListCmd) run(cmd *cobra.Command, args []string) {
 
 	containerList, err := loc.Containers()
 	if err != nil {
-		log.Fatalf("%v", err)
+		log.Fatal(err)
 	}
 
 	// TODO: make this into a channel?

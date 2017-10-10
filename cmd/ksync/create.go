@@ -62,6 +62,7 @@ func (this *CreateCmd) New() *cobra.Command {
 // run takes the newly formed `create` command and combines it with general
 // flags. These flags are then validated, before the entire command is run to
 // create a specification map.
+// TODO: check for existence of the watcher, warn if it isn't running.
 func (this *CreateCmd) run(cmd *cobra.Command, args []string) {
 	loc := input.GetLocator(this.viper)
 	paths := input.GetPaths(args)
