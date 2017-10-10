@@ -60,7 +60,7 @@ go get -u github.com/golang/protobuf/protoc-gen-go
 - [dep][dep]
 
 ```bash
-go get -u github.com/golang/dep/cmd/dep
+go install -u github.com/golang/dep/cmd/dep
 ```
 
 # Outstanding
