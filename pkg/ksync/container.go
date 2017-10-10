@@ -23,22 +23,12 @@ type Container struct {
 // String formats the fields of a Container object and prints them
 // in a formatted string
 func (this *Container) String() string {
-	return fmt.Sprintf(
-		"Name: %s, ID: %s, NodeName: %s, PodName: %s",
-		this.Name,
-		this.ID,
-		this.NodeName,
-		this.PodName)
+	return YamlString(this)
 }
 
 // Fields inputs the fields of a Container object and inputs them into logs
 func (this *Container) Fields() log.Fields {
-	return log.Fields{
-		"node": this.NodeName,
-		"pod":  this.PodName,
-		"name": this.Name,
-		"id":   this.ID,
-	}
+	return StructFields(this)
 }
 
 // Radar connects to the server component (radar) and returns a client
@@ -62,6 +52,10 @@ func getContainer(pod *apiv1.Pod, containerName string) (*Container, error) {
 	// TODO: runtime error because there are no container statuses while
 	// k8s master is restarting.
 	if containerName == "" {
+		if len(pod.Status.ContainerStatuses) == 0 {
+			return nil, fmt.Errorf("no status for container")
+		}
+
 		return &Container{
 			pod.Status.ContainerStatuses[0].ContainerID[9:],
 			pod.Status.ContainerStatuses[0].Name,

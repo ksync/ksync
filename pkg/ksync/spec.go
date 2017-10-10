@@ -53,6 +53,14 @@ func AllSpecs() (*wSpecMap, error) {
 	return &all, nil
 }
 
+func (this *SpecMap) String() string {
+	return YamlString(this)
+}
+
+func (this *SpecMap) Fields() log.Fields {
+	return log.Fields{}
+}
+
 // Create checks an individual input spec for likeness and duplicates
 // then adds the spec into a SpecMap
 func (this *SpecMap) Create(name string, spec *Spec, force bool) error {
@@ -134,4 +142,12 @@ func (this *SpecMap) Has(target string) bool {
 		return true
 	}
 	return false
+}
+
+func (this *Spec) String() string {
+	return YamlString(this)
+}
+
+func (this *Spec) Fields() log.Fields {
+	return StructFields(this)
 }
