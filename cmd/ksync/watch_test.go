@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func TestCreateCmd_New(t *testing.T) {
+func TestWatchCmd_New(t *testing.T) {
 	type fields struct {
 		viper *viper.Viper
 	}
@@ -20,16 +20,16 @@ func TestCreateCmd_New(t *testing.T) {
 	// TODO: Add test cases.
 	}
 	for _, tt := range tests {
-		this := &CreateCmd{
+		this := &WatchCmd{
 			viper: tt.fields.viper,
 		}
 		if got := this.New(); !reflect.DeepEqual(got, tt.want) {
-			t.Errorf("%q. CreateCmd.New() = %v, want %v", tt.name, got, tt.want)
+			t.Errorf("%q. WatchCmd.New() = %v, want %v", tt.name, got, tt.want)
 		}
 	}
 }
 
-func TestCreateCmd_run(t *testing.T) {
+func TestWatchCmd_run(t *testing.T) {
 	type fields struct {
 		viper *viper.Viper
 	}
@@ -45,9 +45,20 @@ func TestCreateCmd_run(t *testing.T) {
 	// TODO: Add test cases.
 	}
 	for _, tt := range tests {
-		this := &CreateCmd{
+		this := &WatchCmd{
 			viper: tt.fields.viper,
 		}
 		this.run(tt.args.cmd, tt.args.args)
+	}
+}
+
+func Test_waitForSignal(t *testing.T) {
+	tests := []struct {
+		name string
+	}{
+	// TODO: Add test cases.
+	}
+	for range tests {
+		waitForSignal()
 	}
 }
