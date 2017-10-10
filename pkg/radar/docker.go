@@ -8,6 +8,8 @@ import (
 	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
 
+// GetRootPath takes a given container path and returns the absolute
+// path for the target directory
 // TODO: needs to be able to reference volumes
 // TODO: what to do about paths that include volumes? two syncs? they're different
 // directories on the host itself. Maybe an alert for v1?

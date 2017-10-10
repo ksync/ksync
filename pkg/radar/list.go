@@ -13,6 +13,8 @@ import (
 	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
 
+// ContainerFileList describes the attributes of a list of files within a
+// given container
 type ContainerFileList struct {
 	ContainerPath *pb.ContainerPath
 	Files         *pb.Files
@@ -20,6 +22,8 @@ type ContainerFileList struct {
 	rootPath string
 }
 
+// walk walks a given directory path and adds an entry for each file, including
+// file attributes
 func (this *ContainerFileList) walk(
 	path string,
 	info os.FileInfo, err error) error {
@@ -47,6 +51,8 @@ func (this *ContainerFileList) walk(
 	return nil
 }
 
+// ListContainerFiles takes a directory path and returns a list of File objects
+// for each file that directory contains.
 // TODO: is there a better way to pass errors back than just pushing the string?
 func (this *radarServer) ListContainerFiles(
 	ctx context.Context,
