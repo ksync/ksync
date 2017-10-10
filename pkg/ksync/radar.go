@@ -135,6 +135,8 @@ var (
 	}
 )
 
+// InitRadar initializes a new instance of radar (server) and deploys it
+// as a DaemonSet into the cluster
 // TODO: spin up on demand
 // TODO: wait for ready
 func InitRadar(upgrade bool) error {
@@ -156,12 +158,15 @@ func InitRadar(upgrade bool) error {
 	return nil
 }
 
+// InitRadarOpts initializes the grpc options for an instance of radar
 func InitRadarOpts() {
 	// TODO: add TLS
 	// TODO: add grpc_retry?
 	grpcOpts = append(grpcOpts, grpc.WithInsecure())
 }
 
+// radarPodName returns the pod name where the launched instance of
+// radar is running
 func radarPodName(nodeName string) (string, error) {
 	// TODO: error handling for nodes that don't exist.
 	pods, err := KubeClient.CoreV1().Pods(radarNamespace).List(
@@ -185,6 +190,7 @@ func radarPodName(nodeName string) (string, error) {
 	return pods.Items[0].Name, nil
 }
 
+// NewRadarConnection creates a new tunnel connection to a instance of radar
 func NewRadarConnection(nodeName string) (*grpc.ClientConn, error) {
 	tun, err := NewTunnel(nodeName, radarPort)
 	if err != nil {

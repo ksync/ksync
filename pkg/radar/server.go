@@ -12,16 +12,21 @@ import (
 	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
 
+// radarServer provide a definition for the radar object
 type radarServer struct{}
 
+// DefaultServerOpts returns the default options for grpc
 func DefaultServerOpts() []grpc.ServerOption {
 	return []grpc.ServerOption{}
 }
 
+// withDuration returns the duration of a grpc connection in nanoseconds
 func withDuration(duration time.Duration) (key string, value interface{}) {
 	return "grpc.time_ns", duration.Nanoseconds()
 }
 
+// NewServer initializes a new server instance with the given options.
+// Logging for the server is also initialized.
 // TODO: add readiness/liveliness endpoint (can use prometheus?)
 // TODO: add grpc_prometheus
 // TODO: add grpc_validator

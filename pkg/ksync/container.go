@@ -11,6 +11,7 @@ import (
 	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
 
+// Container defines the attributes of a container object
 // TODO: is NodeName always there on the spec post-start?
 type Container struct {
 	ID       string
@@ -19,6 +20,8 @@ type Container struct {
 	PodName  string
 }
 
+// String formats the fields of a Container object and prints them
+// in a formatted string
 func (this *Container) String() string {
 	return fmt.Sprintf(
 		"Name: %s, ID: %s, NodeName: %s, PodName: %s",
@@ -28,6 +31,7 @@ func (this *Container) String() string {
 		this.PodName)
 }
 
+// Fields inputs the fields of a Container object and inputs them into logs
 func (this *Container) Fields() log.Fields {
 	return log.Fields{
 		"node": this.NodeName,
@@ -37,6 +41,8 @@ func (this *Container) Fields() log.Fields {
 	}
 }
 
+// Radar connects to the server component (radar) and returns a client
+// containing that connection
 func (this *Container) Radar() (pb.RadarClient, error) {
 	conn, err := NewRadarConnection(this.NodeName)
 	if err != nil {
@@ -50,6 +56,8 @@ func (this *Container) Radar() (pb.RadarClient, error) {
 	return pb.NewRadarClient(conn), nil
 }
 
+// getContainer returns a populated Container object for a container matching
+// a given name
 func getContainer(pod *apiv1.Pod, containerName string) (*Container, error) {
 	// TODO: runtime error because there are no container statuses while
 	// k8s master is restarting.
@@ -80,6 +88,8 @@ func getContainer(pod *apiv1.Pod, containerName string) (*Container, error) {
 		pod.Name)
 }
 
+// GetByName takes a pod and container name and passes matching pods to
+// getContainer
 func GetByName(podName string, containerName string) (*Container, error) {
 	pod, err := KubeClient.CoreV1().Pods(Namespace).Get(podName, metav1.GetOptions{})
 	if err != nil {
@@ -93,6 +103,8 @@ func GetByName(podName string, containerName string) (*Container, error) {
 	return getContainer(pod, containerName)
 }
 
+// getBySelector takes in an arbitrary selector string and returns pods
+// matching that selector
 func getBySelector(selector string, containerName string) ([]*Container, error) {
 	opts := metav1.ListOptions{}
 	opts.LabelSelector = selector
@@ -118,6 +130,8 @@ func getBySelector(selector string, containerName string) ([]*Container, error) 
 	return containerList, nil
 }
 
+// GetContainers takes in a pod name and selector string and returns a list of
+// maching containers
 // TODO: this takes a little bit to execute, is there any kind of progress or output
 // that would be useful to the user?
 // TODO: make this into a channel
