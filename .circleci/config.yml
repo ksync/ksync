@@ -40,7 +40,7 @@ jobs:
           command: go test -v --race ./...
 
       - save_cache:
-          when: on-success
+          when: on_success
           key: vendor-{{ checksum "Gopkg.toml" }}-{{ checksum "Gopkg.lock" }}
           paths:
             - vendor/
@@ -53,7 +53,7 @@ jobs:
 
       - run:
           name: "Building"
-          command: gox --output="build/${BINARY_NAME}_{{.OS}}_{{.Arch}}" -osarch='!darwin/386'
+          command: gox --output="build/${BINARY_NAME}_{{ .OS }}_{{ .Arch }}" -osarch='!darwin/386'
 
       - store_artifacts:
           path: build
