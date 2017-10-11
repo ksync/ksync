@@ -53,7 +53,7 @@ jobs:
 
       - run:
           name: "Building"
-          command: gox --output="build/${BINARY_NAME}_{{ .OS }}_{{ .Arch }}" -osarch='!darwin/386'
+          command: gox ./cmd/... --output="build/${ .Dir }_{{ .OS }}_{{ .Arch }}" -osarch='!darwin/386'
 
       - store_artifacts:
           path: build
