@@ -1,0 +1,63 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:latest
+        environment:
+          DEBUG: true
+
+    working_directory: /go/src/github.com/vapor-ware/ksync
+
+    environment:
+        TEST_DIRECTORY: "gotest"
+        BINARY_NAME: "ksync"
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - vendor-{{ checksum "Gopkg.toml" }}-{{ checksum "Gopkg.lock" }}
+            - vendor-{{ checksum "Gopkg.toml" }}
+
+      - run:
+          name: "Installing Vendored Dependencies"
+          command: |
+            go get -v github.com/golang/dep/cmd/dep
+            go install github.com/golang/dep/cmd/dep
+            dep ensure -v
+
+      - run:
+          name: "Make test report directory"
+          command: mkdir -p /tmp/$TEST_DIRECTORY
+
+      - run:
+          name: "Get test to junit xml parser"
+          command: go get -v -u github.com/jstemmer/go-junit-report
+
+      - run:
+          name: "Running Tests"
+          command: go test -v --race ./...
+
+      - save_cache:
+          when: on_success
+          key: vendor-{{ checksum "Gopkg.toml" }}-{{ checksum "Gopkg.lock" }}
+          paths:
+            - vendor/
+
+      - run:
+          name: "Getting builder"
+          command: |
+            go get -v github.com/mitchellh/gox
+            go get -v github.com/tcnksm/ghr
+
+      - run:
+          name: "Building"
+          command: gox --parallel=10 --output="build/{{ .Dir }}_{{ .OS }}_{{ .Arch }}" -os='!netbsd' ./cmd/...
+
+      - store_artifacts:
+          path: build
+          destination: binaries
+
+      - store_test_results:
+          path: /tmp/$TEST_DIRECTORY
