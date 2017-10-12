@@ -53,7 +53,11 @@ jobs:
 
       - run:
           name: "Building"
+<<<<<<< HEAD
           command: gox --output="build/{{ .Dir }}_{{ .OS }}_{{ .Arch }}" -os='!netbsd' ./cmd/...
+=======
+          command: gox --parallel=10 --output="build/{{ .Dir }}_{{ .OS }}_{{ .Arch }}" -os='!netbsd' ./cmd/...
+>>>>>>> 2aee0f1... Lower parallelism to 10 to prevent memory overrun
 
       - store_artifacts:
           path: build
