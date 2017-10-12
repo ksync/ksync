@@ -53,11 +53,11 @@ jobs:
 
       - run:
           name: "Building"
-          command: gox --output="build/{{ .Dir }}_{{ .OS }}_{{ .Arch }}" -osarch='!darwin/386' ./cmd/...
+          command: gox --output="build/{{ .Dir }}_{{ .OS }}_{{ .Arch }}" -os='!netbsd' ./cmd/...
 
       - store_artifacts:
           path: build
-          destination: build
+          destination: binaries
 
       - store_test_results:
           path: /tmp/$TEST_DIRECTORY
