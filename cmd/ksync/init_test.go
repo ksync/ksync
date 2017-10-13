@@ -1,42 +1,21 @@
 package main
 
 import (
-	"reflect"
-	"testing"
+  "testing"
+  "reflect"
 
-	"github.com/spf13/cobra"
+  "github.com/stretchr/testify/assert"
+  // "github.com/stretchr/testify/require"
+
+  "github.com/spf13/cobra"
+  // "github.com/spf13/viper"
+
 )
 
-func TestInitCmd_New(t *testing.T) {
-	tests := []struct {
-		name string
-		this *InitCmd
-		want *cobra.Command
-	}{
-	// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		this := &InitCmd{}
-		if got := this.New(); !reflect.DeepEqual(got, tt.want) {
-			t.Errorf("%q. InitCmd.New() = %v, want %v", tt.name, got, tt.want)
-		}
-	}
-}
+func TestInitNew(t *testing.T) {
+  testCobra := &InitCmd{}
+  cmd := testCobra.New()
 
-func TestInitCmd_run(t *testing.T) {
-	type args struct {
-		cmd  *cobra.Command
-		args []string
-	}
-	tests := []struct {
-		name string
-		this *InitCmd
-		args args
-	}{
-	// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		this := &InitCmd{}
-		this.run(tt.args.cmd, tt.args.args)
-	}
+  assert.IsTypef(t, reflect.TypeOf(&cobra.Command{}), reflect.TypeOf(cmd), "New command is of type %s", reflect.TypeOf(cmd))
+  // TODO: Write more specific test cases
 }
