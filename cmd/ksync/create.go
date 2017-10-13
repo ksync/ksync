@@ -13,13 +13,11 @@ import (
 	"github.com/vapor-ware/ksync/pkg/ksync"
 )
 
-// CreateCmd specifies the structure of the `ksync create` command parameters
-type CreateCmd struct {
+type createCmd struct {
 	viper *viper.Viper
 }
 
-// New creates a new `create` command and initializes the default values
-func (this *CreateCmd) New() *cobra.Command {
+func (this *createCmd) new() *cobra.Command {
 	long := `
     create a new sync between a local and remote directory.`
 	example := ``
@@ -59,11 +57,8 @@ func (this *CreateCmd) New() *cobra.Command {
 	return cmd
 }
 
-// run takes the newly formed `create` command and combines it with general
-// flags. These flags are then validated, before the entire command is run to
-// create a specification map.
 // TODO: check for existence of the watcher, warn if it isn't running.
-func (this *CreateCmd) run(cmd *cobra.Command, args []string) {
+func (this *createCmd) run(cmd *cobra.Command, args []string) {
 	loc := input.GetLocator(this.viper)
 	paths := input.GetPaths(args)
 

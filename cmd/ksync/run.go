@@ -9,13 +9,11 @@ import (
 	"github.com/vapor-ware/ksync/pkg/ksync"
 )
 
-// RunCmd specifies the structure of the `ksync run` command parameters
-type RunCmd struct {
+type runCmd struct {
 	viper *viper.Viper
 }
 
-// New creates a new `run` command and initializes the default values
-func (this *RunCmd) New() *cobra.Command {
+func (this *runCmd) new() *cobra.Command {
 	long := `
     Start syncing between a local and remote directory.`
 	example := ``
@@ -54,13 +52,10 @@ func (this *RunCmd) New() *cobra.Command {
 	return cmd
 }
 
-// run takes the newly formed `run` command and combines it with general
-// flags. These flags are then validated, before a new ksync process is
-// launched.
 // TODO: check for existence of java (and the right version)
-// TODO: download the jar locally (into a ksync home directory?)
-// TODO: move checks/downloads into init?
-func (this *RunCmd) run(cmd *cobra.Command, args []string) {
+// TODO: message (and fail) when this is not run from the expected environment -
+//       the docker container.
+func (this *runCmd) run(cmd *cobra.Command, args []string) {
 	// Usage validation ------------------------------------
 	if this.viper.GetString("pod") == "" {
 		log.Fatal("Must specify --pod.")
