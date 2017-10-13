@@ -67,6 +67,10 @@ go get -u github.com/golang/protobuf/protoc-gen-go
 go install -u github.com/golang/dep/cmd/dep
 ```
 
+# Troubleshooting
+
+- ntp issues
+
 # Outstanding
 
 - Tests

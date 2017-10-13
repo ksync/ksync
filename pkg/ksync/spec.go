@@ -33,7 +33,7 @@ type Spec struct {
 // the specs
 // TODO: test non-existant file
 // TODO: test missing specs
-func AllSpecs() (*wSpecMap, error) {
+func AllSpecs() (*SpecMap, error) {
 	var all SpecMap
 	all.Items = map[string]*Spec{}
 
@@ -51,6 +51,14 @@ func AllSpecs() (*wSpecMap, error) {
 	}
 
 	return &all, nil
+}
+
+func (this *SpecMap) String() string {
+	return YamlString(this)
+}
+
+func (this *SpecMap) Fields() log.Fields {
+	return log.Fields{}
 }
 
 // Create checks an individual input spec for likeness and duplicates
@@ -134,4 +142,12 @@ func (this *SpecMap) Has(target string) bool {
 		return true
 	}
 	return false
+}
+
+func (this *Spec) String() string {
+	return YamlString(this)
+}
+
+func (this *Spec) Fields() log.Fields {
+	return StructFields(this)
 }

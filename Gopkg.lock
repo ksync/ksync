@@ -93,6 +93,12 @@
   version = "1.0.1"
 
 [[projects]]
+  name = "github.com/fatih/structs"
+  packages = ["."]
+  revision = "a720dfa8df582c51dee1b36feabb906bde1588bd"
+  version = "v1.0"
+
+[[projects]]
   name = "github.com/fsnotify/fsnotify"
   packages = ["."]
   revision = "629574ca2a5df945712d3079857300b5e4da0236"
@@ -309,12 +315,6 @@
   version = "v1.0.0"
 
 [[projects]]
-  name = "github.com/takama/daemon"
-  packages = ["."]
-  revision = "ac5a22749fceffb2bc7aba49c19787751f4b34f7"
-  version = "0.9.1"
-
-[[projects]]
   name = "github.com/ugorji/go"
   packages = ["codec"]
   revision = "8c0409fcbb70099c748d71f714529204975f6c3f"
@@ -400,6 +400,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "2aa0f6061393c98b6301c8524a966cb845b6f5ec500f5b0f1727bd8e732142a0"
+  inputs-digest = "d6d6e0ef95d1b5b744ea58ec2a9179885cacb1302149dffd1842a3bee2f8cb69"
   solver-name = "gps-cdcl"
   solver-version = 1

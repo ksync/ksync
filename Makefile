@@ -3,7 +3,8 @@ IMAGE_BASE      := gcr.io/elated-embassy-152022/ksync/
 MUTABLE_VERSION := canary
 DOCKER_VERSION  := git-$(shell git rev-parse --short HEAD)
 
-CMD       ?= bin/ksync --log-level=debug init --upgrade
+# CMD       ?= bin/ksync --log-level=debug init --upgrade
+CMD       ?= bin/ksync --log-level=debug watch
 
 GO        ?= go
 TAGS      :=
@@ -35,11 +36,13 @@ build-proto:
 
 .PHONY: watch
 watch:
-	ag -l --ignore "pkg/proto" | entr -dr /bin/sh -c "$(MAKE) all push && $(CMD) && stern --namespace=kube-system --selector=app=radar"
+	# ag -l --ignore "pkg/proto" | entr -dr /bin/sh -c "$(MAKE) all push && $(CMD) && stern --namespace=kube-system --selector=app=radar"
+	ag -l --ignore "pkg/proto" | entr -dr /bin/sh -c "$(MAKE) build && $(CMD)"
+
 
 HAS_DEP := $(shell command -v dep)
 
-.PHONY: bootstrapmake
+.PHONY: bootstrap
 bootstrap:
 ifndef HAS_DEP
 	go get -u github.com/golang/dep/cmd/dep
