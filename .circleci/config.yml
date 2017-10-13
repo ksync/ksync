@@ -53,10 +53,10 @@ jobs:
 
       - run:
           name: "Building"
-          command: gox --parallel=10 --output="build/{{ .Dir }}_{{ .OS }}_{{ .Arch }}" -os='!netbsd' ./cmd/...
+          command: gox --parallel=10 --output="bin/{{ .Dir }}_{{ .OS }}_{{ .Arch }}" -os='!netbsd' ./cmd/...
 
       - store_artifacts:
-          path: build
+          path: bin
           destination: binaries
 
       - store_test_results:
