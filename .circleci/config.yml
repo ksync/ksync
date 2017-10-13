@@ -37,7 +37,9 @@ jobs:
 
       - run:
           name: "Running Tests"
-          command: go test -v --race ./...
+          command: |
+            go test -v --race ./...
+            go test -v ./... 2>&1 | go-junit-report > /tmp/$TEST_DIRECTORY/report.xml
 
       - save_cache:
           when: on_success
