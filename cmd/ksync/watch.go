@@ -13,11 +13,11 @@ import (
 	"github.com/vapor-ware/ksync/pkg/ksync"
 )
 
-type WatchCmd struct {
+type watchCmd struct {
 	viper *viper.Viper
 }
 
-func (this *WatchCmd) New() *cobra.Command {
+func (this *watchCmd) new() *cobra.Command {
 	long := `Watch configured syncs and start them when required.`
 	example := ``
 
@@ -34,7 +34,9 @@ func (this *WatchCmd) New() *cobra.Command {
 	return cmd
 }
 
-func (this *WatchCmd) run(cmd *cobra.Command, args []string) {
+// TODO: hook up to k8s and watch for changes
+// TODO: stop watches that are no longer valid (both removed from config and k8s)
+func (this *watchCmd) run(cmd *cobra.Command, args []string) {
 	// 1. Watch config file for updates
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
@@ -50,7 +52,7 @@ func (this *WatchCmd) run(cmd *cobra.Command, args []string) {
 }
 
 // TODO: how to test what *shouldn't* be running?
-func (this *WatchCmd) manageSpecs() {
+func (this *watchCmd) manageSpecs() {
 	specMap, _ := ksync.AllSpecs()
 	for name, spec := range specMap.Items {
 		// Should run?
@@ -65,6 +67,7 @@ func (this *WatchCmd) manageSpecs() {
 			continue
 		}
 
+		// TODO: should this be on its own?
 		for _, cntr := range containerList {
 			service, err := ksync.NewService(name, cntr, spec)
 			if err != nil {

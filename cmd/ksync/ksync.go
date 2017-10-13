@@ -9,7 +9,6 @@ import (
 	"github.com/vapor-ware/ksync/pkg/ksync"
 )
 
-// TODO: should there be an init command that lets you do a DaemonSet (instead of single pods)
 var (
 	// TODO: update usage with flags
 	globalUsage = `Inspect and sync files from remote containers.`
@@ -22,24 +21,21 @@ var (
 	}
 )
 
-// Main creates the command line client and adds all subcommands
 func main() {
 	RootCmd.AddCommand(
-		(&CreateCmd{}).New(),
-		(&DeleteCmd{}).New(),
-		(&GetCmd{}).New(),
-		(&InitCmd{}).New(),
-		(&ListCmd{}).New(),
-		(&RunCmd{}).New(),
-		(&WatchCmd{}).New(),
+		(&createCmd{}).new(),
+		(&deleteCmd{}).new(),
+		(&getCmd{}).new(),
+		(&initCmd{}).new(),
+		(&listCmd{}).new(),
+		(&runCmd{}).new(),
+		(&watchCmd{}).new(),
 	)
 	if err := RootCmd.Execute(); err != nil {
 		log.Fatalf("%v", err)
 	}
 }
 
-// Init initializes a new ksync client and populates it with the default
-// commands and parameters
 func init() {
 	cobra.OnInitialize(func() { cli.InitConfig("ksync") })
 
@@ -63,8 +59,6 @@ func init() {
 	viper.BindEnv("context", "KSYNC_CONTEXT")
 }
 
-// InitPersistent initializes the functions that persitent between runs. This
-// includes the server (radar) and logging options.
 func initPersistent(cmd *cobra.Command, args []string) {
 	cli.InitLogging()
 	initClient()

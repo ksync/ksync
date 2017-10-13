@@ -9,13 +9,11 @@ import (
 	"github.com/vapor-ware/ksync/pkg/ksync"
 )
 
-// ListCmd specifies the structure of the `ksync list` command parameters
-type ListCmd struct {
+type listCmd struct {
 	viper *viper.Viper
 }
 
-// New creates a new `list` command and initializes the default values
-func (this *ListCmd) New() *cobra.Command {
+func (this *listCmd) new() *cobra.Command {
 	long := `
     List the files from a remote container.`
 	example := ``
@@ -38,10 +36,7 @@ func (this *ListCmd) New() *cobra.Command {
 	return cmd
 }
 
-// run takes the newly formed `list` command and combines it with general
-// flags. The selected inputs are run against any exisiting processes and
-// any matches are printed.
-func (this *ListCmd) run(cmd *cobra.Command, args []string) {
+func (this *listCmd) run(cmd *cobra.Command, args []string) {
 	loc := input.GetLocator(this.viper)
 	// Usage validation ------------------------------------
 	loc.Validator()
@@ -54,7 +49,6 @@ func (this *ListCmd) run(cmd *cobra.Command, args []string) {
 	}
 
 	// TODO: make this into a channel?
-	// TODO: handle multi-container output
 	for _, cntr := range containerList {
 		list := &ksync.FileList{cntr, path, nil}
 		if err := list.Get(); err != nil {

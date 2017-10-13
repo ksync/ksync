@@ -10,11 +10,9 @@ import (
 	"github.com/vapor-ware/ksync/pkg/ksync"
 )
 
-// GetCmd specifies the structure of the `ksync get` command parameters
-type GetCmd struct{}
+type getCmd struct{}
 
-// New creates a new `get` command and initializes the default values
-func (this *GetCmd) New() *cobra.Command {
+func (this *getCmd) new() *cobra.Command {
 	long := `Get all configured syncs and their status.`
 	example := ``
 
@@ -29,9 +27,6 @@ func (this *GetCmd) New() *cobra.Command {
 	return cmd
 }
 
-// run takes the newly formed `get` command and combines it with general
-// flags. These flags are then validated, before the entire command is run and
-// any matching output displayed in a table.
 // TODO: add last_sync (last_run?)
 // TODO: make the columns configurable
 // TODO: add a quiet ouput that can be `ksync get -q | ksync delete`
@@ -39,7 +34,7 @@ func (this *GetCmd) New() *cobra.Command {
 // TODO: make output configurable
 // TODO: the paths can be pretty long, keep them to a certain length?
 // TODO: check for existence of the watcher, warn if it isn't running.
-func (this *GetCmd) run(cmd *cobra.Command, args []string) {
+func (this *getCmd) run(cmd *cobra.Command, args []string) {
 	specMap, err := ksync.AllSpecs()
 	if err != nil {
 		log.Fatal(err)
