@@ -13,19 +13,54 @@ import (
 	"github.com/vapor-ware/ksync/pkg/radar"
 )
 
-var (
-	serveCmd = &cobra.Command{
-		Use:   "serve [flags]",
-		Short: "Start the server.",
-		Long:  serveDesc,
-		Run:   run,
+type serveCmd struct{}
+
+// TODO: update docs, add example.
+func (this *serveCmd) new() *cobra.Command {
+	long := `Start the server.`
+	example := ``
+
+	cmd := &cobra.Command{
+		Use:     "serve [flags]",
+		Short:   "Start the server.",
+		Long:    long,
+		Example: example,
+		Args:    cobra.ExactArgs(0),
+		Run:     this.run,
 	}
 
-	serveDesc = `Start the server.`
-)
+	flags := cmd.Flags()
+	flags.String(
+		"bind",
+		"127.0.0.1",
+		"interface to which the server will bind")
 
-// Run runs the server instance and binds it to interface and port
-func run(cmd *cobra.Command, args []string) {
+	viper.BindPFlag("bind", flags.Lookup("bind"))
+	viper.BindEnv("bind", "RADAR_BIND")
+
+	flags.IntP(
+		"port",
+		"p",
+		40321,
+		"port on which the server will listen")
+
+	viper.BindPFlag("port", flags.Lookup("port"))
+	viper.BindEnv("port", "RADAR_PORT")
+
+	flags.String("cert", "", "Path to private certificate.")
+
+	viper.BindPFlag("cert", flags.Lookup("cert"))
+	viper.BindEnv("cert", "RADAR_CERT")
+
+	flags.String("key", "", "Path to private key.")
+
+	viper.BindPFlag("key", flags.Lookup("key"))
+	viper.BindEnv("key", "RADAR_KEY")
+
+	return cmd
+}
+
+func (this *serveCmd) run(cmd *cobra.Command, args []string) {
 	lis, err := net.Listen(
 		"tcp", fmt.Sprintf("%s:%d", viper.GetString("bind"), viper.GetInt("port")))
 	if err != nil {
@@ -53,36 +88,4 @@ func run(cmd *cobra.Command, args []string) {
 
 	server := radar.NewServer(opts...)
 	server.Serve(lis)
-}
-
-// Init initializes the server instance with the flag options
-func init() {
-	RootCmd.AddCommand(serveCmd)
-
-	serveCmd.Flags().String(
-		"bind",
-		"127.0.0.1",
-		"interface to which the server will bind")
-
-	viper.BindPFlag("bind", serveCmd.Flags().Lookup("bind"))
-	viper.BindEnv("bind", "RADAR_BIND")
-
-	serveCmd.Flags().IntP(
-		"port",
-		"p",
-		40321,
-		"port on which the server will listen")
-
-	viper.BindPFlag("port", serveCmd.Flags().Lookup("port"))
-	viper.BindEnv("port", "RADAR_PORT")
-
-	serveCmd.Flags().String("cert", "", "Path to private certificate.")
-
-	viper.BindPFlag("cert", serveCmd.Flags().Lookup("cert"))
-	viper.BindEnv("cert", "RADAR_CERT")
-
-	serveCmd.Flags().String("key", "", "Path to private key.")
-
-	viper.BindPFlag("key", serveCmd.Flags().Lookup("key"))
-	viper.BindEnv("key", "RADAR_KEY")
 }
