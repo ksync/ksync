@@ -17,7 +17,6 @@ var (
 	Namespace  string
 )
 
-// GetKubeCofig pulls the current configuration from a kubernetes cluster
 func getKubeConfig(context string) (*rest.Config, error) {
 	rules := clientcmd.NewDefaultClientConfigLoadingRules()
 	rules.DefaultClientConfig = &clientcmd.DefaultClientConfig
@@ -40,7 +39,7 @@ func getKubeConfig(context string) (*rest.Config, error) {
 	return config, nil
 }
 
-// InitClient initializes a new kubernetes client with a given configuration
+// InitClient creates a new k8s client for use in talking to the k8s api server.
 func InitClient(context string, namespace string) error {
 	log.WithFields(log.Fields{
 		"context":   context,

@@ -14,23 +14,40 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-// SpecMap defines the complete list of specifications as a map interface
+// SpecMap is a collection of Specs.
 type SpecMap struct {
 	Items map[string]*Spec
 }
 
-// Spec defines the possible specifications that can be used to search for
-// resources in the cluster
+// Spec is all the configuration required to setup a sync from a local directory
+// to a remote directory in a specific remote container.
 type Spec struct {
-	Container  string
+	Container string
+	// TODO: use a locator instead?
 	Pod        string
 	Selector   string
 	LocalPath  string
 	RemotePath string
 }
 
-// AllSpecs takes in specs passed to the cli and returns a SpecMap containing
-// the specs
+func (this *SpecMap) String() string {
+	return YamlString(this)
+}
+
+func (this *SpecMap) Fields() log.Fields {
+	return log.Fields{}
+}
+
+func (this *Spec) String() string {
+	return YamlString(this)
+}
+
+func (this *Spec) Fields() log.Fields {
+	return StructFields(this)
+}
+
+// AllSpecs populates a SpecMap with the configured specs. These are populated
+// normally via. configuration.
 // TODO: test non-existant file
 // TODO: test missing specs
 func AllSpecs() (*SpecMap, error) {
@@ -51,14 +68,6 @@ func AllSpecs() (*SpecMap, error) {
 	}
 
 	return &all, nil
-}
-
-func (this *SpecMap) String() string {
-	return YamlString(this)
-}
-
-func (this *SpecMap) Fields() log.Fields {
-	return log.Fields{}
 }
 
 // Create checks an individual input spec for likeness and duplicates
@@ -89,8 +98,7 @@ func (this *SpecMap) Delete(name string) error {
 	return nil
 }
 
-// Save creates an individual configuration file (at the given path) for a
-// specifc SpecMap
+// Save serializes the current SpecMap's items to the config file.
 func (this *SpecMap) Save() error {
 	cfgPath := viper.ConfigFileUsed()
 	if cfgPath == "" {
@@ -142,12 +150,4 @@ func (this *SpecMap) Has(target string) bool {
 		return true
 	}
 	return false
-}
-
-func (this *Spec) String() string {
-	return YamlString(this)
-}
-
-func (this *Spec) Fields() log.Fields {
-	return StructFields(this)
 }

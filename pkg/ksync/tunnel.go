@@ -12,26 +12,36 @@ import (
 	"k8s.io/client-go/tools/remotecommand"
 )
 
-// Tunnel defines the attributes of tunnel connecting to the cluster
+// Tunnel is the connection between the local host and a specific pod in the
+// remote cluster.
 type Tunnel struct {
-	LocalPort  int
-	RemotePort int
+	LocalPort  int32
+	RemotePort int32
 	PodName    string
+	Namespace  string
 	stopChan   chan struct{}
 	readyChan  chan struct{}
 	Out        *bytes.Buffer
 }
 
-// NewTunnel creates a new tunnel connection to a specified node running radar
-func NewTunnel(nodeName string, remotePort int) (*Tunnel, error) {
-	podName, err := radarPodName(nodeName)
-	if err != nil {
-		return nil, errors.Wrap(err, "cannot create tunnel")
-	}
+func (t *Tunnel) String() string {
+	return YamlString(t)
+}
+
+func (t *Tunnel) Fields() log.Fields {
+	return StructFields(t)
+}
+
+// NewTunnel constructs a new tunnel for the namespace, pod and port.
+func NewTunnel(
+	namespace string,
+	podName string,
+	remotePort int32) (*Tunnel, error) {
 
 	return &Tunnel{
 		RemotePort: remotePort,
 		PodName:    podName,
+		Namespace:  namespace,
 		stopChan:   make(chan struct{}, 1),
 		readyChan:  make(chan struct{}, 1),
 		Out:        new(bytes.Buffer),
@@ -39,17 +49,17 @@ func NewTunnel(nodeName string, remotePort int) (*Tunnel, error) {
 }
 
 // Close closes an existing tunnel
-func (tunnel *Tunnel) Close() {
-	close(tunnel.stopChan)
-	close(tunnel.readyChan)
+func (t *Tunnel) Close() {
+	close(t.stopChan)
+	close(t.readyChan)
 }
 
 // Start starts a given tunnel connection
-func (tunnel *Tunnel) Start() error {
+func (t *Tunnel) Start() error {
 	req := KubeClient.CoreV1().RESTClient().Post().
 		Resource("pods").
-		Namespace(radarNamespace).
-		Name(tunnel.PodName).
+		Namespace(t.Namespace).
+		Name(t.PodName).
 		SubResource("portforward")
 
 	dialer, err := remotecommand.NewExecutor(KubeCfg, "POST", req.URL())
@@ -61,24 +71,20 @@ func (tunnel *Tunnel) Start() error {
 	if err != nil {
 		return errors.Wrap(err, "could not find an available port")
 	}
-	tunnel.LocalPort = local
+	t.LocalPort = local
 
-	log.WithFields(log.Fields{
-		"local":  tunnel.LocalPort,
-		"remote": tunnel.RemotePort,
-		"pod":    tunnel.PodName,
-		"url":    req.URL(),
-		// TODO: node name?
-	}).Debug("starting tunnel")
+	log.WithFields(MergeFields(t.Fields(), log.Fields{
+		"url": req.URL(),
+	})).Debug("starting tunnel")
 
 	pf, err := portforward.New(
 		dialer,
-		[]string{fmt.Sprintf("%d:%d", tunnel.LocalPort, tunnel.RemotePort)},
-		tunnel.stopChan,
-		tunnel.readyChan,
+		[]string{fmt.Sprintf("%d:%d", t.LocalPort, t.RemotePort)},
+		t.stopChan,
+		t.readyChan,
 		// TODO: there's better places to put this, really anywhere.
-		tunnel.Out,
-		tunnel.Out)
+		t.Out,
+		t.Out)
 
 	if err != nil {
 		return errors.Wrap(err, "unable to forward port")
@@ -91,28 +97,14 @@ func (tunnel *Tunnel) Start() error {
 
 	select {
 	case err = <-errChan:
-		return errors.Wrap(
-			err,
-			fmt.Sprintf(
-				"error forwarding ports (local:%d) (remote:%d) (pod:%s)\n%s",
-				tunnel.LocalPort,
-				tunnel.RemotePort,
-				tunnel.PodName,
-				tunnel.Out.String()))
+		return ErrorOut("error forwarding ports", err, t)
 	case <-pf.Ready:
-		log.WithFields(log.Fields{
-			"local":  tunnel.LocalPort,
-			"remote": tunnel.RemotePort,
-			"pod":    tunnel.PodName,
-			// TODO: node name?
-		}).Debug("tunnel running")
+		log.WithFields(t.Fields()).Debug("tunnel running")
 		return nil
 	}
 }
 
-// getAvailablePort listens on a random tcp port on the host and returns
-// the port number
-func getAvailablePort() (int, error) {
+func getAvailablePort() (int32, error) {
 	l, err := net.Listen("tcp", ":0")
 	if err != nil {
 		return 0, err
@@ -127,5 +119,5 @@ func getAvailablePort() (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	return port, err
+	return int32(port), err
 }

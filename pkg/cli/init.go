@@ -7,9 +7,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// InitLogging initializes the logging engine with the configured values
-// TODO: add a real config
-// TODO: make configurable
+// InitLogging initializes the logging engine with the configured values.
 func InitLogging() {
 	log.SetOutput(os.Stdout)
 

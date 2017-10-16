@@ -62,7 +62,6 @@ func init() {
 func initPersistent(cmd *cobra.Command, args []string) {
 	cli.InitLogging()
 	initClient()
-	ksync.InitRadarOpts()
 }
 
 // InitClient initializes the kubernetes client options.

@@ -35,6 +35,7 @@ func (s *ServiceStatus) Fields() log.Fields {
 	return StructFields(s)
 }
 
+// NewService constructs a Service to manage and run local syncs from.
 func NewService(name string, cntr *Container, spec *Spec) (*Service, error) {
 	cli, err := apiclient.NewEnvClient()
 	if err != nil {
@@ -145,6 +146,8 @@ func (s *Service) Stop() error {
 	return nil
 }
 
+// Status checks to see if a service is currently running and looks at its
+// status.
 func (s *Service) Status() (*ServiceStatus, error) {
 	cntr, err := s.client.ContainerInspect(
 		context.Background(), s.containerName())

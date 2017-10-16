@@ -13,14 +13,14 @@ import (
 	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
 
-// FileList defines the files designating a given group of files
+// FileList is the set of all Files that exist in the remote Container.
 type FileList struct {
 	Container *Container
 	Path      string
 	Files     *pb.Files
 }
 
-// Get checks a container path for existence of files
+// Get populates the FileList with the set of all Files in the remote Container.
 func (this *FileList) Get() error {
 	client, err := this.Container.Radar()
 	if err != nil {
@@ -36,7 +36,7 @@ func (this *FileList) Get() error {
 	return nil
 }
 
-// Output takes a list of files and formats it for output
+// Output prints a table of the Files in this FileList.
 func (this *FileList) Output() error {
 
 	fmt.Println(tm.Color(fmt.Sprintf("==> %s:%s:%s <==",
@@ -68,7 +68,6 @@ func (this *FileList) Output() error {
 	return nil
 }
 
-// pathColor colorizes the paths of files for output
 func (this *FileList) pathColor(file *pb.File) int {
 	if file.IsDir {
 		// TODO: this isn't the best blue ... is there a better way to handle this?

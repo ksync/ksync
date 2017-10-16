@@ -61,8 +61,8 @@ func (this *runCmd) run(cmd *cobra.Command, args []string) {
 		log.Fatal("Must specify --pod.")
 	}
 
-	paths := input.GetPaths(args)
-	paths.Validator()
+	syncPath := input.GetSyncPath(args)
+	syncPath.Validator()
 
 	container, err := ksync.GetByName(
 		this.viper.GetString("pod"),
@@ -77,8 +77,8 @@ func (this *runCmd) run(cmd *cobra.Command, args []string) {
 
 	mirror := &ksync.Mirror{
 		Container:  container,
-		LocalPath:  paths.Local,
-		RemotePath: paths.Remote,
+		LocalPath:  syncPath.Local,
+		RemotePath: syncPath.Remote,
 	}
 	if err := mirror.Run(); err != nil {
 		log.Fatal(err)

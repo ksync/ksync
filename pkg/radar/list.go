@@ -13,8 +13,7 @@ import (
 	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
 
-// ContainerFileList describes the attributes of a list of files within a
-// given container
+// ContainerFileList is the list of flies in a container for a specified path.
 type ContainerFileList struct {
 	ContainerPath *pb.ContainerPath
 	Files         *pb.Files
@@ -22,8 +21,6 @@ type ContainerFileList struct {
 	rootPath string
 }
 
-// walk walks a given directory path and adds an entry for each file, including
-// file attributes
 func (this *ContainerFileList) walk(
 	path string,
 	info os.FileInfo, err error) error {

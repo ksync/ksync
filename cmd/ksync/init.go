@@ -49,7 +49,7 @@ func (this *initCmd) new() *cobra.Command {
 // TODO: add instructions for watchman and limits (and detect them)
 // TODO: need a better error with instructions on how to fix errors starting radar
 func (this *initCmd) run(cmd *cobra.Command, args []string) {
-	err := ksync.InitRadar(viper.GetBool("upgrade"))
+	err := ksync.NewRadarInstance().Run(viper.GetBool("upgrade"))
 	if err != nil {
 		log.Fatalf("could not start radar: %v", err)
 	}

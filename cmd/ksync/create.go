@@ -60,11 +60,11 @@ func (this *createCmd) new() *cobra.Command {
 // TODO: check for existence of the watcher, warn if it isn't running.
 func (this *createCmd) run(cmd *cobra.Command, args []string) {
 	loc := input.GetLocator(this.viper)
-	paths := input.GetPaths(args)
+	syncPath := input.GetSyncPath(args)
 
 	// Usage validation ------------------------------------
 	loc.Validator()
-	paths.Validator()
+	syncPath.Validator()
 
 	name := this.viper.GetString("name")
 	if name == "" {
@@ -81,8 +81,8 @@ func (this *createCmd) run(cmd *cobra.Command, args []string) {
 		Container:  this.viper.GetString("container"),
 		Pod:        this.viper.GetString("pod"),
 		Selector:   this.viper.GetString("selector"),
-		LocalPath:  paths.Local,
-		RemotePath: paths.Remote,
+		LocalPath:  syncPath.Local,
+		RemotePath: syncPath.Remote,
 	}
 
 	if err := specMap.Create(

@@ -11,7 +11,8 @@ import (
 )
 
 // InitConfig constructs the configuration from a local configuration file
-// or environment variables if available
+// or environment variables if available. This is placed in the global `viper`
+// instance.
 func InitConfig(name string) {
 	viper.SupportedExts = []string{"yaml", "yml"}
 
