@@ -28,7 +28,8 @@ jobs:
           name: "Lint"
           command: |
             go get -u github.com/golang/lint/golint
-            golint -set_exit_status ./... | tee /tmp/$TEST_DIRECTORY/lint
+            golint -set_exit_status cmd/... | tee /tmp/$TEST_DIRECTORY/lint_cmd
+            golint -set_exit_status pkg/... | tee /tmp/$TEST_DIRECTORY/lint_pkg
 
       - run:
           name: "Installing Vendored Dependencies"
