@@ -14,7 +14,7 @@ import (
 
 func TestRunNew(t *testing.T) {
   testCobra := &runCmd{}
-  cmd := testCobra.New()
+  cmd := testCobra.new()
 
   assert.IsTypef(t, reflect.TypeOf(&cobra.Command{}), reflect.TypeOf(cmd), "New command is of type %s", reflect.TypeOf(cmd))
   // TODO: Write more specific test cases
