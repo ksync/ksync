@@ -13,7 +13,7 @@ var (
 	// TODO: update usage with flags
 	globalUsage = `Inspect and sync files from remote containers.`
 
-	RootCmd = &cobra.Command{
+	rootCmd = &cobra.Command{
 		Use:              "ksync",
 		Short:            "Inspect and sync files from remote containers.",
 		Long:             globalUsage,
@@ -22,7 +22,7 @@ var (
 )
 
 func main() {
-	RootCmd.AddCommand(
+	rootCmd.AddCommand(
 		(&createCmd{}).new(),
 		(&deleteCmd{}).new(),
 		(&getCmd{}).new(),
@@ -31,7 +31,7 @@ func main() {
 		(&runCmd{}).new(),
 		(&watchCmd{}).new(),
 	)
-	if err := RootCmd.Execute(); err != nil {
+	if err := rootCmd.Execute(); err != nil {
 		log.Fatalf("%v", err)
 	}
 }
@@ -39,23 +39,23 @@ func main() {
 func init() {
 	cobra.OnInitialize(func() { cli.InitConfig("ksync") })
 
-	cli.DefaultFlags(RootCmd, "ksync")
+	cli.DefaultFlags(rootCmd, "ksync")
 
-	RootCmd.PersistentFlags().StringP(
+	rootCmd.PersistentFlags().StringP(
 		"namespace",
 		"n",
 		"default",
 		"namespace to use.")
 
-	viper.BindPFlag("namespace", RootCmd.PersistentFlags().Lookup("namespace"))
+	viper.BindPFlag("namespace", rootCmd.PersistentFlags().Lookup("namespace"))
 	viper.BindEnv("namespace", "KSYNC_NAMESPACE")
 
-	RootCmd.PersistentFlags().String(
+	rootCmd.PersistentFlags().String(
 		"context",
 		"",
 		"name of the kubeconfig context to use")
 
-	viper.BindPFlag("context", RootCmd.PersistentFlags().Lookup("context"))
+	viper.BindPFlag("context", rootCmd.PersistentFlags().Lookup("context"))
 	viper.BindEnv("context", "KSYNC_CONTEXT")
 }
 

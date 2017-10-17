@@ -65,11 +65,7 @@ func (s *ServiceList) Normalize() error {
 		return err
 	}
 
-	if err := s.update(specs); err != nil {
-		return err
-	}
-
-	return nil
+	return s.update(specs)
 }
 
 // Filter takes a name and returns a new instance of ServiceList populated with

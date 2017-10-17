@@ -5,16 +5,16 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"k8s.io/client-go/kubernetes"
-	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
+	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp" // Not sure why this is needed.
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
 var (
 	// TODO: is this singleton a good idea?
-	KubeClient *kubernetes.Clientset
-	KubeCfg    *rest.Config
-	Namespace  string
+	kubeClient *kubernetes.Clientset
+	kubeCfg    *rest.Config
+	namespace  string
 )
 
 func getKubeConfig(context string) (*rest.Config, error) {
@@ -40,7 +40,7 @@ func getKubeConfig(context string) (*rest.Config, error) {
 }
 
 // InitKubeClient creates a new k8s client for use in talking to the k8s api server.
-func InitKubeClient(context string, namespace string) error {
+func InitKubeClient(context string, nspace string) error {
 	log.WithFields(log.Fields{
 		"context":   context,
 		"namespace": namespace,
@@ -52,7 +52,7 @@ func InitKubeClient(context string, namespace string) error {
 		return err
 	}
 
-	kubeClient, err := kubernetes.NewForConfig(config)
+	client, err := kubernetes.NewForConfig(config)
 	log.WithFields(log.Fields{
 		"host": config.Host,
 	}).Debug("kubernetes client created")
@@ -62,9 +62,9 @@ func InitKubeClient(context string, namespace string) error {
 		return err
 	}
 
-	KubeClient = kubeClient
-	KubeCfg = config
-	Namespace = namespace
+	kubeClient = client
+	kubeCfg = config
+	namespace = nspace
 
 	return nil
 }

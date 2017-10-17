@@ -28,6 +28,7 @@ func (t *Tunnel) String() string {
 	return YamlString(t)
 }
 
+// Fields returns a set of structured fields for logging.
 func (t *Tunnel) Fields() log.Fields {
 	return StructFields(t)
 }
@@ -56,13 +57,13 @@ func (t *Tunnel) Close() {
 
 // Start starts a given tunnel connection
 func (t *Tunnel) Start() error {
-	req := KubeClient.CoreV1().RESTClient().Post().
+	req := kubeClient.CoreV1().RESTClient().Post().
 		Resource("pods").
 		Namespace(t.Namespace).
 		Name(t.PodName).
 		SubResource("portforward")
 
-	dialer, err := remotecommand.NewExecutor(KubeCfg, "POST", req.URL())
+	dialer, err := remotecommand.NewExecutor(kubeCfg, "POST", req.URL())
 	if err != nil {
 		return err
 	}

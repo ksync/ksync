@@ -13,7 +13,7 @@ import (
 
 // GetAbsPath takes a container path and returns the absolute path on the
 // current node for that directory.
-func (this *radarServer) GetAbsPath(
+func (r *radarServer) GetAbsPath(
 	ctx context.Context,
 	containerPath *pb.ContainerPath) (*pb.AbsolutePath, error) {
 

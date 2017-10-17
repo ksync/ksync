@@ -9,7 +9,7 @@ import (
 
 type deleteCmd struct{}
 
-func (this *deleteCmd) new() *cobra.Command {
+func (d *deleteCmd) new() *cobra.Command {
 	long := `
 		delete an existing sync.`
 	example := ``
@@ -21,14 +21,14 @@ func (this *deleteCmd) new() *cobra.Command {
 		Example: example,
 		Aliases: []string{"d"},
 		Args:    cobra.ExactArgs(1),
-		Run:     this.run,
+		Run:     d.run,
 		// TODO: BashCompletionFunction
 	}
 
 	return cmd
 }
 
-func (this *deleteCmd) run(cmd *cobra.Command, args []string) {
+func (d *deleteCmd) run(cmd *cobra.Command, args []string) {
 	name := args[0]
 
 	specMap, err := ksync.AllSpecs()

@@ -9,6 +9,7 @@ var (
 	dockerClient *apiclient.Client
 )
 
+// InitDockerClient sets up the singleton for use by the ksync package.
 func InitDockerClient() error {
 	client, err := apiclient.NewEnvClient()
 	if err != nil {

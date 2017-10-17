@@ -17,7 +17,7 @@ type watchCmd struct {
 	viper *viper.Viper
 }
 
-func (this *watchCmd) new() *cobra.Command {
+func (w *watchCmd) new() *cobra.Command {
 	long := `Watch configured syncs and start them when required.`
 	example := ``
 
@@ -26,10 +26,10 @@ func (this *watchCmd) new() *cobra.Command {
 		Short:   "Watch configured syncs and start them when required.",
 		Long:    long,
 		Example: example,
-		Run:     this.run,
+		Run:     w.run,
 	}
 
-	this.viper = viper.New()
+	w.viper = viper.New()
 
 	return cmd
 }
@@ -37,7 +37,7 @@ func (this *watchCmd) new() *cobra.Command {
 // TODO: hook up to k8s and watch for changes
 // TODO: stop watches that are no longer valid (both removed from config and k8s)
 // TODO: handle Normalize errors.
-func (this *watchCmd) run(cmd *cobra.Command, args []string) {
+func (w *watchCmd) run(cmd *cobra.Command, args []string) {
 	// 1. Watch config file for updates
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {

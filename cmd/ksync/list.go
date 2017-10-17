@@ -13,7 +13,7 @@ type listCmd struct {
 	viper *viper.Viper
 }
 
-func (this *listCmd) new() *cobra.Command {
+func (l *listCmd) new() *cobra.Command {
 	long := `
     List the files from a remote container.`
 	example := ``
@@ -25,19 +25,19 @@ func (this *listCmd) new() *cobra.Command {
 		Example: example,
 		Aliases: []string{"ls"},
 		Args:    cobra.ExactArgs(1),
-		Run:     this.run,
+		Run:     l.run,
 		// TODO: BashCompletionFunction
 	}
-	this.viper = viper.New()
+	l.viper = viper.New()
 
 	// TODO: can this become a mixin?
-	input.LocatorFlags(cmd, this.viper)
+	input.LocatorFlags(cmd, l.viper)
 
 	return cmd
 }
 
-func (this *listCmd) run(cmd *cobra.Command, args []string) {
-	loc := input.GetLocator(this.viper)
+func (l *listCmd) run(cmd *cobra.Command, args []string) {
+	loc := input.GetLocator(l.viper)
 	// Usage validation ------------------------------------
 	loc.Validator()
 

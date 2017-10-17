@@ -13,7 +13,7 @@ type runCmd struct {
 	viper *viper.Viper
 }
 
-func (this *runCmd) new() *cobra.Command {
+func (r *runCmd) new() *cobra.Command {
 	long := `
     Start syncing between a local and remote directory.`
 	example := ``
@@ -24,10 +24,10 @@ func (this *runCmd) new() *cobra.Command {
 		Long:    long,
 		Example: example,
 		Args:    cobra.ExactArgs(2),
-		Run:     this.run,
+		Run:     r.run,
 		// TODO: BashCompletionFunction
 	}
-	this.viper = viper.New()
+	r.viper = viper.New()
 
 	flags := cmd.Flags()
 	flags.StringP(
@@ -36,8 +36,8 @@ func (this *runCmd) new() *cobra.Command {
 		"",
 		"Container name. If omitted, the first container in the pod will be chosen.")
 
-	this.viper.BindPFlag("container", flags.Lookup("container"))
-	this.viper.BindEnv("container", "KSYNC_CONTAINER")
+	r.viper.BindPFlag("container", flags.Lookup("container"))
+	r.viper.BindEnv("container", "KSYNC_CONTAINER")
 
 	// TODO: is this best as an arg instead of positional?
 	flags.StringP(
@@ -46,8 +46,8 @@ func (this *runCmd) new() *cobra.Command {
 		"",
 		"Pod name.")
 
-	this.viper.BindPFlag("pod", flags.Lookup("pod"))
-	this.viper.BindEnv("pod", "KSYNC_POD")
+	r.viper.BindPFlag("pod", flags.Lookup("pod"))
+	r.viper.BindEnv("pod", "KSYNC_POD")
 
 	return cmd
 }
@@ -55,9 +55,9 @@ func (this *runCmd) new() *cobra.Command {
 // TODO: check for existence of java (and the right version)
 // TODO: message (and fail) when this is not run from the expected environment -
 //       the docker container.
-func (this *runCmd) run(cmd *cobra.Command, args []string) {
+func (r *runCmd) run(cmd *cobra.Command, args []string) {
 	// Usage validation ------------------------------------
-	if this.viper.GetString("pod") == "" {
+	if r.viper.GetString("pod") == "" {
 		log.Fatal("Must specify --pod.")
 	}
 
@@ -65,13 +65,13 @@ func (this *runCmd) run(cmd *cobra.Command, args []string) {
 	syncPath.Validator()
 
 	container, err := ksync.GetByName(
-		this.viper.GetString("pod"),
-		this.viper.GetString("container"))
+		r.viper.GetString("pod"),
+		r.viper.GetString("container"))
 	if err != nil {
 		log.Fatalf(
 			"Could not get pod(%s) container(%s): %v",
-			this.viper.GetString("pod"),
-			this.viper.GetString("container"),
+			r.viper.GetString("pod"),
+			r.viper.GetString("container"),
 			err)
 	}
 

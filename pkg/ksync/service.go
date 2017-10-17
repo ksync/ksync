@@ -12,6 +12,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// Service reflects a sync that can be run in the background.
 type Service struct {
 	Name      string
 	Container *Container `structs:"-"`
@@ -19,6 +20,7 @@ type Service struct {
 	Spec      *Spec      `structs:"-"`
 }
 
+// ServiceStatus is the status of a specific service.
 type ServiceStatus struct {
 	ID        string
 	Status    string
@@ -30,6 +32,7 @@ func (s *ServiceStatus) String() string {
 	return YamlString(s)
 }
 
+// Fields returns a set of structured fields for logging.
 func (s *ServiceStatus) Fields() log.Fields {
 	return StructFields(s)
 }
@@ -48,6 +51,7 @@ func (s *Service) String() string {
 	return YamlString(s)
 }
 
+// Fields returns a set of structured fields for logging.
 func (s *Service) Fields() log.Fields {
 	return StructFields(s)
 }

@@ -22,6 +22,7 @@ func (r *RadarInstance) String() string {
 	return YamlString(r)
 }
 
+// Fields returns a set of structured fields for logging.
 func (r *RadarInstance) Fields() log.Fields {
 	return StructFields(r)
 }
@@ -45,10 +46,10 @@ func NewRadarInstance() *RadarInstance {
 // TODO: spin up on demand
 // TODO: wait for ready
 func (r *RadarInstance) Run(upgrade bool) error {
-	fn := KubeClient.DaemonSets(r.namespace).Create
+	fn := kubeClient.DaemonSets(r.namespace).Create
 
 	if upgrade {
-		fn = KubeClient.DaemonSets(r.namespace).Update
+		fn = kubeClient.DaemonSets(r.namespace).Update
 	}
 
 	_, err := fn(r.daemonSet())
@@ -77,7 +78,7 @@ func (r *RadarInstance) opts() []grpc.DialOption {
 
 func (r *RadarInstance) podName(nodeName string) (string, error) {
 	// TODO: error handling for nodes that don't exist.
-	pods, err := KubeClient.CoreV1().Pods(r.namespace).List(
+	pods, err := kubeClient.CoreV1().Pods(r.namespace).List(
 		metav1.ListOptions{
 			LabelSelector: fmt.Sprintf("app=%s", r.labels["app"]),
 			FieldSelector: fmt.Sprintf("spec.nodeName=%s", nodeName),

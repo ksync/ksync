@@ -19,12 +19,13 @@ type Container struct {
 	PodName  string
 }
 
-func (this *Container) String() string {
-	return YamlString(this)
+func (c *Container) String() string {
+	return YamlString(c)
 }
 
-func (this *Container) Fields() log.Fields {
-	return StructFields(this)
+// Fields returns a set of structured fields for logging.
+func (c *Container) Fields() log.Fields {
+	return StructFields(c)
 }
 
 // Radar connects to the server component (radar) and returns a client.
@@ -33,7 +34,7 @@ func (c *Container) Radar() (pb.RadarClient, error) {
 	if err != nil {
 		return nil, ErrorOut("Could not connect to radar", err, c)
 	}
-	// TODO: what's a better way to handle this?
+	// TODO: what's a better way to handle c?
 	// defer conn.Close()
 
 	log.WithFields(c.Fields()).Debug("radar connected")
@@ -78,7 +79,7 @@ func getContainer(pod *apiv1.Pod, containerName string) (*Container, error) {
 
 // GetByName takes a pod and container name and looks for a running Container.
 func GetByName(podName string, containerName string) (*Container, error) {
-	pod, err := KubeClient.CoreV1().Pods(Namespace).Get(podName, metav1.GetOptions{})
+	pod, err := kubeClient.CoreV1().Pods(namespace).Get(podName, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +94,8 @@ func GetByName(podName string, containerName string) (*Container, error) {
 func getBySelector(selector string, containerName string) ([]*Container, error) {
 	opts := metav1.ListOptions{}
 	opts.LabelSelector = selector
-	pods, err := KubeClient.CoreV1().Pods(Namespace).List(opts)
+	// TODO: namespace is not global anywhere else.
+	pods, err := kubeClient.CoreV1().Pods(namespace).List(opts)
 	if err != nil {
 		return nil, err
 	}

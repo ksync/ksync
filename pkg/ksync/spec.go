@@ -30,20 +30,22 @@ type Spec struct {
 	RemotePath string
 }
 
-func (this *SpecMap) String() string {
-	return YamlString(this)
+func (s *SpecMap) String() string {
+	return YamlString(s)
 }
 
-func (this *SpecMap) Fields() log.Fields {
+// Fields returns a set of structured fields for logging.
+func (s *SpecMap) Fields() log.Fields {
 	return log.Fields{}
 }
 
-func (this *Spec) String() string {
-	return YamlString(this)
+func (s *Spec) String() string {
+	return YamlString(s)
 }
 
-func (this *Spec) Fields() log.Fields {
-	return StructFields(this)
+// Fields returns a set of structured fields for logging.
+func (s *Spec) Fields() log.Fields {
+	return StructFields(s)
 }
 
 // AllSpecs populates a SpecMap with the configured specs. These are populated
@@ -72,29 +74,29 @@ func AllSpecs() (*SpecMap, error) {
 
 // Create checks an individual input spec for likeness and duplicates
 // then adds the spec into a SpecMap
-func (this *SpecMap) Create(name string, spec *Spec, force bool) error {
+func (s *SpecMap) Create(name string, spec *Spec, force bool) error {
 	if !force {
-		if this.Has(name) {
+		if s.Has(name) {
 			// TODO: make this into a type?
-			return fmt.Errorf("name already exists.")
+			return fmt.Errorf("name already exists")
 		}
 
-		if this.HasLike(spec) {
-			return fmt.Errorf("similar spec exists.")
+		if s.HasLike(spec) {
+			return fmt.Errorf("similar spec exists")
 		}
 	}
 
-	this.Items[name] = spec
+	s.Items[name] = spec
 	return nil
 }
 
 // Delete removes a given spec from a SpecMap
-func (this *SpecMap) Delete(name string) error {
-	if !this.Has(name) {
+func (s *SpecMap) Delete(name string) error {
+	if !s.Has(name) {
 		return fmt.Errorf("does not exist")
 	}
 
-	delete(this.Items, name)
+	delete(s.Items, name)
 	return nil
 }
 
@@ -102,7 +104,7 @@ func (this *SpecMap) Delete(name string) error {
 // TODO: tests:
 //   missing config file
 //   shorter config file (removing an entry)
-func (this *SpecMap) Save() error {
+func (s *SpecMap) Save() error {
 	cfgPath := viper.ConfigFileUsed()
 	if cfgPath == "" {
 		home, err := homedir.Dir()
@@ -117,23 +119,19 @@ func (this *SpecMap) Save() error {
 		"path": cfgPath,
 	}).Debug("writing config file")
 
-	viper.Set("spec", this.Items)
+	viper.Set("spec", s.Items)
 	buf, err := yaml.Marshal(viper.AllSettings())
 	if err != nil {
 		return err
 	}
 
-	if err := ioutil.WriteFile(cfgPath, buf, 0644); err != nil {
-		return err
-	}
-
-	return nil
+	return ioutil.WriteFile(cfgPath, buf, 0644)
 }
 
 // HasLike checks a given spec for deep equivalence against another spec
 // TODO: is this the best way to do this?
-func (this *SpecMap) HasLike(target *Spec) bool {
-	for _, spec := range this.Items {
+func (s *SpecMap) HasLike(target *Spec) bool {
+	for _, spec := range s.Items {
 		if reflect.DeepEqual(target, spec) {
 			return true
 		}
@@ -142,8 +140,8 @@ func (this *SpecMap) HasLike(target *Spec) bool {
 }
 
 // Has checks a given spec for simple equivalence against another spec
-func (this *SpecMap) Has(target string) bool {
-	if _, ok := this.Items[target]; ok {
+func (s *SpecMap) Has(target string) bool {
+	if _, ok := s.Items[target]; ok {
 		return true
 	}
 	return false

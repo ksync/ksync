@@ -10,7 +10,7 @@ import (
 var (
 	globalUsage = `Map container names to local filesystem locations.`
 
-	RootCmd = &cobra.Command{
+	rootCmd = &cobra.Command{
 		Use:   "radar",
 		Short: "Map container names to local filesystem locations.",
 		Long:  globalUsage,
@@ -22,11 +22,11 @@ var (
 
 // Main runs the server instance
 func main() {
-	RootCmd.AddCommand(
+	rootCmd.AddCommand(
 		(&serveCmd{}).new(),
 	)
 
-	if err := RootCmd.Execute(); err != nil {
+	if err := rootCmd.Execute(); err != nil {
 		log.Fatalf("%v", err)
 	}
 }
@@ -35,5 +35,5 @@ func main() {
 func init() {
 	cobra.OnInitialize(func() { cli.InitConfig("radar") })
 
-	cli.DefaultFlags(RootCmd, "radar")
+	cli.DefaultFlags(rootCmd, "radar")
 }

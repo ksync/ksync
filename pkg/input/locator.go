@@ -27,24 +27,24 @@ func GetLocator(cmdViper *viper.Viper) Locator {
 }
 
 // Validator ensures that a Locator is valid for use.
-func (this *Locator) Validator() {
+func (l *Locator) Validator() {
 	// TODO: something like cmdutil.UsageErrorf
 	// TODO: move into its own function (add to command as a validator?)
-	if this.Selector == "" && this.PodName == "" {
+	if l.Selector == "" && l.PodName == "" {
 		log.Fatal("Must specify at least a selector or a pod name.")
 	}
 }
 
 // Containers returns a list of all remote containers that match the Locator.
-func (this *Locator) Containers() ([]*ksync.Container, error) {
+func (l *Locator) Containers() ([]*ksync.Container, error) {
 	containerList, err := ksync.GetContainers(
-		this.PodName, this.Selector, this.ContainerName)
+		l.PodName, l.Selector, l.ContainerName)
 	if err != nil {
 		return nil, fmt.Errorf(
 			"could not get containers for (pod:%s) (selector:%s) (container:%s): %v",
-			this.PodName,
-			this.Selector,
-			this.ContainerName,
+			l.PodName,
+			l.Selector,
+			l.ContainerName,
 			err)
 	}
 
@@ -52,9 +52,9 @@ func (this *Locator) Containers() ([]*ksync.Container, error) {
 	if len(containerList) == 0 {
 		return nil, fmt.Errorf(
 			"no containers found for pod (%s) or selector (%s) with container (%s)",
-			this.PodName,
-			this.Selector,
-			this.ContainerName)
+			l.PodName,
+			l.Selector,
+			l.ContainerName)
 	}
 
 	return containerList, nil

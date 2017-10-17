@@ -13,7 +13,7 @@ type SyncPath struct {
 	Remote string
 }
 
-// GetPaths constructs a SyncPath from command line arguments.
+// GetSyncPath constructs a SyncPath from command line arguments.
 func GetSyncPath(args []string) SyncPath {
 	return SyncPath{
 		args[0],

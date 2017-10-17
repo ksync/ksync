@@ -16,7 +16,7 @@ import (
 type serveCmd struct{}
 
 // TODO: update docs, add example.
-func (this *serveCmd) new() *cobra.Command {
+func (s *serveCmd) new() *cobra.Command {
 	long := `Start the server.`
 	example := ``
 
@@ -26,7 +26,7 @@ func (this *serveCmd) new() *cobra.Command {
 		Long:    long,
 		Example: example,
 		Args:    cobra.ExactArgs(0),
-		Run:     this.run,
+		Run:     s.run,
 	}
 
 	flags := cmd.Flags()
@@ -60,7 +60,7 @@ func (this *serveCmd) new() *cobra.Command {
 	return cmd
 }
 
-func (this *serveCmd) run(cmd *cobra.Command, args []string) {
+func (s *serveCmd) run(cmd *cobra.Command, args []string) {
 	lis, err := net.Listen(
 		"tcp", fmt.Sprintf("%s:%d", viper.GetString("bind"), viper.GetInt("port")))
 	if err != nil {
