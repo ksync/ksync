@@ -72,7 +72,9 @@ func (s *ServiceList) Normalize() error {
 func (s *ServiceList) Filter(name string) *ServiceList {
 	list := &ServiceList{}
 	for _, service := range s.Items {
-		list.Items = append(list.Items, service)
+		if service.Name == name {
+			list.Items = append(list.Items, service)
+		}
 	}
 
 	return list
