@@ -93,6 +93,7 @@ func (s *Service) create() (*container.ContainerCreateCreatedBody, error) {
 	return &cntr, nil
 }
 
+// Start runs a service in the background.
 func (s *Service) Start() error {
 	status, err := s.Status()
 	if err != nil {
@@ -130,6 +131,7 @@ func (s *Service) Start() error {
 	return nil
 }
 
+// Stop halts a service that has been running in the background.
 func (s *Service) Stop() error {
 	status, err := s.Status()
 	if err != nil {

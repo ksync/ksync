@@ -9,10 +9,12 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// ServiceList is a list of services.
 type ServiceList struct {
 	Items []*Service
 }
 
+// GetServices creates a ServiceList containing all the running services.
 func GetServices() *ServiceList {
 	list := &ServiceList{}
 
@@ -21,6 +23,7 @@ func GetServices() *ServiceList {
 	return list
 }
 
+// Get populates a ServiceList with all the running services.
 func (s *ServiceList) Get() error {
 	args := filters.NewArgs()
 	args.Add("label", "heritage=ksync")
@@ -69,6 +72,8 @@ func (s *ServiceList) Normalize() error {
 	return nil
 }
 
+// Filter takes a name and returns a new instance of ServiceList populated with
+// elements that have that name.
 func (s *ServiceList) Filter(name string) *ServiceList {
 	list := &ServiceList{}
 	for _, service := range s.Items {
@@ -80,6 +85,7 @@ func (s *ServiceList) Filter(name string) *ServiceList {
 	return list
 }
 
+// Stop takes all the services in a list and stops them.
 func (s *ServiceList) Stop() error {
 	for _, service := range s.Items {
 		if err := service.Stop(); err != nil {
