@@ -39,8 +39,8 @@ func getKubeConfig(context string) (*rest.Config, error) {
 	return config, nil
 }
 
-// InitClient creates a new k8s client for use in talking to the k8s api server.
-func InitClient(context string, namespace string) error {
+// InitKubeClient creates a new k8s client for use in talking to the k8s api server.
+func InitKubeClient(context string, namespace string) error {
 	log.WithFields(log.Fields{
 		"context":   context,
 		"namespace": namespace,

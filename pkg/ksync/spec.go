@@ -2,7 +2,7 @@ package ksync
 
 import (
 	"fmt"
-	"os"
+	"io/ioutil"
 	"path/filepath"
 	"reflect"
 
@@ -99,6 +99,9 @@ func (this *SpecMap) Delete(name string) error {
 }
 
 // Save serializes the current SpecMap's items to the config file.
+// TODO: tests:
+//   missing config file
+//   shorter config file (removing an entry)
 func (this *SpecMap) Save() error {
 	cfgPath := viper.ConfigFileUsed()
 	if cfgPath == "" {
@@ -110,12 +113,6 @@ func (this *SpecMap) Save() error {
 		cfgPath = filepath.Join(home, fmt.Sprintf(".%s.yaml", "ksync"))
 	}
 
-	fobj, err := os.OpenFile(cfgPath, os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		return err
-	}
-	defer fobj.Close()
-
 	log.WithFields(log.Fields{
 		"path": cfgPath,
 	}).Debug("writing config file")
@@ -126,7 +123,7 @@ func (this *SpecMap) Save() error {
 		return err
 	}
 
-	if _, err := fobj.WriteString(string(buf)); err != nil {
+	if err := ioutil.WriteFile(cfgPath, buf, 0644); err != nil {
 		return err
 	}
 

@@ -61,13 +61,21 @@ func init() {
 
 func initPersistent(cmd *cobra.Command, args []string) {
 	cli.InitLogging()
-	initClient()
+	initKubeClient()
+	initDockerClient()
 }
 
-// InitClient initializes the kubernetes client options.
-func initClient() {
-	err := ksync.InitClient(viper.GetString("context"), viper.GetString("namespace"))
+func initKubeClient() {
+	err := ksync.InitKubeClient(viper.GetString("context"), viper.GetString("namespace"))
 	if err != nil {
 		log.Fatalf("Error creating kubernetes client: %v", err)
+	}
+}
+
+// TODO: should this be scoped only to commands that use docker?
+func initDockerClient() {
+	err := ksync.InitDockerClient()
+	if err != nil {
+		log.Fatalf("Error creating docker client: %v", err)
 	}
 }
