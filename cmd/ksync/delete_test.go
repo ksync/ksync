@@ -13,7 +13,7 @@ import (
 )
 
 func TestDeleteNew(t *testing.T) {
-  testCobra := &DeleteCmd{}
+  testCobra := &deleteCmd{}
   cmd := testCobra.New()
 
   assert.IsTypef(t, reflect.TypeOf(&cobra.Command{}), reflect.TypeOf(cmd), "New command is of type %s", reflect.TypeOf(cmd))

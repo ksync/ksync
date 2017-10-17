@@ -13,7 +13,7 @@ import (
 )
 
 func TestInitNew(t *testing.T) {
-  testCobra := &InitCmd{}
+  testCobra := &initCmd{}
   cmd := testCobra.New()
 
   assert.IsTypef(t, reflect.TypeOf(&cobra.Command{}), reflect.TypeOf(cmd), "New command is of type %s", reflect.TypeOf(cmd))

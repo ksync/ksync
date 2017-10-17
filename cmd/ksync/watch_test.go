@@ -13,7 +13,7 @@ import (
 )
 
 func TestWatchNew(t *testing.T) {
-  testCobra := &WatchCmd{}
+  testCobra := &watchCmd{}
   cmd := testCobra.New()
 
   assert.IsTypef(t, reflect.TypeOf(&cobra.Command{}), reflect.TypeOf(cmd), "New command is of type %s", reflect.TypeOf(cmd))
