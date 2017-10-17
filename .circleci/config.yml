@@ -24,7 +24,7 @@ jobs:
           name: "Make test report directory"
           command: mkdir -p /tmp/$TEST_DIRECTORY
 
-      - lint:
+      - run:
           name: "Lint"
           command: |
             go get -u github.com/golang/lint/golint
