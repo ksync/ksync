@@ -17,7 +17,7 @@ type watchCmd struct {
 	viper *viper.Viper
 }
 
-func (this *watchCmd) new() *cobra.Command {
+func (w *watchCmd) new() *cobra.Command {
 	long := `Watch configured syncs and start them when required.`
 	example := ``
 
@@ -26,71 +26,33 @@ func (this *watchCmd) new() *cobra.Command {
 		Short:   "Watch configured syncs and start them when required.",
 		Long:    long,
 		Example: example,
-		Run:     this.run,
+		Run:     w.run,
 	}
 
-	this.viper = viper.New()
+	w.viper = viper.New()
 
 	return cmd
 }
 
 // TODO: hook up to k8s and watch for changes
 // TODO: stop watches that are no longer valid (both removed from config and k8s)
-func (this *watchCmd) run(cmd *cobra.Command, args []string) {
+// TODO: handle Normalize errors.
+func (w *watchCmd) run(cmd *cobra.Command, args []string) {
 	// 1. Watch config file for updates
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
-		this.manageSpecs()
+		if err := ksync.GetServices().Normalize(); err != nil {
+			log.Fatal(err)
+		}
 	})
 
-	this.manageSpecs()
-
+	if err := ksync.GetServices().Normalize(); err != nil {
+		log.Fatal(err)
+	}
 	// 2. Watch k8s API for updates
 	// 3. Add/remove runs
 
 	waitForSignal()
-}
-
-// TODO: how to test what *shouldn't* be running?
-func (this *watchCmd) manageSpecs() {
-	specMap, _ := ksync.AllSpecs()
-	for name, spec := range specMap.Items {
-		// Should run?
-		containerList, err := ksync.GetContainers(
-			spec.Pod, spec.Selector, spec.Container)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		if len(containerList) == 0 {
-			log.WithFields(spec.Fields()).Debug("no matching running containers.")
-			continue
-		}
-
-		// TODO: should this be on its own?
-		for _, cntr := range containerList {
-			service, err := ksync.NewService(name, cntr, spec)
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			status, err := service.Status()
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			log.WithFields(status.Fields()).Debug("service status")
-
-			// Container is running, leave it alone.
-			if status.Running {
-				continue
-			}
-
-			if err := service.Start(); err != nil {
-				log.Fatal(err)
-			}
-		}
-	}
 }
 
 func waitForSignal() {

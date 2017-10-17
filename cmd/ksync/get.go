@@ -12,7 +12,7 @@ import (
 
 type getCmd struct{}
 
-func (this *getCmd) new() *cobra.Command {
+func (g *getCmd) new() *cobra.Command {
 	long := `Get all configured syncs and their status.`
 	example := ``
 
@@ -21,7 +21,7 @@ func (this *getCmd) new() *cobra.Command {
 		Short:   "Get all configured syncs and their status.",
 		Long:    long,
 		Example: example,
-		Run:     this.run,
+		Run:     g.run,
 	}
 
 	return cmd
@@ -34,7 +34,7 @@ func (this *getCmd) new() *cobra.Command {
 // TODO: make output configurable
 // TODO: the paths can be pretty long, keep them to a certain length?
 // TODO: check for existence of the watcher, warn if it isn't running.
-func (this *getCmd) run(cmd *cobra.Command, args []string) {
+func (g *getCmd) run(cmd *cobra.Command, args []string) {
 	specMap, err := ksync.AllSpecs()
 	if err != nil {
 		log.Fatal(err)

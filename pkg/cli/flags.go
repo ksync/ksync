@@ -8,14 +8,12 @@ import (
 	"github.com/spf13/viper"
 )
 
-// EnvName constructs the name of the environment from the current command
-// optionally provided name
 func envName(cmd string, name string) string {
 	return fmt.Sprintf("%s_%s", strings.ToUpper(cmd), strings.ToUpper(name))
 }
 
-// DefaultFlags provides a definition for the command flags
-// TODO: add doc strings
+// DefaultFlags configures a standard set of flags for every command and
+// sub-command.
 func DefaultFlags(cmd *cobra.Command, name string) {
 	cmd.PersistentFlags().String(
 		"config",

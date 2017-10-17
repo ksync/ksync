@@ -2,7 +2,7 @@ package ksync
 
 import (
 	"fmt"
-	"os"
+	"io/ioutil"
 	"path/filepath"
 	"reflect"
 
@@ -14,23 +14,42 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-// SpecMap defines the complete list of specifications as a map interface
+// SpecMap is a collection of Specs.
 type SpecMap struct {
 	Items map[string]*Spec
 }
 
-// Spec defines the possible specifications that can be used to search for
-// resources in the cluster
+// Spec is all the configuration required to setup a sync from a local directory
+// to a remote directory in a specific remote container.
 type Spec struct {
-	Container  string
+	Container string
+	// TODO: use a locator instead?
 	Pod        string
 	Selector   string
 	LocalPath  string
 	RemotePath string
 }
 
-// AllSpecs takes in specs passed to the cli and returns a SpecMap containing
-// the specs
+func (s *SpecMap) String() string {
+	return YamlString(s)
+}
+
+// Fields returns a set of structured fields for logging.
+func (s *SpecMap) Fields() log.Fields {
+	return log.Fields{}
+}
+
+func (s *Spec) String() string {
+	return YamlString(s)
+}
+
+// Fields returns a set of structured fields for logging.
+func (s *Spec) Fields() log.Fields {
+	return StructFields(s)
+}
+
+// AllSpecs populates a SpecMap with the configured specs. These are populated
+// normally via. configuration.
 // TODO: test non-existant file
 // TODO: test missing specs
 func AllSpecs() (*SpecMap, error) {
@@ -53,45 +72,39 @@ func AllSpecs() (*SpecMap, error) {
 	return &all, nil
 }
 
-func (this *SpecMap) String() string {
-	return YamlString(this)
-}
-
-func (this *SpecMap) Fields() log.Fields {
-	return log.Fields{}
-}
-
 // Create checks an individual input spec for likeness and duplicates
 // then adds the spec into a SpecMap
-func (this *SpecMap) Create(name string, spec *Spec, force bool) error {
+func (s *SpecMap) Create(name string, spec *Spec, force bool) error {
 	if !force {
-		if this.Has(name) {
+		if s.Has(name) {
 			// TODO: make this into a type?
-			return fmt.Errorf("name already exists.")
+			return fmt.Errorf("name already exists")
 		}
 
-		if this.HasLike(spec) {
-			return fmt.Errorf("similar spec exists.")
+		if s.HasLike(spec) {
+			return fmt.Errorf("similar spec exists")
 		}
 	}
 
-	this.Items[name] = spec
+	s.Items[name] = spec
 	return nil
 }
 
 // Delete removes a given spec from a SpecMap
-func (this *SpecMap) Delete(name string) error {
-	if !this.Has(name) {
+func (s *SpecMap) Delete(name string) error {
+	if !s.Has(name) {
 		return fmt.Errorf("does not exist")
 	}
 
-	delete(this.Items, name)
+	delete(s.Items, name)
 	return nil
 }
 
-// Save creates an individual configuration file (at the given path) for a
-// specifc SpecMap
-func (this *SpecMap) Save() error {
+// Save serializes the current SpecMap's items to the config file.
+// TODO: tests:
+//   missing config file
+//   shorter config file (removing an entry)
+func (s *SpecMap) Save() error {
 	cfgPath := viper.ConfigFileUsed()
 	if cfgPath == "" {
 		home, err := homedir.Dir()
@@ -102,33 +115,23 @@ func (this *SpecMap) Save() error {
 		cfgPath = filepath.Join(home, fmt.Sprintf(".%s.yaml", "ksync"))
 	}
 
-	fobj, err := os.OpenFile(cfgPath, os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		return err
-	}
-	defer fobj.Close()
-
 	log.WithFields(log.Fields{
 		"path": cfgPath,
 	}).Debug("writing config file")
 
-	viper.Set("spec", this.Items)
+	viper.Set("spec", s.Items)
 	buf, err := yaml.Marshal(viper.AllSettings())
 	if err != nil {
 		return err
 	}
 
-	if _, err := fobj.WriteString(string(buf)); err != nil {
-		return err
-	}
-
-	return nil
+	return ioutil.WriteFile(cfgPath, buf, 0644)
 }
 
 // HasLike checks a given spec for deep equivalence against another spec
 // TODO: is this the best way to do this?
-func (this *SpecMap) HasLike(target *Spec) bool {
-	for _, spec := range this.Items {
+func (s *SpecMap) HasLike(target *Spec) bool {
+	for _, spec := range s.Items {
 		if reflect.DeepEqual(target, spec) {
 			return true
 		}
@@ -137,17 +140,9 @@ func (this *SpecMap) HasLike(target *Spec) bool {
 }
 
 // Has checks a given spec for simple equivalence against another spec
-func (this *SpecMap) Has(target string) bool {
-	if _, ok := this.Items[target]; ok {
+func (s *SpecMap) Has(target string) bool {
+	if _, ok := s.Items[target]; ok {
 		return true
 	}
 	return false
-}
-
-func (this *Spec) String() string {
-	return YamlString(this)
-}
-
-func (this *Spec) Fields() log.Fields {
-	return StructFields(this)
 }

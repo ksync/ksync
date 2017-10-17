@@ -70,4 +70,14 @@ docker-push-%:
 	gcloud docker -- push ${IMAGE}
 	gcloud docker -- push ${MUTABLE_IMAGE}
 
+.PHONY: docker-build-radar
 docker-build-radar: docker-binary
+
+HAS_LINT := $(shell command -v golint)
+
+.PHONY: lint
+lint:
+ifndef HAS_LINT
+	go get -u github.com/golang/lint/golint
+endif
+	golint -set_exit_status ./...

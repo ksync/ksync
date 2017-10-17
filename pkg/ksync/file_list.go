@@ -13,22 +13,22 @@ import (
 	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
 
-// FileList defines the files designating a given group of files
+// FileList is the set of all Files that exist in the remote Container.
 type FileList struct {
 	Container *Container
 	Path      string
 	Files     *pb.Files
 }
 
-// Get checks a container path for existence of files
-func (this *FileList) Get() error {
-	client, err := this.Container.Radar()
+// Get populates the FileList with the set of all Files in the remote Container.
+func (f *FileList) Get() error {
+	client, err := f.Container.Radar()
 	if err != nil {
 		return fmt.Errorf("%v", err)
 	}
 
-	this.Files, err = client.ListContainerFiles(
-		context.Background(), &pb.ContainerPath{this.Container.ID, this.Path})
+	f.Files, err = client.ListContainerFiles(
+		context.Background(), &pb.ContainerPath{f.Container.ID, f.Path})
 	if err != nil {
 		return fmt.Errorf("Could not list files: %v", err)
 	}
@@ -36,11 +36,11 @@ func (this *FileList) Get() error {
 	return nil
 }
 
-// Output takes a list of files and formats it for output
-func (this *FileList) Output() error {
+// Output prints a table of the Files in f FileList.
+func (f *FileList) Output() error {
 
 	fmt.Println(tm.Color(fmt.Sprintf("==> %s:%s:%s <==",
-		this.Container.PodName, this.Container.Name, this.Path), tm.CYAN))
+		f.Container.PodName, f.Container.Name, f.Path), tm.CYAN))
 
 	// TODO: should output be configurable?
 	// TODO: should this be a common table format?
@@ -50,7 +50,7 @@ func (this *FileList) Output() error {
 
 	// TODO: can I map this instead?
 	// TODO: add color (directories, links, ...)
-	for _, file := range this.Files.Items {
+	for _, file := range f.Files.Items {
 		modTime, _ := ptypes.Timestamp(file.ModTime)
 
 		// TODO: show link path eg. foo -> ../bar
@@ -60,7 +60,7 @@ func (this *FileList) Output() error {
 			fmt.Sprintf("%d", file.Size),
 			modTime.Format("Jan 2 15:4"),
 			// TODO: path output needs to be improved
-			tm.Color(strings.TrimPrefix(file.Path, this.Path), this.pathColor(file)),
+			tm.Color(strings.TrimPrefix(file.Path, f.Path), f.pathColor(file)),
 		})
 	}
 	table.Render()
@@ -68,8 +68,7 @@ func (this *FileList) Output() error {
 	return nil
 }
 
-// pathColor colorizes the paths of files for output
-func (this *FileList) pathColor(file *pb.File) int {
+func (f *FileList) pathColor(file *pb.File) int {
 	if file.IsDir {
 		// TODO: this isn't the best blue ... is there a better way to handle this?
 		return tm.BLUE

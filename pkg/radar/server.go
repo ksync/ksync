@@ -12,11 +12,9 @@ import (
 	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
 
-// radarServer provide a definition for the radar object
 type radarServer struct{}
 
-// DefaultServerOpts returns the default options for grpc
-func DefaultServerOpts() []grpc.ServerOption {
+func defaultServerOpts() []grpc.ServerOption {
 	return []grpc.ServerOption{}
 }
 
@@ -47,7 +45,7 @@ func NewServer(opts ...grpc.ServerOption) *grpc.Server {
 			grpc_logrus.StreamServerInterceptor(logrusEntry, logOpts...)),
 	)
 
-	server := grpc.NewServer(append(DefaultServerOpts(), opts...)...)
+	server := grpc.NewServer(append(defaultServerOpts(), opts...)...)
 	pb.RegisterRadarServer(server, new(radarServer))
 	return server
 }

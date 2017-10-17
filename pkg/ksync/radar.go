@@ -7,171 +7,80 @@ import (
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/pkg/api/v1"
-	v1beta1 "k8s.io/client-go/pkg/apis/extensions/v1beta1"
 )
 
-var (
-	labels = map[string]string{
-		"name": "ksync-radar",
-		"app":  "radar",
-	}
+// RadarInstance is the remote server component of ksync.
+type RadarInstance struct {
+	namespace  string
+	name       string
+	labels     map[string]string
+	mirrorPort int32
+	radarPort  int32
+}
 
-	radarNamespace = "kube-system"
-	radarName      = "ksync-radar"
-	radarPort      = 40321
+func (r *RadarInstance) String() string {
+	return YamlString(r)
+}
 
-	grpcOpts = []grpc.DialOption{
-		grpc.WithTimeout(5 * time.Second),
-		grpc.WithBlock(),
-		// TODO: add client side tracing
-	}
+// Fields returns a set of structured fields for logging.
+func (r *RadarInstance) Fields() log.Fields {
+	return StructFields(r)
+}
 
-	// TODO: make namespace, name?, service account configurable
-	radarDaemonSet = &v1beta1.DaemonSet{
-		ObjectMeta: metav1.ObjectMeta{
-			// TODO: configurable
-			Namespace: radarNamespace,
-			Name:      radarName,
-			Labels:    labels,
-		},
-		Spec: v1beta1.DaemonSetSpec{
-			Template: v1.PodTemplateSpec{
-				ObjectMeta: metav1.ObjectMeta{
-					Labels: labels,
-					Annotations: map[string]string{
-						// TODO: this should only be set on --upgrade --force
-						"forceUpdate": fmt.Sprint(time.Now().Unix()),
-						// TODO: set inotify sysctl high en
-					},
-				},
-				Spec: v1.PodSpec{
-					Containers: []v1.Container{
-						{
-							Name: radarName,
-							// TODO: configurable
-							Image:           "gcr.io/elated-embassy-152022/ksync/radar:canary",
-							ImagePullPolicy: "Always",
-							Ports: []v1.ContainerPort{
-								{ContainerPort: 40321, Name: "grpc"},
-							},
-							// TODO: resources
-							VolumeMounts: []v1.VolumeMount{
-								v1.VolumeMount{
-									Name:      "dockerfs",
-									MountPath: "/var/lib/docker",
-								},
-								v1.VolumeMount{
-									Name:      "dockersock",
-									MountPath: "/var/run/docker.sock",
-								},
-								v1.VolumeMount{
-									Name:      "kubelet",
-									MountPath: "/var/lib/kubelet",
-								},
-							},
-						},
-						{
-							Name: "mirror",
-							// TODO: configurable
-							Image:           "gcr.io/elated-embassy-152022/ksync/mirror:canary",
-							ImagePullPolicy: "Always",
-							Ports: []v1.ContainerPort{
-								{ContainerPort: 49172, Name: "grpc"},
-							},
-							// TODO: resources
-							VolumeMounts: []v1.VolumeMount{
-								v1.VolumeMount{
-									Name:      "dockerfs",
-									MountPath: "/var/lib/docker",
-								},
-								v1.VolumeMount{
-									Name:      "dockersock",
-									MountPath: "/var/run/docker.sock",
-								},
-								v1.VolumeMount{
-									Name:      "kubelet",
-									MountPath: "/var/lib/kubelet",
-								},
-							},
-						},
-					},
-					NodeSelector: map[string]string{
-						"beta.kubernetes.io/os": "linux",
-					},
-					// TODO: add HostPathType
-					Volumes: []v1.Volume{
-						v1.Volume{
-							Name: "dockerfs",
-							VolumeSource: v1.VolumeSource{
-								HostPath: &v1.HostPathVolumeSource{
-									Path: "/var/lib/docker",
-								},
-							},
-						},
-						v1.Volume{
-							Name: "dockersock",
-							VolumeSource: v1.VolumeSource{
-								HostPath: &v1.HostPathVolumeSource{
-									Path: "/var/run/docker.sock",
-								},
-							},
-						},
-						v1.Volume{
-							Name: "kubelet",
-							VolumeSource: v1.VolumeSource{
-								HostPath: &v1.HostPathVolumeSource{
-									Path: "/var/lib/kubelet",
-								},
-							},
-						},
-					},
-				},
-			},
-			UpdateStrategy: v1beta1.DaemonSetUpdateStrategy{
-				Type: "RollingUpdate",
-			},
+// NewRadarInstance constructs a RadarInstance to track the remote status.
+// TODO: make namespace, name?, service account configurable
+func NewRadarInstance() *RadarInstance {
+	return &RadarInstance{
+		namespace:  "kube-system",
+		name:       "ksync-radar",
+		mirrorPort: 49172,
+		radarPort:  40321,
+		labels: map[string]string{
+			"name": "ksync-radar",
+			"app":  "radar",
 		},
 	}
-)
+}
 
-// InitRadar initializes a new instance of radar (server) and deploys it
-// as a DaemonSet into the cluster
+// Run starts (or upgrades) radar on the remote cluster.
 // TODO: spin up on demand
 // TODO: wait for ready
-func InitRadar(upgrade bool) error {
-	fn := KubeClient.DaemonSets(radarDaemonSet.Namespace).Create
+func (r *RadarInstance) Run(upgrade bool) error {
+	fn := kubeClient.DaemonSets(r.namespace).Create
 
 	if upgrade {
-		fn = KubeClient.DaemonSets(radarDaemonSet.Namespace).Update
+		fn = kubeClient.DaemonSets(r.namespace).Update
 	}
 
-	_, err := fn(radarDaemonSet)
+	_, err := fn(r.daemonSet())
 
 	// TODO: need better error
 	if err != nil {
 		return err
 	}
 
-	log.Debug("started DaemonSet")
+	log.WithFields(MergeFields(r.Fields(), log.Fields{
+		"upgrade": upgrade,
+	})).Debug("started DaemonSet")
 
 	return nil
 }
 
-// InitRadarOpts initializes the grpc options for an instance of radar
-func InitRadarOpts() {
-	// TODO: add TLS
-	// TODO: add grpc_retry?
-	grpcOpts = append(grpcOpts, grpc.WithInsecure())
+// TODO: add TLS
+// TODO: add grpc_retry?
+func (r *RadarInstance) opts() []grpc.DialOption {
+	return append([]grpc.DialOption{
+		grpc.WithTimeout(5 * time.Second),
+		grpc.WithBlock(),
+		// TODO: add client side tracing
+	}, grpc.WithInsecure())
 }
 
-// radarPodName returns the pod name where the launched instance of
-// radar is running
-func radarPodName(nodeName string) (string, error) {
+func (r *RadarInstance) podName(nodeName string) (string, error) {
 	// TODO: error handling for nodes that don't exist.
-	pods, err := KubeClient.CoreV1().Pods(radarNamespace).List(
+	pods, err := kubeClient.CoreV1().Pods(r.namespace).List(
 		metav1.ListOptions{
-			LabelSelector: "app=radar",
+			LabelSelector: fmt.Sprintf("app=%s", r.labels["app"]),
 			FieldSelector: fmt.Sprintf("spec.nodeName=%s", nodeName),
 		})
 
@@ -190,14 +99,37 @@ func radarPodName(nodeName string) (string, error) {
 	return pods.Items[0].Name, nil
 }
 
-// NewRadarConnection creates a new tunnel connection to a instance of radar
-func NewRadarConnection(nodeName string) (*grpc.ClientConn, error) {
-	tun, err := NewTunnel(nodeName, radarPort)
+func (r *RadarInstance) connection(nodeName string, port int32) (int32, error) {
+	podName, err := r.podName(nodeName)
+	if err != nil {
+		return 0, ErrorOut("cannot get pod name", err, r)
+	}
+
+	tun, err := NewTunnel(r.namespace, podName, r.radarPort)
+	if err != nil {
+		return 0, ErrorOut("unable to create tunnel", err, r)
+	}
+
+	if err := tun.Start(); err != nil {
+		return 0, ErrorOut("unable to start tunnel", err, r)
+	}
+
+	return tun.LocalPort, nil
+}
+
+// RadarConnection creates a new gRPC connection to a radar instance running on
+// the specified node.
+func (r *RadarInstance) RadarConnection(nodeName string) (*grpc.ClientConn, error) {
+	localPort, err := r.connection(nodeName, r.radarPort)
 	if err != nil {
 		return nil, err
 	}
-	if err := tun.Start(); err != nil {
-		return nil, err
-	}
-	return grpc.Dial(fmt.Sprintf("127.0.0.1:%d", tun.LocalPort), grpcOpts...)
+
+	return grpc.Dial(fmt.Sprintf("127.0.0.1:%d", localPort), r.opts()...)
+}
+
+// MirrorConnection creates a tunnel to the remote mirror instance running on
+// the specified node.
+func (r *RadarInstance) MirrorConnection(nodeName string) (int32, error) {
+	return r.connection(nodeName, r.mirrorPort)
 }

@@ -11,9 +11,9 @@ import (
 	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
 
-// GetAbsPath takes a container path and returns the absolute path of that
-// directory
-func (this *radarServer) GetAbsPath(
+// GetAbsPath takes a container path and returns the absolute path on the
+// current node for that directory.
+func (r *radarServer) GetAbsPath(
 	ctx context.Context,
 	containerPath *pb.ContainerPath) (*pb.AbsolutePath, error) {
 

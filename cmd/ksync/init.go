@@ -11,7 +11,7 @@ import (
 type initCmd struct{}
 
 // TODO: client only flag
-func (this *initCmd) new() *cobra.Command {
+func (i *initCmd) new() *cobra.Command {
 	// TODO: update the usage instructions
 	long := `
     Prepare the cluster.`
@@ -22,7 +22,7 @@ func (this *initCmd) new() *cobra.Command {
 		Short:   "Prepare the cluster.",
 		Long:    long,
 		Example: example,
-		Run:     this.run,
+		Run:     i.run,
 	}
 
 	flags := cmd.Flags()
@@ -48,8 +48,8 @@ func (this *initCmd) new() *cobra.Command {
 
 // TODO: add instructions for watchman and limits (and detect them)
 // TODO: need a better error with instructions on how to fix errors starting radar
-func (this *initCmd) run(cmd *cobra.Command, args []string) {
-	err := ksync.InitRadar(viper.GetBool("upgrade"))
+func (i *initCmd) run(cmd *cobra.Command, args []string) {
+	err := ksync.NewRadarInstance().Run(viper.GetBool("upgrade"))
 	if err != nil {
 		log.Fatalf("could not start radar: %v", err)
 	}

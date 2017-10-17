@@ -12,14 +12,15 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// Service reflects a sync that can be run in the background.
 type Service struct {
 	Name      string
 	Container *Container `structs:"-"`
-	client    *apiclient.Client
-	image     string // TODO: make this configurable
-	Spec      *Spec  `structs:"-"`
+	image     string     // TODO: make this configurable
+	Spec      *Spec      `structs:"-"`
 }
 
+// ServiceStatus is the status of a specific service.
 type ServiceStatus struct {
 	ID        string
 	Status    string
@@ -31,30 +32,26 @@ func (s *ServiceStatus) String() string {
 	return YamlString(s)
 }
 
+// Fields returns a set of structured fields for logging.
 func (s *ServiceStatus) Fields() log.Fields {
 	return StructFields(s)
 }
 
-func NewService(name string, cntr *Container, spec *Spec) (*Service, error) {
-	cli, err := apiclient.NewEnvClient()
-	if err != nil {
-		return nil, errors.Wrap(err, "could not create new service")
-	}
-
-	log.Debug("docker client created")
-
+// NewService constructs a Service to manage and run local syncs from.
+func NewService(name string, cntr *Container, spec *Spec) *Service {
 	return &Service{
 		Name:      name,
 		Container: cntr,
-		client:    cli,
 		image:     "busybox",
-		Spec:      spec}, nil
+		Spec:      spec,
+	}
 }
 
 func (s *Service) String() string {
 	return YamlString(s)
 }
 
+// Fields returns a set of structured fields for logging.
 func (s *Service) Fields() log.Fields {
 	return StructFields(s)
 }
@@ -64,8 +61,10 @@ func (s *Service) containerName() string {
 }
 
 // TODO: pull image for users.
+// TODO: it is possible for service to not have specs or fully populated
+// containers. Make sure to return an error for this use case.
 func (s *Service) create() (*container.ContainerCreateCreatedBody, error) {
-	cntr, err := s.client.ContainerCreate(
+	cntr, err := dockerClient.ContainerCreate(
 		context.Background(),
 		&container.Config{
 			Cmd:   []string{"/bin/sh", "-c", "while true; do sleep 100; done"},
@@ -77,6 +76,7 @@ func (s *Service) create() (*container.ContainerCreateCreatedBody, error) {
 				"node":       s.Container.NodeName,
 				"localPath":  s.Spec.LocalPath,
 				"remotePath": s.Spec.RemotePath,
+				"heritage":   "ksync",
 			},
 			// Volumes
 		},
@@ -97,7 +97,21 @@ func (s *Service) create() (*container.ContainerCreateCreatedBody, error) {
 	return &cntr, nil
 }
 
+// Start runs a service in the background.
 func (s *Service) Start() error {
+	status, err := s.Status()
+	if err != nil {
+		return err
+	}
+
+	// noop for already running services.
+	// TODO: should this return an error? ala. already exists?
+	if status.Running {
+		return serviceRunningError{
+			service: s,
+		}
+	}
+
 	cntr, err := s.create()
 	if err != nil {
 		return err
@@ -107,7 +121,7 @@ func (s *Service) Start() error {
 		"id": cntr.ID,
 	})).Debug("container created")
 
-	if err := s.client.ContainerStart(
+	if err := dockerClient.ContainerStart(
 		context.Background(),
 		cntr.ID,
 		types.ContainerStartOptions{}); err != nil {
@@ -121,32 +135,34 @@ func (s *Service) Start() error {
 	return nil
 }
 
+// Stop halts a service that has been running in the background.
 func (s *Service) Stop() error {
-	cntr, err := s.Status()
+	status, err := s.Status()
 	if err != nil {
 		return err
 	}
 
-	if !cntr.Running {
+	if !status.Running {
 		return fmt.Errorf("must start before you can stop: %s", s.containerName())
 	}
 
-	if err := s.client.ContainerRemove(
+	if err := dockerClient.ContainerRemove(
 		context.Background(),
-		cntr.ID,
+		status.ID,
 		types.ContainerRemoveOptions{Force: true}); err != nil {
 		return errors.Wrap(err, "could not remove")
 	}
 
-	log.WithFields(MergeFields(s.Fields(), log.Fields{
-		"id": cntr.ID,
-	})).Debug("container removed")
+	log.WithFields(
+		MergeFields(s.Fields(), status.Fields())).Debug("container removed")
 
 	return nil
 }
 
+// Status checks to see if a service is currently running and looks at its
+// status.
 func (s *Service) Status() (*ServiceStatus, error) {
-	cntr, err := s.client.ContainerInspect(
+	cntr, err := dockerClient.ContainerInspect(
 		context.Background(), s.containerName())
 	if err != nil {
 		if !apiclient.IsErrNotFound(err) {

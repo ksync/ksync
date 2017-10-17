@@ -11,8 +11,7 @@ import (
 	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
 
-// Container defines the attributes of a container object
-// TODO: is NodeName always there on the spec post-start?
+// Container is a specific container running on the remote cluster.
 type Container struct {
 	ID       string
 	Name     string
@@ -20,34 +19,29 @@ type Container struct {
 	PodName  string
 }
 
-// String formats the fields of a Container object and prints them
-// in a formatted string
-func (this *Container) String() string {
-	return YamlString(this)
+func (c *Container) String() string {
+	return YamlString(c)
 }
 
-// Fields inputs the fields of a Container object and inputs them into logs
-func (this *Container) Fields() log.Fields {
-	return StructFields(this)
+// Fields returns a set of structured fields for logging.
+func (c *Container) Fields() log.Fields {
+	return StructFields(c)
 }
 
-// Radar connects to the server component (radar) and returns a client
-// containing that connection
-func (this *Container) Radar() (pb.RadarClient, error) {
-	conn, err := NewRadarConnection(this.NodeName)
+// Radar connects to the server component (radar) and returns a client.
+func (c *Container) Radar() (pb.RadarClient, error) {
+	conn, err := NewRadarInstance().RadarConnection(c.NodeName)
 	if err != nil {
-		return nil, fmt.Errorf("Could not connect to radar: %v", err)
+		return nil, ErrorOut("Could not connect to radar", err, c)
 	}
-	// TODO: what's a better way to handle this?
+	// TODO: what's a better way to handle c?
 	// defer conn.Close()
 
-	log.WithFields(this.Fields()).Debug("radar connected")
+	log.WithFields(c.Fields()).Debug("radar connected")
 
 	return pb.NewRadarClient(conn), nil
 }
 
-// getContainer returns a populated Container object for a container matching
-// a given name
 func getContainer(pod *apiv1.Pod, containerName string) (*Container, error) {
 	// TODO: runtime error because there are no container statuses while
 	// k8s master is restarting.
@@ -76,16 +70,16 @@ func getContainer(pod *apiv1.Pod, containerName string) (*Container, error) {
 		}, nil
 	}
 
+	// TODO: should this work like `GetContainers` does and just return nil?
 	return nil, fmt.Errorf(
 		"could not find container (%s) in pod (%s)",
 		containerName,
 		pod.Name)
 }
 
-// GetByName takes a pod and container name and passes matching pods to
-// getContainer
+// GetByName takes a pod and container name and looks for a running Container.
 func GetByName(podName string, containerName string) (*Container, error) {
-	pod, err := KubeClient.CoreV1().Pods(Namespace).Get(podName, metav1.GetOptions{})
+	pod, err := kubeClient.CoreV1().Pods(namespace).Get(podName, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -97,12 +91,11 @@ func GetByName(podName string, containerName string) (*Container, error) {
 	return getContainer(pod, containerName)
 }
 
-// getBySelector takes in an arbitrary selector string and returns pods
-// matching that selector
 func getBySelector(selector string, containerName string) ([]*Container, error) {
 	opts := metav1.ListOptions{}
 	opts.LabelSelector = selector
-	pods, err := KubeClient.CoreV1().Pods(Namespace).List(opts)
+	// TODO: namespace is not global anywhere else.
+	pods, err := kubeClient.CoreV1().Pods(namespace).List(opts)
 	if err != nil {
 		return nil, err
 	}
@@ -124,8 +117,9 @@ func getBySelector(selector string, containerName string) ([]*Container, error) 
 	return containerList, nil
 }
 
-// GetContainers takes in a pod name and selector string and returns a list of
-// maching containers
+// GetContainers uses a Locator (podName, selector, containerName) and provides
+// a list of the currently running containers. It is possible that this list is
+// empty, for when the locator does not match anything currently running.
 // TODO: this takes a little bit to execute, is there any kind of progress or output
 // that would be useful to the user?
 // TODO: make this into a channel

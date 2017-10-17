@@ -10,14 +10,14 @@ import (
 	"github.com/vapor-ware/ksync/pkg/ksync"
 )
 
-// Locator defines the available definitions for finding a pod
+// Locator contains everything required to discover a remote container.
 type Locator struct {
 	PodName       string
 	Selector      string
 	ContainerName string
 }
 
-// GetLocator gets locator options passed to the cli and returns a Locator object
+// GetLocator constructs a Locator from user configuration.
 func GetLocator(cmdViper *viper.Viper) Locator {
 	return Locator{
 		cmdViper.GetString("pod"),
@@ -26,26 +26,25 @@ func GetLocator(cmdViper *viper.Viper) Locator {
 	}
 }
 
-// Validator validates the options input into a Locator object
-func (this *Locator) Validator() {
+// Validator ensures that a Locator is valid for use.
+func (l *Locator) Validator() {
 	// TODO: something like cmdutil.UsageErrorf
 	// TODO: move into its own function (add to command as a validator?)
-	if this.Selector == "" && this.PodName == "" {
+	if l.Selector == "" && l.PodName == "" {
 		log.Fatal("Must specify at least a selector or a pod name.")
 	}
 }
 
-// Containers searches the current container list for containers matching
-// the given locator options
-func (this *Locator) Containers() ([]*ksync.Container, error) {
+// Containers returns a list of all remote containers that match the Locator.
+func (l *Locator) Containers() ([]*ksync.Container, error) {
 	containerList, err := ksync.GetContainers(
-		this.PodName, this.Selector, this.ContainerName)
+		l.PodName, l.Selector, l.ContainerName)
 	if err != nil {
 		return nil, fmt.Errorf(
 			"could not get containers for (pod:%s) (selector:%s) (container:%s): %v",
-			this.PodName,
-			this.Selector,
-			this.ContainerName,
+			l.PodName,
+			l.Selector,
+			l.ContainerName,
 			err)
 	}
 
@@ -53,15 +52,15 @@ func (this *Locator) Containers() ([]*ksync.Container, error) {
 	if len(containerList) == 0 {
 		return nil, fmt.Errorf(
 			"no containers found for pod (%s) or selector (%s) with container (%s)",
-			this.PodName,
-			this.Selector,
-			this.ContainerName)
+			l.PodName,
+			l.Selector,
+			l.ContainerName)
 	}
 
 	return containerList, nil
 }
 
-// LocatorFlags defines the locator options that can be passed from the cli
+// LocatorFlags sets the config options required to construct a locator.
 func LocatorFlags(cmd *cobra.Command, cmdViper *viper.Viper) {
 	cmd.Flags().StringP(
 		"container",
