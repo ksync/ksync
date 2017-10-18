@@ -27,9 +27,10 @@ jobs:
       - run:
           name: "Lint"
           command: |
-            go get -u github.com/golang/lint/golint
-            golint -set_exit_status cmd/... | tee /tmp/$TEST_DIRECTORY/lint_cmd
-            golint -set_exit_status pkg/... | tee /tmp/$TEST_DIRECTORY/lint_pkg
+            go get -u github.com/alecthomas/gometalinter
+            gometalinter --install
+            gometalinter ./... --vendor --disable=megacheck --deadline=120s
+            gometalinter ./... --vendor --disable-all --enable=megacheck --deadline=120s
 
       - run:
           name: "Installing Vendored Dependencies"
