@@ -4,17 +4,20 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
+	"github.com/vapor-ware/ksync/pkg/cli"
 	"github.com/vapor-ware/ksync/pkg/ksync"
 )
 
-type deleteCmd struct{}
+type deleteCmd struct {
+	cli.BaseCmd
+}
 
 func (d *deleteCmd) new() *cobra.Command {
 	long := `
 		delete an existing sync.`
 	example := ``
 
-	cmd := &cobra.Command{
+	d.Init("ksync", &cobra.Command{
 		Use:     "delete [flags] [name]",
 		Short:   "delete an existing sync.",
 		Long:    long,
@@ -23,9 +26,9 @@ func (d *deleteCmd) new() *cobra.Command {
 		Args:    cobra.ExactArgs(1),
 		Run:     d.run,
 		// TODO: BashCompletionFunction
-	}
+	})
 
-	return cmd
+	return d.Cmd
 }
 
 func (d *deleteCmd) run(cmd *cobra.Command, args []string) {

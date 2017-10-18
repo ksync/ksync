@@ -7,14 +7,14 @@ import (
 	"github.com/dustinkirkland/golang-petname"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
+	"github.com/vapor-ware/ksync/pkg/cli"
 	"github.com/vapor-ware/ksync/pkg/input"
 	"github.com/vapor-ware/ksync/pkg/ksync"
 )
 
 type createCmd struct {
-	viper *viper.Viper
+	cli.BaseCmd
 }
 
 func (c *createCmd) new() *cobra.Command {
@@ -22,7 +22,7 @@ func (c *createCmd) new() *cobra.Command {
     create a new sync between a local and remote directory.`
 	example := ``
 
-	cmd := &cobra.Command{
+	c.Init("ksync", &cobra.Command{
 		Use:     "create [flags] [local path] [remote path]",
 		Short:   "create a new sync between a local and remote directory.",
 		Long:    long,
@@ -31,42 +31,40 @@ func (c *createCmd) new() *cobra.Command {
 		Args:    cobra.ExactArgs(2),
 		Run:     c.run,
 		// TODO: BashCompletionFunction
-	}
-	c.viper = viper.New()
+	})
 
 	// TODO: can this become a mixin?
-	input.LocatorFlags(cmd, c.viper)
+	input.LocatorFlags(c.Cmd, c.Viper)
 
-	flags := cmd.Flags()
-	flags.String(
+	c.Cmd.Flags().String(
 		"name",
 		"",
 		"Friendly name to describe this sync.")
+	if err := c.BindFlag("name"); err != nil {
+		log.Fatal(err)
+	}
 
-	c.viper.BindPFlag("name", flags.Lookup("name"))
-	c.viper.BindEnv("name", "KSYNC_NAME")
-
-	flags.Bool(
+	c.Cmd.Flags().Bool(
 		"force",
 		false,
 		"Force creation, ignoring similarity.")
+	if err := c.BindFlag("force"); err != nil {
+		log.Fatal(err)
+	}
 
-	c.viper.BindPFlag("force", flags.Lookup("force"))
-	c.viper.BindEnv("force", "KSYNC_FORCE")
-
-	return cmd
+	return c.Cmd
 }
 
 // TODO: check for existence of the watcher, warn if it isn't running.
 func (c *createCmd) run(cmd *cobra.Command, args []string) {
-	loc := input.GetLocator(c.viper)
+	loc := input.GetLocator(c.Viper)
 	syncPath := input.GetSyncPath(args)
 
 	// Usage validation ------------------------------------
 	loc.Validator()
 	syncPath.Validator()
 
-	name := c.viper.GetString("name")
+	name := c.Viper.GetString("name")
 	if name == "" {
 		rand.Seed(time.Now().UnixNano())
 		name = petname.Generate(2, "-")
@@ -78,15 +76,15 @@ func (c *createCmd) run(cmd *cobra.Command, args []string) {
 	}
 
 	newSpec := &ksync.Spec{
-		Container:  c.viper.GetString("container"),
-		Pod:        c.viper.GetString("pod"),
-		Selector:   c.viper.GetString("selector"),
+		Container:  c.Viper.GetString("container"),
+		Pod:        c.Viper.GetString("pod"),
+		Selector:   c.Viper.GetString("selector"),
 		LocalPath:  syncPath.Local,
 		RemotePath: syncPath.Remote,
 	}
 
 	if err := specMap.Create(
-		name, newSpec, c.viper.GetBool("force")); err != nil {
+		name, newSpec, c.Viper.GetBool("force")); err != nil {
 		log.Fatalf("Could not create, --force to ignore: %v", err)
 	}
 	if err := specMap.Save(); err != nil {

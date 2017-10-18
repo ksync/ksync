@@ -10,11 +10,12 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/vapor-ware/ksync/pkg/cli"
 	"github.com/vapor-ware/ksync/pkg/ksync"
 )
 
 type watchCmd struct {
-	viper *viper.Viper
+	cli.BaseCmd
 }
 
 func (w *watchCmd) new() *cobra.Command {
@@ -28,9 +29,6 @@ func (w *watchCmd) new() *cobra.Command {
 		Example: example,
 		Run:     w.run,
 	}
-
-	w.viper = viper.New()
-
 	return cmd
 }
 

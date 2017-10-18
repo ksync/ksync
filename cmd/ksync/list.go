@@ -3,14 +3,14 @@ package main
 import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
+	"github.com/vapor-ware/ksync/pkg/cli"
 	"github.com/vapor-ware/ksync/pkg/input"
 	"github.com/vapor-ware/ksync/pkg/ksync"
 )
 
 type listCmd struct {
-	viper *viper.Viper
+	cli.BaseCmd
 }
 
 func (l *listCmd) new() *cobra.Command {
@@ -18,7 +18,7 @@ func (l *listCmd) new() *cobra.Command {
     List the files from a remote container.`
 	example := ``
 
-	cmd := &cobra.Command{
+	l.Init("ksync", &cobra.Command{
 		Use:     "list [flags] [path]",
 		Short:   "List files from a remote container.",
 		Long:    long,
@@ -27,17 +27,16 @@ func (l *listCmd) new() *cobra.Command {
 		Args:    cobra.ExactArgs(1),
 		Run:     l.run,
 		// TODO: BashCompletionFunction
-	}
-	l.viper = viper.New()
+	})
 
 	// TODO: can this become a mixin?
-	input.LocatorFlags(cmd, l.viper)
+	input.LocatorFlags(l.Cmd, l.Viper)
 
-	return cmd
+	return l.Cmd
 }
 
 func (l *listCmd) run(cmd *cobra.Command, args []string) {
-	loc := input.GetLocator(l.viper)
+	loc := input.GetLocator(l.Viper)
 	// Usage validation ------------------------------------
 	loc.Validator()
 
@@ -50,7 +49,10 @@ func (l *listCmd) run(cmd *cobra.Command, args []string) {
 
 	// TODO: make this into a channel?
 	for _, cntr := range containerList {
-		list := &ksync.FileList{cntr, path, nil}
+		list := &ksync.FileList{
+			Container: cntr,
+			Path:      path,
+		}
 		if err := list.Get(); err != nil {
 			log.Fatalf("%v", err)
 		}

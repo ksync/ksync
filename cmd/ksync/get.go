@@ -7,24 +7,27 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
+	"github.com/vapor-ware/ksync/pkg/cli"
 	"github.com/vapor-ware/ksync/pkg/ksync"
 )
 
-type getCmd struct{}
+type getCmd struct {
+	cli.BaseCmd
+}
 
 func (g *getCmd) new() *cobra.Command {
 	long := `Get all configured syncs and their status.`
 	example := ``
 
-	cmd := &cobra.Command{
+	g.Init("ksync", &cobra.Command{
 		Use:     "get",
 		Short:   "Get all configured syncs and their status.",
 		Long:    long,
 		Example: example,
 		Run:     g.run,
-	}
+	})
 
-	return cmd
+	return g.Cmd
 }
 
 // TODO: add last_sync (last_run?)
