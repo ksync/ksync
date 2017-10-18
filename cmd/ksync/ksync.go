@@ -37,26 +37,37 @@ func main() {
 }
 
 func init() {
-	cobra.OnInitialize(func() { cli.InitConfig("ksync") })
+	cobra.OnInitialize(func() {
+		if err := cli.InitConfig("ksync"); err != nil {
+			log.Fatal(err)
+		}
+	})
 
-	cli.DefaultFlags(rootCmd, "ksync")
+	if err := cli.DefaultFlags(rootCmd, "ksync"); err != nil {
+		log.Fatal(err)
+	}
 
-	rootCmd.PersistentFlags().StringP(
+	flags := rootCmd.PersistentFlags()
+	flags.StringP(
 		"namespace",
 		"n",
 		"default",
 		"namespace to use.")
+	if err := cli.BindFlag(
+		viper.GetViper(), flags.Lookup("namespace"), "ksync"); err != nil {
 
-	viper.BindPFlag("namespace", rootCmd.PersistentFlags().Lookup("namespace"))
-	viper.BindEnv("namespace", "KSYNC_NAMESPACE")
+		log.Fatal(err)
+	}
 
-	rootCmd.PersistentFlags().String(
+	flags.String(
 		"context",
 		"",
 		"name of the kubeconfig context to use")
+	if err := cli.BindFlag(
+		viper.GetViper(), flags.Lookup("context"), "ksync"); err != nil {
 
-	viper.BindPFlag("context", rootCmd.PersistentFlags().Lookup("context"))
-	viper.BindEnv("context", "KSYNC_CONTEXT")
+		log.Fatal(err)
+	}
 }
 
 func initPersistent(cmd *cobra.Command, args []string) {

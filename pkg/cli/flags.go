@@ -5,30 +5,48 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
 
-func envName(cmd string, name string) string {
-	return fmt.Sprintf("%s_%s", strings.ToUpper(cmd), strings.ToUpper(name))
+// BindFlag moves cobra flags into viper for exclusive use there.
+func BindFlag(v *viper.Viper, flag *pflag.Flag, root string) error {
+
+	if err := v.BindPFlag(flag.Name, flag); err != nil {
+		return err
+	}
+
+	if err := v.BindEnv(
+		flag.Name,
+		strings.Replace(
+			strings.ToUpper(
+				fmt.Sprintf("%s_%s", root, flag.Name)), "-", "_", -1)); err != nil {
+
+		return err
+	}
+
+	return nil
 }
 
 // DefaultFlags configures a standard set of flags for every command and
 // sub-command.
-func DefaultFlags(cmd *cobra.Command, name string) {
-	cmd.PersistentFlags().String(
+func DefaultFlags(cmd *cobra.Command, name string) error {
+	flags := cmd.PersistentFlags()
+
+	flags.String(
 		"config",
 		"",
 		fmt.Sprintf("config file (default is $HOME/.%s.yaml", name))
+	if err := BindFlag(
+		viper.GetViper(), flags.Lookup("config"), name); err != nil {
 
-	viper.BindPFlag("config", cmd.PersistentFlags().Lookup("config"))
-	viper.BindEnv("config", envName(name, "config"))
+		return err
+	}
 
 	// TODO: can this be limited to a selection?
-	cmd.PersistentFlags().String(
+	flags.String(
 		"log-level",
 		"warn",
 		"log level to use.")
-
-	viper.BindPFlag("log-level", cmd.PersistentFlags().Lookup("log-level"))
-	viper.BindEnv("log-level", envName(name, "log_level"))
+	return BindFlag(viper.GetViper(), flags.Lookup("log-level"), name)
 }

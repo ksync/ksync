@@ -13,7 +13,7 @@ import (
 // InitConfig constructs the configuration from a local configuration file
 // or environment variables if available. This is placed in the global `viper`
 // instance.
-func InitConfig(name string) {
+func InitConfig(name string) error {
 	viper.SupportedExts = []string{"yaml", "yml"}
 
 	if viper.GetString("config") != "" {
@@ -21,7 +21,7 @@ func InitConfig(name string) {
 	} else {
 		home, err := homedir.Dir()
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 
 		viper.AddConfigPath(home)
@@ -29,7 +29,7 @@ func InitConfig(name string) {
 
 		cfgPath := filepath.Join(home, fmt.Sprintf(".%s.yaml", name))
 		fobj, _ := os.OpenFile(cfgPath, os.O_CREATE|os.O_WRONLY, 0644)
-		fobj.Close()
+		defer fobj.Close() // nolint: errcheck
 	}
 
 	viper.AutomaticEnv()
@@ -41,4 +41,6 @@ func InitConfig(name string) {
 			"file": viper.ConfigFileUsed(),
 		}).Debug("using config file")
 	}
+
+	return nil
 }

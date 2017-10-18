@@ -3,54 +3,57 @@ package main
 import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
-	"github.com/vapor-ware/ksync/pkg/input"
+	"github.com/vapor-ware/ksync/pkg/cli"
 	"github.com/vapor-ware/ksync/pkg/ksync"
 )
 
 type listCmd struct {
-	viper *viper.Viper
+	cli.FinderCmd
 }
 
-func (l *listCmd) new() *cobra.Command {
+func (cmd *listCmd) new() *cobra.Command {
 	long := `
     List the files from a remote container.`
 	example := ``
 
-	cmd := &cobra.Command{
+	cmd.Init("ksync", &cobra.Command{
 		Use:     "list [flags] [path]",
 		Short:   "List files from a remote container.",
 		Long:    long,
 		Example: example,
 		Aliases: []string{"ls"},
 		Args:    cobra.ExactArgs(1),
-		Run:     l.run,
+		Run:     cmd.run,
 		// TODO: BashCompletionFunction
+	})
+
+	if err := cmd.DefaultFlags(); err != nil {
+		log.Fatal(err)
 	}
-	l.viper = viper.New()
 
-	// TODO: can this become a mixin?
-	input.LocatorFlags(cmd, l.viper)
-
-	return cmd
+	return cmd.Cmd
 }
 
-func (l *listCmd) run(cmd *cobra.Command, args []string) {
-	loc := input.GetLocator(l.viper)
+func (cmd *listCmd) run(_ *cobra.Command, args []string) {
 	// Usage validation ------------------------------------
-	loc.Validator()
+	if err := cmd.Validator(); err != nil {
+		log.Fatal(err)
+	}
 
 	path := args[0]
 
-	containerList, err := loc.Containers()
+	containerList, err := cmd.Containers()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// TODO: make this into a channel?
 	for _, cntr := range containerList {
-		list := &ksync.FileList{cntr, path, nil}
+		list := &ksync.FileList{
+			Container: cntr,
+			Path:      path,
+		}
 		if err := list.Get(); err != nil {
 			log.Fatalf("%v", err)
 		}

@@ -3,14 +3,14 @@ package main
 import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
+	"github.com/vapor-ware/ksync/pkg/cli"
 	"github.com/vapor-ware/ksync/pkg/input"
 	"github.com/vapor-ware/ksync/pkg/ksync"
 )
 
 type runCmd struct {
-	viper *viper.Viper
+	cli.BaseCmd
 }
 
 func (r *runCmd) new() *cobra.Command {
@@ -18,7 +18,7 @@ func (r *runCmd) new() *cobra.Command {
     Start syncing between a local and remote directory.`
 	example := ``
 
-	cmd := &cobra.Command{
+	r.Init("ksync", &cobra.Command{
 		Use:     "run [flags] [local path] [remote path]",
 		Short:   "Start syncing between a local and remote directory.",
 		Long:    long,
@@ -26,30 +26,28 @@ func (r *runCmd) new() *cobra.Command {
 		Args:    cobra.ExactArgs(2),
 		Run:     r.run,
 		// TODO: BashCompletionFunction
-	}
-	r.viper = viper.New()
+	})
 
-	flags := cmd.Flags()
-	flags.StringP(
+	r.Cmd.Flags().StringP(
 		"container",
 		"c",
 		"",
-		"Container name. If omitted, the first container in the pod will be chosen.")
-
-	r.viper.BindPFlag("container", flags.Lookup("container"))
-	r.viper.BindEnv("container", "KSYNC_CONTAINER")
+		"Container name. Defaults to the first container in pod.")
+	if err := r.BindFlag("container"); err != nil {
+		log.Fatal(err)
+	}
 
 	// TODO: is this best as an arg instead of positional?
-	flags.StringP(
+	r.Cmd.Flags().StringP(
 		"pod",
 		"p",
 		"",
 		"Pod name.")
+	if err := r.BindFlag("pod"); err != nil {
+		log.Fatal(err)
+	}
 
-	r.viper.BindPFlag("pod", flags.Lookup("pod"))
-	r.viper.BindEnv("pod", "KSYNC_POD")
-
-	return cmd
+	return r.Cmd
 }
 
 // TODO: check for existence of java (and the right version)
@@ -57,7 +55,7 @@ func (r *runCmd) new() *cobra.Command {
 //       the docker container.
 func (r *runCmd) run(cmd *cobra.Command, args []string) {
 	// Usage validation ------------------------------------
-	if r.viper.GetString("pod") == "" {
+	if r.Viper.GetString("pod") == "" {
 		log.Fatal("Must specify --pod.")
 	}
 
@@ -65,13 +63,13 @@ func (r *runCmd) run(cmd *cobra.Command, args []string) {
 	syncPath.Validator()
 
 	container, err := ksync.GetByName(
-		r.viper.GetString("pod"),
-		r.viper.GetString("container"))
+		r.Viper.GetString("pod"),
+		r.Viper.GetString("container"))
 	if err != nil {
 		log.Fatalf(
 			"Could not get pod(%s) container(%s): %v",
-			r.viper.GetString("pod"),
-			r.viper.GetString("container"),
+			r.Viper.GetString("pod"),
+			r.Viper.GetString("container"),
 			err)
 	}
 

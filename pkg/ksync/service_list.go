@@ -18,7 +18,7 @@ type ServiceList struct {
 func GetServices() *ServiceList {
 	list := &ServiceList{}
 
-	list.Get()
+	list.Get() // nolint: errcheck
 
 	return list
 }

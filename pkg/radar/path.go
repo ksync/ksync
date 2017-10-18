@@ -37,5 +37,6 @@ func (r *radarServer) GetAbsPath(
 		return nil, err
 	}
 
-	return &pb.AbsolutePath{joinPath}, nil
+	return &pb.AbsolutePath{
+		Full: joinPath}, nil
 }

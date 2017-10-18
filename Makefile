@@ -28,7 +28,7 @@ build-cmd:
 	GOBIN=$(BINDIR) $(GO) install $(GOFLAGS) \
 		-tags '$(TAGS)' \
 		-ldflags '$(LDFLAGS)' \
-		github.com/vapor-ware/ksync/cmd/ksync
+		github.com/vapor-ware/ksync/cmd/...
 
 .PHONY: build-proto
 build-proto:
