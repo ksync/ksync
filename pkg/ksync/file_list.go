@@ -28,7 +28,10 @@ func (f *FileList) Get() error {
 	}
 
 	f.Files, err = client.ListContainerFiles(
-		context.Background(), &pb.ContainerPath{f.Container.ID, f.Path})
+		context.Background(), &pb.ContainerPath{
+			ContainerId: f.Container.ID,
+			PathName:    f.Path,
+		})
 	if err != nil {
 		return fmt.Errorf("Could not list files: %v", err)
 	}

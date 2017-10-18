@@ -60,7 +60,10 @@ func (m *Mirror) path() (string, error) {
 	}
 
 	path, err := client.GetAbsPath(
-		context.Background(), &pb.ContainerPath{m.Container.ID, m.RemotePath})
+		context.Background(), &pb.ContainerPath{
+			ContainerId: m.Container.ID,
+			PathName:    m.RemotePath,
+		})
 	if err != nil {
 		return "", err
 	}

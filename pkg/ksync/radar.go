@@ -91,7 +91,7 @@ func (r *RadarInstance) podName(nodeName string) (string, error) {
 	// TODO: provide a better error here, explain to users how to fix it.
 	if len(pods.Items) != 1 {
 		return "", fmt.Errorf(
-			"unexpected result looking up radar pod (count:%s) (node:%s)",
+			"unexpected result looking up radar pod (count:%d) (node:%s)",
 			len(pods.Items),
 			nodeName)
 	}
