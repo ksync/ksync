@@ -1,9 +1,6 @@
 package cli
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -24,14 +21,5 @@ func (b *BaseCmd) Init(root string, cmd *cobra.Command) {
 
 // BindFlag plumbs a flag into viper so that it can be used exclusively.
 func (b *BaseCmd) BindFlag(name string) error {
-	if err := b.Viper.BindPFlag(name, b.Cmd.Flags().Lookup(name)); err != nil {
-		return err
-	}
-
-	if err := b.Viper.BindEnv(
-		name, strings.ToUpper(fmt.Sprintf("%s_%s", b.Root, name))); err != nil {
-		return err
-	}
-
-	return nil
+	return BindFlag(b.Viper, b.Cmd.Flags().Lookup(name), b.Root)
 }

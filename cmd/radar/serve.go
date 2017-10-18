@@ -92,5 +92,7 @@ func (s *serveCmd) run(cmd *cobra.Command, args []string) {
 	}).Info("listening")
 
 	server := radar.NewServer(opts...)
-	server.Serve(lis)
+	if err := server.Serve(lis); err != nil {
+		log.Fatal(err)
+	}
 }

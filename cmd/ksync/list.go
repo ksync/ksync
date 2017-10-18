@@ -5,44 +5,45 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vapor-ware/ksync/pkg/cli"
-	"github.com/vapor-ware/ksync/pkg/input"
 	"github.com/vapor-ware/ksync/pkg/ksync"
 )
 
 type listCmd struct {
-	cli.BaseCmd
+	cli.FinderCmd
 }
 
-func (l *listCmd) new() *cobra.Command {
+func (cmd *listCmd) new() *cobra.Command {
 	long := `
     List the files from a remote container.`
 	example := ``
 
-	l.Init("ksync", &cobra.Command{
+	cmd.Init("ksync", &cobra.Command{
 		Use:     "list [flags] [path]",
 		Short:   "List files from a remote container.",
 		Long:    long,
 		Example: example,
 		Aliases: []string{"ls"},
 		Args:    cobra.ExactArgs(1),
-		Run:     l.run,
+		Run:     cmd.run,
 		// TODO: BashCompletionFunction
 	})
 
-	// TODO: can this become a mixin?
-	input.LocatorFlags(l.Cmd, l.Viper)
+	if err := cmd.DefaultFlags(); err != nil {
+		log.Fatal(err)
+	}
 
-	return l.Cmd
+	return cmd.Cmd
 }
 
-func (l *listCmd) run(cmd *cobra.Command, args []string) {
-	loc := input.GetLocator(l.Viper)
+func (cmd *listCmd) run(_ *cobra.Command, args []string) {
 	// Usage validation ------------------------------------
-	loc.Validator()
+	if err := cmd.Validator(); err != nil {
+		log.Fatal(err)
+	}
 
 	path := args[0]
 
-	containerList, err := loc.Containers()
+	containerList, err := cmd.Containers()
 	if err != nil {
 		log.Fatal(err)
 	}

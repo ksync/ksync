@@ -55,6 +55,6 @@ func (w *watchCmd) run(cmd *cobra.Command, args []string) {
 
 func waitForSignal() {
 	exitSignal := make(chan os.Signal)
-	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
+	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM) // nolint: megacheck
 	<-exitSignal
 }

@@ -14,57 +14,60 @@ import (
 )
 
 type createCmd struct {
-	cli.BaseCmd
+	cli.FinderCmd
 }
 
-func (c *createCmd) new() *cobra.Command {
+func (cmd *createCmd) new() *cobra.Command {
 	long := `
     create a new sync between a local and remote directory.`
 	example := ``
 
-	c.Init("ksync", &cobra.Command{
+	cmd.Init("ksync", &cobra.Command{
 		Use:     "create [flags] [local path] [remote path]",
 		Short:   "create a new sync between a local and remote directory.",
 		Long:    long,
 		Example: example,
 		Aliases: []string{"c"},
 		Args:    cobra.ExactArgs(2),
-		Run:     c.run,
+		Run:     cmd.run,
 		// TODO: BashCompletionFunction
 	})
 
-	// TODO: can this become a mixin?
-	input.LocatorFlags(c.Cmd, c.Viper)
+	if err := cmd.DefaultFlags(); err != nil {
+		log.Fatal(err)
+	}
 
-	c.Cmd.Flags().String(
+	flags := cmd.Cmd.Flags()
+	flags.String(
 		"name",
 		"",
 		"Friendly name to describe this sync.")
-	if err := c.BindFlag("name"); err != nil {
+	if err := cmd.BindFlag("name"); err != nil {
 		log.Fatal(err)
 	}
 
-	c.Cmd.Flags().Bool(
+	flags.Bool(
 		"force",
 		false,
 		"Force creation, ignoring similarity.")
-	if err := c.BindFlag("force"); err != nil {
+	if err := cmd.BindFlag("force"); err != nil {
 		log.Fatal(err)
 	}
 
-	return c.Cmd
+	return cmd.Cmd
 }
 
 // TODO: check for existence of the watcher, warn if it isn't running.
-func (c *createCmd) run(cmd *cobra.Command, args []string) {
-	loc := input.GetLocator(c.Viper)
+func (cmd *createCmd) run(_ *cobra.Command, args []string) {
 	syncPath := input.GetSyncPath(args)
 
 	// Usage validation ------------------------------------
-	loc.Validator()
+	if err := cmd.Validator(); err != nil {
+		log.Fatal(err)
+	}
 	syncPath.Validator()
 
-	name := c.Viper.GetString("name")
+	name := cmd.Viper.GetString("name")
 	if name == "" {
 		rand.Seed(time.Now().UnixNano())
 		name = petname.Generate(2, "-")
@@ -76,15 +79,15 @@ func (c *createCmd) run(cmd *cobra.Command, args []string) {
 	}
 
 	newSpec := &ksync.Spec{
-		Container:  c.Viper.GetString("container"),
-		Pod:        c.Viper.GetString("pod"),
-		Selector:   c.Viper.GetString("selector"),
+		Container:  cmd.Viper.GetString("container"),
+		Pod:        cmd.Viper.GetString("pod"),
+		Selector:   cmd.Viper.GetString("selector"),
 		LocalPath:  syncPath.Local,
 		RemotePath: syncPath.Remote,
 	}
 
 	if err := specMap.Create(
-		name, newSpec, c.Viper.GetBool("force")); err != nil {
+		name, newSpec, cmd.Viper.GetBool("force")); err != nil {
 		log.Fatalf("Could not create, --force to ignore: %v", err)
 	}
 	if err := specMap.Save(); err != nil {

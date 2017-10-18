@@ -38,11 +38,11 @@ func (c *ContainerFileList) walk(
 	modTime, _ := ptypes.TimestampProto(info.ModTime())
 
 	c.Files.Items = append(c.Files.Items, &pb.File{
-		strings.TrimPrefix(path, c.rootPath),
-		info.Size(),
-		info.Mode().String(),
-		modTime,
-		info.IsDir(),
+		Path:    strings.TrimPrefix(path, c.rootPath),
+		Size:    info.Size(),
+		Mode:    info.Mode().String(),
+		ModTime: modTime,
+		IsDir:   info.IsDir(),
 	})
 
 	return nil
@@ -61,7 +61,11 @@ func (c *radarServer) ListContainerFiles(
 		return nil, err
 	}
 
-	fileList := &ContainerFileList{containerPath, &pb.Files{}, rootPath}
+	fileList := &ContainerFileList{
+		ContainerPath: containerPath,
+		Files:         &pb.Files{},
+		rootPath:      rootPath,
+	}
 
 	grpc_ctxtags.Extract(ctx).Set(
 		"container", fileList.ContainerPath.ContainerId).Set(
@@ -74,7 +78,9 @@ func (c *radarServer) ListContainerFiles(
 
 	joinPath := filepath.Join(rootPath, containerPath.PathName)
 
-	filepath.Walk(joinPath, fileList.walk)
+	if err := filepath.Walk(joinPath, fileList.walk); err != nil {
+		return nil, err
+	}
 
 	return fileList.Files, nil
 }

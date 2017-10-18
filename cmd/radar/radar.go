@@ -33,7 +33,13 @@ func main() {
 
 // Init initializes the server instance
 func init() {
-	cobra.OnInitialize(func() { cli.InitConfig("radar") })
+	cobra.OnInitialize(func() {
+		if err := cli.InitConfig("radar"); err != nil {
+			log.Fatal(err)
+		}
+	})
 
-	cli.DefaultFlags(rootCmd, "radar")
+	if err := cli.DefaultFlags(rootCmd, "radar"); err != nil {
+		log.Fatal(err)
+	}
 }

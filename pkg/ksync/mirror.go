@@ -23,7 +23,7 @@ type Mirror struct {
 	cmd        *exec.Cmd
 }
 
-func (m *Mirror) scanner(pipe io.ReadCloser, logger func(...interface{})) {
+func (m *Mirror) scanner(pipe io.Reader, logger func(...interface{})) {
 	scanner := bufio.NewScanner(pipe)
 	go func() {
 		for scanner.Scan() {
@@ -74,15 +74,17 @@ func (m *Mirror) path() (string, error) {
 func (m *Mirror) initErrorHandler() {
 	// Setup the k8s runtime to fail on unreturnable error (instead of looping).
 	// This helps cleanup zombie java processes.
-	runtime.ErrorHandlers = append(runtime.ErrorHandlers, func(err error) {
-		m.cmd.Process.Kill()
+	runtime.ErrorHandlers = append(runtime.ErrorHandlers, func(fromHandler error) {
+		if err := m.cmd.Process.Kill(); err != nil {
+			log.Fatalf("couldn't kill %v", err)
+		}
 		// TODO: this makes me feel dirty, there must be a better way.
-		if strings.Contains(err.Error(), "Connection refused") {
+		if strings.Contains(fromHandler.Error(), "Connection refused") {
 			log.Fatal(
 				"Lost connection to remote radar pod. Try again (it should restart).")
 		}
 
-		log.Fatalf("unreturnable error: %v", err)
+		log.Fatalf("unreturnable error: %v", fromHandler)
 	})
 }
 
