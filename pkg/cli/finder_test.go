@@ -8,6 +8,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/vapor-ware/ksync/pkg/ksync"
 )
 
 var findercmd = &FinderCmd{
@@ -18,8 +20,13 @@ var findercmd = &FinderCmd{
 	},
 }
 
-func TestDefaultFlags(t *testing.T) {
-	t.Log(*findercmd)
+// We have to import the ksync pkg and initialize the k8s client otherwise the deathstar goes boom
+func init() {
+	ksync.InitKubeClient("", "default")
+	findercmd.BaseCmd.Viper.Set("selector", "app=auth")
+}
+
+func TestFinderDefaultFlags(t *testing.T) {
 	err := findercmd.DefaultFlags()
 
 	assert.NoError(t, err)
@@ -27,7 +34,6 @@ func TestDefaultFlags(t *testing.T) {
 
 func TestValidator(t *testing.T) {
 	err := findercmd.Validator()
-	findercmd.BaseCmd.Viper.Set("selector", "app=testapp")
 
 	assert.NoError(t, err)
 }

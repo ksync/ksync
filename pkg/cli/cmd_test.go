@@ -26,7 +26,7 @@ func TestInit(t *testing.T) {
 	assert.Contains(t, base.Root, "rooty")
 }
 
-func TestBindFlag(t *testing.T) {
+func TestCmdBindFlag(t *testing.T) {
 	base := &BaseCmd{
 		Root: 	"rooty",
 		Cmd: 		&cobra.Command{},
