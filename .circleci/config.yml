@@ -29,8 +29,8 @@ jobs:
           command: |
             go get -u github.com/alecthomas/gometalinter
             gometalinter --install
-            gometalinter ./... --vendor --disable=megacheck --deadline=120s
-            gometalinter ./... --vendor --disable-all --enable=megacheck --deadline=120s
+            gometalinter ./... --vendor --disable=megacheck --deadline=240s
+            gometalinter ./... --vendor --disable-all --enable=megacheck --deadline=240s
 
       - run:
           name: "Installing Vendored Dependencies"

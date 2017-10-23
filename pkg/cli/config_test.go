@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-
 )
 
 func TestInitConfig(t *testing.T) {
