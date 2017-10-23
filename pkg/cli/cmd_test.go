@@ -13,6 +13,8 @@ import (
 
 )
 
+// TODO: This is what's left of the unit testing. Need to write some integration tests here, but leaving this for inspiration when we eventually write proper unit tests.
+
 func TestInit(t *testing.T) {
 	base := &BaseCmd{}
 	cmd  := &cobra.Command{}
