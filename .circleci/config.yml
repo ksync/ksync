@@ -25,19 +25,19 @@ jobs:
           command: mkdir -p /tmp/$TEST_DIRECTORY
 
       - run:
-          name: "Lint"
-          command: |
-            go get -u github.com/alecthomas/gometalinter
-            gometalinter --install
-            gometalinter ./... --vendor --disable=megacheck --deadline=120s
-            gometalinter ./... --vendor --disable-all --enable=megacheck --deadline=120s
-
-      - run:
           name: "Installing Vendored Dependencies"
           command: |
             go get -v github.com/golang/dep/cmd/dep
             go install github.com/golang/dep/cmd/dep
             dep ensure -v
+
+      - run:
+          name: "Lint"
+          command: |
+            go get -u github.com/alecthomas/gometalinter
+            gometalinter --install
+            gometalinter ./... --vendor --skip "_tests" --disable=megacheck --deadline=240s
+            gometalinter ./... --vendor --skip "_tests" --disable-all --enable=megacheck --deadline=240s
 
       - run:
           name: "Get test to junit xml parser"
