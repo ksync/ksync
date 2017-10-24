@@ -65,7 +65,9 @@ func (cmd *createCmd) run(_ *cobra.Command, args []string) {
 	if err := cmd.Validator(); err != nil {
 		log.Fatal(err)
 	}
-	syncPath.Validator()
+	if err := syncPath.Validator(); err != nil {
+		log.Fatal(err)
+	}
 
 	name := cmd.Viper.GetString("name")
 	if name == "" {

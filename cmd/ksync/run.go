@@ -60,7 +60,9 @@ func (r *runCmd) run(cmd *cobra.Command, args []string) {
 	}
 
 	syncPath := input.GetSyncPath(args)
-	syncPath.Validator()
+	if err := syncPath.Validator(); err != nil {
+		log.Fatal(err)
+	}
 
 	container, err := ksync.GetByName(
 		r.Viper.GetString("pod"),

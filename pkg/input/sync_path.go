@@ -1,10 +1,9 @@
 package input
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
-
-	log "github.com/sirupsen/logrus"
 )
 
 // SyncPath has both the local and remote file paths for a specific sync.
@@ -23,24 +22,26 @@ func GetSyncPath(args []string) SyncPath {
 
 // Validator ensures the SyncPath is valid and can be used to configure a
 // sync.
-func (s *SyncPath) Validator() {
+func (s *SyncPath) Validator() error {
 	if s.Local == "" {
-		log.Fatal("Must specify a local path")
+		return fmt.Errorf("Must specify a local path")
 	}
 
 	if s.Remote == "" {
-		log.Fatal("Must specify a remote path")
+		return fmt.Errorf("Must specify a remote path")
 	}
 
 	if !filepath.IsAbs(s.Local) {
-		log.Fatal("Local path must be absolute.")
+		return fmt.Errorf("Local path must be absolute.")
 	}
 
 	if _, err := os.Stat(s.Local); os.IsNotExist(err) {
-		log.Fatal("Local path must exist.")
+		return fmt.Errorf("Local path must exist.")
 	}
 
 	if !filepath.IsAbs(s.Remote) {
-		log.Fatal("Remote path must be absolute.")
+		return fmt.Errorf("Remote path must be absolute.")
 	}
+
+	return nil
 }
