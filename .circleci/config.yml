@@ -58,10 +58,13 @@ jobs:
           command: go get -v -u github.com/jstemmer/go-junit-report
 
       - run:
+          name: "Running Tests (Background)"
+          background: true
+          command: go test -v ./... 2>&1 | go-junit-report > /tmp/$TEST_DIRECTORY/report.xml
+
+      - run:
           name: "Running Tests"
-          command: |
-            go test -v --race ./...
-            go test -v ./... 2>&1 | go-junit-report > /tmp/$TEST_DIRECTORY/report.xml
+          command: go test -v --race ./...
 
       - save_cache:
           when: on_success
