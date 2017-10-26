@@ -33,6 +33,8 @@ jobs:
              curl https://sdk.cloud.google.com -o /tmp/gcloud-install
              chmod +x /tmp/gcloud-install
              /tmp/gcloud-install --disable-prompts
+             echo ${GOOGLE_AUTH} > ${HOME}/gcp-key.json
+             /home/circleci/google-cloud-sdk/bin/gcloud auth activate-service-account --key-file ${HOME}/gcp-key.json
              /home/circleci/google-cloud-sdk/bin/gcloud components install kubectl --quiet
              /home/circleci/google-cloud-sdk/bin/gcloud container clusters get-credentials $CLUSTER_NAME --zone $CLUSTER_ZONE
 
