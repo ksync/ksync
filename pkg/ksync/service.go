@@ -42,7 +42,7 @@ func NewService(name string, cntr *Container, spec *Spec) *Service {
 	return &Service{
 		Name:      name,
 		Container: cntr,
-		image:     "busybox",
+		image:     "gcr.io/elated-embassy-152022/ksync/ksync:canary",
 		Spec:      spec,
 	}
 }
@@ -67,8 +67,18 @@ func (s *Service) create() (*container.ContainerCreateCreatedBody, error) {
 	cntr, err := dockerClient.ContainerCreate(
 		context.Background(),
 		&container.Config{
-			Cmd:   []string{"/bin/sh", "-c", "while true; do sleep 100; done"},
-			Image: "busybox",
+			// TODO: make most of these options configurable.
+			// TODO: missing context
+			Cmd: []string{
+				"/ksync",
+				"--log-level=debug",
+				"run",
+				fmt.Sprintf("--pod=%s", s.Container.PodName),
+				fmt.Sprintf("--container=%s", s.Container.Name),
+				s.Spec.LocalPath,
+				s.Spec.RemotePath,
+			},
+			Image: s.image,
 			Labels: map[string]string{
 				"name":       s.Name,
 				"pod":        s.Container.PodName,
@@ -78,9 +88,13 @@ func (s *Service) create() (*container.ContainerCreateCreatedBody, error) {
 				"remotePath": s.Spec.RemotePath,
 				"heritage":   "ksync",
 			},
-			// Volumes
 		},
 		&container.HostConfig{
+			// TODO: need to make this configurable
+			Binds: []string{
+				fmt.Sprintf("%s:/root/.kube/config", kubeCfgPath),
+				fmt.Sprintf("%s:%s", s.Spec.LocalPath, s.Spec.LocalPath),
+			},
 			RestartPolicy: container.RestartPolicy{Name: "on-failure"},
 		},
 		&network.NetworkingConfig{},
@@ -127,6 +141,8 @@ func (s *Service) Start() error {
 		types.ContainerStartOptions{}); err != nil {
 		return ErrorOut("could not start", err, s)
 	}
+
+	// TODO: make sure that the container comes up successfully.
 
 	log.WithFields(MergeFields(s.Fields(), log.Fields{
 		"id": cntr.ID,

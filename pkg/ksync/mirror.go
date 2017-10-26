@@ -95,6 +95,7 @@ func (m *Mirror) initErrorHandler() {
 // TODO: the output for this needs some thought. There should be:
 //   - debug output (raw sync), this is a little tough to read right now
 //   - state updates (disconnected, active, idle)
+// TODO: stop gracefully when the remote pod goes away.
 func (m *Mirror) Run() error {
 	path, err := m.path()
 	if err != nil {
@@ -110,7 +111,7 @@ func (m *Mirror) Run() error {
 		"-Xmx2G",
 		"-XX:+HeapDumpOnOutOfMemoryError",
 		// TODO: make this generic
-		"-cp", "/home/thomas/work/bin/mirror-all.jar",
+		"-cp", "/mirror/mirror-all.jar",
 		"mirror.Mirror",
 		"client",
 		"-h", "localhost",

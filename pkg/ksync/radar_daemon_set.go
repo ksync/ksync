@@ -32,8 +32,9 @@ func (r *RadarInstance) daemonSet() *v1beta1.DaemonSet {
 						{
 							Name: r.name,
 							// TODO: configurable
-							Image:           "gcr.io/elated-embassy-152022/ksync/radar:canary",
+							Image:           "gcr.io/elated-embassy-152022/ksync/ksync:canary",
 							ImagePullPolicy: "Always",
+							Command:         []string{"/radar", "--log-level=debug", "serve"},
 							Ports: []v1.ContainerPort{
 								{ContainerPort: r.radarPort, Name: "grpc"},
 							},
@@ -56,8 +57,9 @@ func (r *RadarInstance) daemonSet() *v1beta1.DaemonSet {
 						{
 							Name: "mirror",
 							// TODO: configurable
-							Image:           "gcr.io/elated-embassy-152022/ksync/mirror:canary",
+							Image:           "gcr.io/elated-embassy-152022/ksync/ksync:canary",
 							ImagePullPolicy: "Always",
+							Command:         []string{"/bin/bash", "/mirror/mirror", "server"},
 							Ports: []v1.ContainerPort{
 								{ContainerPort: r.mirrorPort, Name: "grpc"},
 							},

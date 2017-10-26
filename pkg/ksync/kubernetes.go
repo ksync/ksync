@@ -12,12 +12,13 @@ import (
 
 var (
 	// TODO: is this singleton a good idea?
-	kubeClient *kubernetes.Clientset
-	kubeCfg    *rest.Config
-	namespace  string
+	kubeClient  *kubernetes.Clientset
+	kubeCfg     *rest.Config
+	kubeCfgPath string
+	namespace   string
 )
 
-func getKubeConfig(context string) (*rest.Config, error) {
+func getKubeConfig(context string) (*rest.Config, string, error) {
 	rules := clientcmd.NewDefaultClientConfigLoadingRules()
 	rules.DefaultClientConfig = &clientcmd.DefaultClientConfig
 
@@ -27,16 +28,16 @@ func getKubeConfig(context string) (*rest.Config, error) {
 		overrides.CurrentContext = context
 	}
 
-	config, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+	clientLoader := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
 		rules,
-		overrides).ClientConfig()
-
+		overrides)
+	config, err := clientLoader.ClientConfig()
 	if err != nil {
-		return nil, fmt.Errorf(
+		return nil, "", fmt.Errorf(
 			"could not get config for context (%q): %s", context, err)
 	}
 
-	return config, nil
+	return config, clientLoader.ConfigAccess().GetDefaultFilename(), nil
 }
 
 // InitKubeClient creates a new k8s client for use in talking to the k8s api server.
@@ -45,7 +46,7 @@ func InitKubeClient(context string, nspace string) error {
 		"context":   context,
 		"namespace": namespace,
 	}).Debug("initializing kubernetes client")
-	config, err := getKubeConfig(context)
+	config, cfgPath, err := getKubeConfig(context)
 
 	// TODO: better error
 	if err != nil {
@@ -64,6 +65,7 @@ func InitKubeClient(context string, nspace string) error {
 
 	kubeClient = client
 	kubeCfg = config
+	kubeCfgPath = cfgPath
 	namespace = nspace
 
 	return nil

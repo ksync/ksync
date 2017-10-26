@@ -15,5 +15,5 @@ RUN apk add --no-cache --update \
 ADD http://repo.joist.ws/mirror-all.jar /mirror/
 ADD http://repo.joist.ws/mirror /mirror/
 
-WORKDIR /mirror
-CMD /bin/bash ./mirror server
+COPY bin/radar /radar
+COPY bin/ksync /ksync

@@ -1,7 +1,9 @@
 
-IMAGE_BASE      := gcr.io/elated-embassy-152022/ksync/
+IMAGE_BASE      := gcr.io/elated-embassy-152022/ksync/ksync
 MUTABLE_VERSION := canary
 DOCKER_VERSION  := git-$(shell git rev-parse --short HEAD)
+IMAGE           := ${IMAGE_BASE}:${DOCKER_VERSION}
+MUTABLE_IMAGE   := ${IMAGE_BASE}:${MUTABLE_VERSION}
 
 # CMD       ?= bin/ksync --log-level=debug init --upgrade
 CMD       ?= bin/ksync --log-level=debug watch
@@ -15,10 +17,10 @@ BINDIR    := $(CURDIR)/bin
 SHELL=/bin/bash
 
 .PHONY: all
-all: build docker-build-radar docker-build-mirror
+all: build docker-binary docker-build
 
 .PHONY: push
-push: docker-push-radar docker-push-mirror
+push: docker-push
 
 .PHONY: build
 build: build-proto build-cmd
@@ -37,8 +39,7 @@ build-proto:
 .PHONY: watch
 watch:
 	# ag -l --ignore "pkg/proto" | entr -dr /bin/sh -c "$(MAKE) all push && $(CMD) && stern --namespace=kube-system --selector=app=radar"
-	ag -l --ignore "pkg/proto" | entr -dr /bin/sh -c "$(MAKE) build && $(CMD)"
-
+	ag -l --ignore "pkg/proto" | entr -dr /bin/sh -c "$(MAKE) all && $(CMD)"
 
 HAS_DEP := $(shell command -v dep)
 
@@ -50,35 +51,41 @@ endif
 	dep ensure
 
 .PHONY: docker-binary
-docker-binary: BINDIR = $(CURDIR)/radar/bin
-docker-binary: GOFLAGS += -a -installsuffix cgo
+docker-binary: BINDIR = $(CURDIR)/docker/bin
+docker-binary: GOFLAGS += -installsuffix cgo
 docker-binary:
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 GOBIN=$(BINDIR) $(GO) install $(GOFLAGS) \
-		-tags '$(TAGS)' \
-		-ldflags '$(LDFLAGS)' \
-		github.com/vapor-ware/ksync/cmd/radar
+	time GOOS=linux GOARCH=amd64 CGO_ENABLED=0 GOBIN=$(BINDIR) \
+		$(GO) install $(GOFLAGS) \
+			-tags '$(TAGS)' \
+			-ldflags '$(LDFLAGS)' \
+			github.com/vapor-ware/ksync/cmd/...
 
-docker-build-%: IMAGE = ${IMAGE_BASE}$*:${DOCKER_VERSION}
-docker-build-%: MUTABLE_IMAGE = ${IMAGE_BASE}$*:${MUTABLE_VERSION}
-docker-build-%:
-	docker build --rm -t ${IMAGE} $*
+.PHONY: docker-build
+docker-build:
+	docker build --rm -t ${IMAGE} docker
 	docker tag ${IMAGE} ${MUTABLE_IMAGE}
 
-docker-push-%: IMAGE = ${IMAGE_BASE}$*:${DOCKER_VERSION}
-docker-push-%: MUTABLE_IMAGE = ${IMAGE_BASE}$*:${MUTABLE_VERSION}
-docker-push-%:
+.PHONY: docker-push
+docker-push:
 	gcloud docker -- push ${IMAGE}
 	gcloud docker -- push ${MUTABLE_IMAGE}
 
-.PHONY: docker-build-radar
-docker-build-radar: docker-binary
-
-HAS_LINT := $(shell command -v golint)
+HAS_LINT := $(shell command -v gometalinter)
 
 .PHONY: lint
 lint:
 ifndef HAS_LINT
-	go get -u github.com/golang/lint/golint
+	go get -u github.com/alecthomas/gometalinter
+	gometalinter --install
 endif
-	golint -set_exit_status cmd/...
-	golint -set_exit_status pkg/...
+	gometalinter ./... \
+		--vendor \
+		--skip "_tests" \
+		--disable=megacheck \
+		--deadline=240s
+	gometalinter ./...\
+		--vendor \
+		--skip "_tests" \
+		--disable-all \
+		--enable=megacheck \
+		--deadline=240s

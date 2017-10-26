@@ -13,9 +13,12 @@ type runCmd struct {
 	cli.BaseCmd
 }
 
+// TODO: update to the container method.
 func (r *runCmd) new() *cobra.Command {
 	long := `
-    Start syncing between a local and remote directory.`
+    Start syncing between a local and remote directory.
+
+    Note: this is meant to be run from within the ksync container.`
 	example := ``
 
 	r.Init("ksync", &cobra.Command{
