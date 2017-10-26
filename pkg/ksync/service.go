@@ -117,9 +117,13 @@ func (s *Service) Start() error {
 		return err
 	}
 
-	log.WithFields(MergeFields(s.Fields(), log.Fields{
+	merged, err := MergeFields(s.Fields(), log.Fields{
 		"id": cntr.ID,
-	})).Debug("container created")
+	})
+	if err != nil {
+		return err
+	}
+	log.WithFields(merged).Debug("container created")
 
 	if err := dockerClient.ContainerStart(
 		context.Background(),
@@ -128,9 +132,13 @@ func (s *Service) Start() error {
 		return ErrorOut("could not start", err, s)
 	}
 
-	log.WithFields(MergeFields(s.Fields(), log.Fields{
+	merged, err = MergeFields(s.Fields(), log.Fields{
 		"id": cntr.ID,
-	})).Debug("container started")
+	})
+	if err != nil {
+		return err
+	}
+	log.WithFields(merged).Debug("container started")
 
 	return nil
 }
@@ -153,8 +161,12 @@ func (s *Service) Stop() error {
 		return errors.Wrap(err, "could not remove")
 	}
 
-	log.WithFields(
-		MergeFields(s.Fields(), status.Fields())).Debug("container removed")
+	merged, err := MergeFields(s.Fields(), status.Fields())
+	if err != nil {
+		return err
+	}
+	log.WithFields(merged).Debug("container removed")
+
 
 	return nil
 }

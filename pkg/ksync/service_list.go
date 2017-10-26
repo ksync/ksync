@@ -128,8 +128,8 @@ func (s *ServiceList) update(specs *SpecMap) error {
 		for _, cntr := range containerList {
 			if err := NewService(name, cntr, spec).Start(); err != nil {
 				if IsServiceRunning(err) {
-					log.WithFields(
-						MergeFields(cntr.Fields(), spec.Fields())).Debug("already running")
+					merged, _ := MergeFields(cntr.Fields(), spec.Fields())
+					log.WithFields(merged).Debug("already running")
 					continue
 				}
 
