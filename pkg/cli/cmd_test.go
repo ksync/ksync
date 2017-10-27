@@ -35,7 +35,7 @@ func TestCmdBindFlag(t *testing.T) {
 		"someflag",
 		"",
 		"Some flag that I don't like")
-	base.Cmd.ParseFlags([]string{"someflag"})
+	assert.NoError(t, base.Cmd.ParseFlags([]string{"someflag"}))
 
 	// Test for run errors
 	err := base.BindFlag("someflag")

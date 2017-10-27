@@ -4,7 +4,6 @@ syntax = "proto3";
 package proto.radar;
 
 import "google/protobuf/empty.proto";
-import "google/protobuf/timestamp.proto";
 
 service Radar {
   rpc GetBasePath(ContainerPath) returns (BasePath) {}

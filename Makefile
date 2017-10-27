@@ -70,6 +70,10 @@ docker-push:
 	gcloud docker -- push ${IMAGE}
 	gcloud docker -- push ${MUTABLE_IMAGE}
 
+.PHONY: test
+test:
+	go test -v --race ./...
+
 HAS_LINT := $(shell command -v gometalinter)
 
 .PHONY: lint
