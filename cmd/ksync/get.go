@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"sort"
 
 	"github.com/olekukonko/tablewriter"
 	log "github.com/sirupsen/logrus"
@@ -48,12 +49,24 @@ func (g *getCmd) run(cmd *cobra.Command, args []string) {
 	table.SetColumnSeparator(" ")
 	table.SetHeader([]string{"Name", "Local", "Remote", "Status"})
 
-	for name, spec := range specMap.Items {
+	var keys []string
+	for name, _ := range specMap.Items {
+		keys = append(keys, name)
+	}
+	sort.Strings(keys)
+
+	for _, name := range keys {
+		spec := specMap.Items[name]
+		status, err := spec.Status()
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		table.Append([]string{
 			name,
 			spec.LocalPath,
 			spec.RemotePath,
-			"Not Running",
+			status,
 		})
 	}
 

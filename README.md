@@ -163,10 +163,7 @@ go install -u github.com/golang/dep/cmd/dep
 # Outstanding
 
 - Tests
-- Add an option to resolve symlinks?
-
-  This might work for a one time sync for remote -> local, but it would break things during any kind of general work.
-
+- Make `ksync get` status be more than just whether the container is running or not.
 - TLS for mirror
 - Put some details into the task bar (see https://github.com/cratonica/trayhost)
   - Active syncs

@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"reflect"
+	"strings"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/mitchellh/mapstructure"
@@ -22,6 +23,7 @@ type SpecMap struct {
 // Spec is all the configuration required to setup a sync from a local directory
 // to a remote directory in a specific remote container.
 type Spec struct {
+	Name      string
 	Container string
 	// TODO: use a locator instead?
 	Pod        string
@@ -46,6 +48,28 @@ func (s *Spec) String() string {
 // Fields returns a set of structured fields for logging.
 func (s *Spec) Fields() log.Fields {
 	return StructFields(s)
+}
+
+// Status returns the current status of a spec.
+// TODO: this requires a lot more thought and effort, status is complex.
+func (s *Spec) Status() (string, error) {
+	status := "inactive"
+	// TODO: this is super naive and should be handled differently
+	if services := GetServices().Filter(s.Name); len(services.Items) != 0 {
+		var statuses []string
+		for _, service := range services.Items {
+			status, err := service.Status()
+			if err != nil {
+				return "", err
+			}
+
+			statuses = append(statuses, status.Status)
+		}
+
+		status = strings.Join(statuses, ", ")
+	}
+
+	return status, nil
 }
 
 // AllSpecs populates a SpecMap with the configured specs. These are populated
