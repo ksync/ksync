@@ -112,6 +112,7 @@ func (s *Service) create() (*container.ContainerCreateCreatedBody, error) {
 }
 
 // Start runs a service in the background.
+// TODO: how are file permissions going to be messed up?
 func (s *Service) Start() error {
 	status, err := s.Status()
 	if err != nil {

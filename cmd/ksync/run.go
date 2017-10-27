@@ -78,6 +78,11 @@ func (r *runCmd) run(cmd *cobra.Command, args []string) {
 			err)
 	}
 
+	// TODO: can/should we be a little bit more intelligent here?
+	if err := container.RestartMirror(); err != nil {
+		log.Fatal(err)
+	}
+
 	mirror := &ksync.Mirror{
 		Container:  container,
 		LocalPath:  syncPath.Local,

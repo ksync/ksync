@@ -5,8 +5,8 @@ DOCKER_VERSION  := git-$(shell git rev-parse --short HEAD)
 IMAGE           := ${IMAGE_BASE}:${DOCKER_VERSION}
 MUTABLE_IMAGE   := ${IMAGE_BASE}:${MUTABLE_VERSION}
 
-# CMD       ?= bin/ksync --log-level=debug init --upgrade
-CMD       ?= bin/ksync --log-level=debug watch
+#CMD       ?= bin/ksync --log-level=debug init --upgrade && stern --namespace=kube-system --selector=app=radar
+CMD       ?= docker ps -q | xargs docker rm -f || true && bin/ksync --log-level=debug init --upgrade && bin/ksync --log-level=debug watch
 
 GO        ?= go
 TAGS      :=
@@ -39,7 +39,7 @@ build-proto:
 .PHONY: watch
 watch:
 	# ag -l --ignore "pkg/proto" | entr -dr /bin/sh -c "$(MAKE) all push && $(CMD) && stern --namespace=kube-system --selector=app=radar"
-	ag -l --ignore "pkg/proto" | entr -dr /bin/sh -c "$(MAKE) all && $(CMD)"
+	ag -l --ignore "pkg/proto" | entr -dr /bin/sh -c "$(MAKE) all push && $(CMD)"
 
 HAS_DEP := $(shell command -v dep)
 
@@ -89,3 +89,12 @@ endif
 		--disable-all \
 		--enable=megacheck \
 		--deadline=240s
+
+HAS_STERN := $(shell command -v stern)
+
+.PHONY: radar-logs
+radar-logs:
+ifndef HAS_STERN
+	@printf "Install stern: https://github.com/wercker/stern/releases"; exit 1
+endif
+	stern --namespace=kube-system --selector=app=radar

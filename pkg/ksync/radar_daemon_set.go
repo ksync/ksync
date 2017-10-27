@@ -35,22 +35,24 @@ func (r *RadarInstance) daemonSet() *v1beta1.DaemonSet {
 							Image:           "gcr.io/elated-embassy-152022/ksync/ksync:canary",
 							ImagePullPolicy: "Always",
 							Command:         []string{"/radar", "--log-level=debug", "serve"},
+							Env: []v1.EnvVar{
+								{
+									Name: "RADAR_POD_NAME",
+									ValueFrom: &v1.EnvVarSource{
+										FieldRef: &v1.ObjectFieldSelector{
+											FieldPath: "metadata.name",
+										},
+									},
+								},
+							},
 							Ports: []v1.ContainerPort{
 								{ContainerPort: r.radarPort, Name: "grpc"},
 							},
 							// TODO: resources
 							VolumeMounts: []v1.VolumeMount{
 								v1.VolumeMount{
-									Name:      "dockerfs",
-									MountPath: "/var/lib/docker",
-								},
-								v1.VolumeMount{
 									Name:      "dockersock",
 									MountPath: "/var/run/docker.sock",
-								},
-								v1.VolumeMount{
-									Name:      "kubelet",
-									MountPath: "/var/lib/kubelet",
 								},
 							},
 						},
@@ -59,7 +61,7 @@ func (r *RadarInstance) daemonSet() *v1beta1.DaemonSet {
 							// TODO: configurable
 							Image:           "gcr.io/elated-embassy-152022/ksync/ksync:canary",
 							ImagePullPolicy: "Always",
-							Command:         []string{"/bin/bash", "/mirror/mirror", "server"},
+							Command:         []string{"/bin/bash", "/mirror/mirror.sh", "server"},
 							Ports: []v1.ContainerPort{
 								{ContainerPort: r.mirrorPort, Name: "grpc"},
 							},

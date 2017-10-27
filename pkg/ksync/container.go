@@ -3,7 +3,9 @@ package ksync
 import (
 	"fmt"
 
+	"github.com/golang/protobuf/ptypes/empty"
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/net/context"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	apiv1 "k8s.io/client-go/pkg/api/v1"
@@ -40,6 +42,22 @@ func (c *Container) Radar() (pb.RadarClient, error) {
 	log.WithFields(c.Fields()).Debug("radar connected")
 
 	return pb.NewRadarClient(conn), nil
+}
+
+// RestartMirror restarts the remote mirror container responsible for this
+// container.
+func (c *Container) RestartMirror() error {
+	client, err := c.Radar()
+	if err != nil {
+		return err
+	}
+
+	if _, err := client.RestartMirror(
+		context.Background(), &empty.Empty{}); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func getContainer(pod *apiv1.Pod, containerName string) (*Container, error) {

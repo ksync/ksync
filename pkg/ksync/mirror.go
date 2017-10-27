@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -59,16 +60,15 @@ func (m *Mirror) path() (string, error) {
 		return "", err
 	}
 
-	path, err := client.GetAbsPath(
+	path, err := client.GetBasePath(
 		context.Background(), &pb.ContainerPath{
 			ContainerId: m.Container.ID,
-			PathName:    m.RemotePath,
 		})
 	if err != nil {
 		return "", err
 	}
 
-	return path.Full, nil
+	return filepath.Join(path.Full, m.RemotePath), nil
 }
 
 func (m *Mirror) initErrorHandler() {

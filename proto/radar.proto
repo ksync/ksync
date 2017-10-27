@@ -3,30 +3,22 @@ syntax = "proto3";
 
 package proto.radar;
 
+import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
 service Radar {
-  rpc ListContainerFiles(ContainerPath) returns (Files) {}
-  rpc GetAbsPath(ContainerPath) returns (AbsolutePath) {}
+  rpc GetBasePath(ContainerPath) returns (BasePath) {}
+  rpc RestartMirror(google.protobuf.Empty) returns (Error) {}
 }
 
 message ContainerPath {
   string container_id = 1;
-  string path_name = 2;
 }
 
-message Files {
-  repeated File items = 1;
-}
-
-message File {
-  string path = 1;
-  int64 size = 2;
-  string mode = 3;
-  google.protobuf.Timestamp mod_time = 4;
-  bool is_dir = 5;
-}
-
-message AbsolutePath {
+message BasePath {
   string full = 1;
+}
+
+message Error {
+  string msg = 1;
 }

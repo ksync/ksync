@@ -9,16 +9,16 @@ It is generated from these files:
 
 It has these top-level messages:
 	ContainerPath
-	Files
-	File
-	AbsolutePath
+	BasePath
+	Error
 */
 package proto_radar
 
 import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
-import google_protobuf "github.com/golang/protobuf/ptypes/timestamp"
+import google_protobuf "github.com/golang/protobuf/ptypes/empty"
+import _ "github.com/golang/protobuf/ptypes/timestamp"
 
 import (
 	context "golang.org/x/net/context"
@@ -38,7 +38,6 @@ const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 type ContainerPath struct {
 	ContainerId string `protobuf:"bytes,1,opt,name=container_id,json=containerId" json:"container_id,omitempty"`
-	PathName    string `protobuf:"bytes,2,opt,name=path_name,json=pathName" json:"path_name,omitempty"`
 }
 
 func (m *ContainerPath) Reset()                    { *m = ContainerPath{} }
@@ -53,98 +52,42 @@ func (m *ContainerPath) GetContainerId() string {
 	return ""
 }
 
-func (m *ContainerPath) GetPathName() string {
-	if m != nil {
-		return m.PathName
-	}
-	return ""
-}
-
-type Files struct {
-	Items []*File `protobuf:"bytes,1,rep,name=items" json:"items,omitempty"`
-}
-
-func (m *Files) Reset()                    { *m = Files{} }
-func (m *Files) String() string            { return proto.CompactTextString(m) }
-func (*Files) ProtoMessage()               {}
-func (*Files) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
-
-func (m *Files) GetItems() []*File {
-	if m != nil {
-		return m.Items
-	}
-	return nil
-}
-
-type File struct {
-	Path    string                     `protobuf:"bytes,1,opt,name=path" json:"path,omitempty"`
-	Size    int64                      `protobuf:"varint,2,opt,name=size" json:"size,omitempty"`
-	Mode    string                     `protobuf:"bytes,3,opt,name=mode" json:"mode,omitempty"`
-	ModTime *google_protobuf.Timestamp `protobuf:"bytes,4,opt,name=mod_time,json=modTime" json:"mod_time,omitempty"`
-	IsDir   bool                       `protobuf:"varint,5,opt,name=is_dir,json=isDir" json:"is_dir,omitempty"`
-}
-
-func (m *File) Reset()                    { *m = File{} }
-func (m *File) String() string            { return proto.CompactTextString(m) }
-func (*File) ProtoMessage()               {}
-func (*File) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
-
-func (m *File) GetPath() string {
-	if m != nil {
-		return m.Path
-	}
-	return ""
-}
-
-func (m *File) GetSize() int64 {
-	if m != nil {
-		return m.Size
-	}
-	return 0
-}
-
-func (m *File) GetMode() string {
-	if m != nil {
-		return m.Mode
-	}
-	return ""
-}
-
-func (m *File) GetModTime() *google_protobuf.Timestamp {
-	if m != nil {
-		return m.ModTime
-	}
-	return nil
-}
-
-func (m *File) GetIsDir() bool {
-	if m != nil {
-		return m.IsDir
-	}
-	return false
-}
-
-type AbsolutePath struct {
+type BasePath struct {
 	Full string `protobuf:"bytes,1,opt,name=full" json:"full,omitempty"`
 }
 
-func (m *AbsolutePath) Reset()                    { *m = AbsolutePath{} }
-func (m *AbsolutePath) String() string            { return proto.CompactTextString(m) }
-func (*AbsolutePath) ProtoMessage()               {}
-func (*AbsolutePath) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
+func (m *BasePath) Reset()                    { *m = BasePath{} }
+func (m *BasePath) String() string            { return proto.CompactTextString(m) }
+func (*BasePath) ProtoMessage()               {}
+func (*BasePath) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
 
-func (m *AbsolutePath) GetFull() string {
+func (m *BasePath) GetFull() string {
 	if m != nil {
 		return m.Full
 	}
 	return ""
 }
 
+type Error struct {
+	Msg string `protobuf:"bytes,1,opt,name=msg" json:"msg,omitempty"`
+}
+
+func (m *Error) Reset()                    { *m = Error{} }
+func (m *Error) String() string            { return proto.CompactTextString(m) }
+func (*Error) ProtoMessage()               {}
+func (*Error) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
+
+func (m *Error) GetMsg() string {
+	if m != nil {
+		return m.Msg
+	}
+	return ""
+}
+
 func init() {
 	proto.RegisterType((*ContainerPath)(nil), "proto.radar.ContainerPath")
-	proto.RegisterType((*Files)(nil), "proto.radar.Files")
-	proto.RegisterType((*File)(nil), "proto.radar.File")
-	proto.RegisterType((*AbsolutePath)(nil), "proto.radar.AbsolutePath")
+	proto.RegisterType((*BasePath)(nil), "proto.radar.BasePath")
+	proto.RegisterType((*Error)(nil), "proto.radar.Error")
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -158,8 +101,8 @@ const _ = grpc.SupportPackageIsVersion4
 // Client API for Radar service
 
 type RadarClient interface {
-	ListContainerFiles(ctx context.Context, in *ContainerPath, opts ...grpc.CallOption) (*Files, error)
-	GetAbsPath(ctx context.Context, in *ContainerPath, opts ...grpc.CallOption) (*AbsolutePath, error)
+	GetBasePath(ctx context.Context, in *ContainerPath, opts ...grpc.CallOption) (*BasePath, error)
+	RestartMirror(ctx context.Context, in *google_protobuf.Empty, opts ...grpc.CallOption) (*Error, error)
 }
 
 type radarClient struct {
@@ -170,18 +113,18 @@ func NewRadarClient(cc *grpc.ClientConn) RadarClient {
 	return &radarClient{cc}
 }
 
-func (c *radarClient) ListContainerFiles(ctx context.Context, in *ContainerPath, opts ...grpc.CallOption) (*Files, error) {
-	out := new(Files)
-	err := grpc.Invoke(ctx, "/proto.radar.Radar/ListContainerFiles", in, out, c.cc, opts...)
+func (c *radarClient) GetBasePath(ctx context.Context, in *ContainerPath, opts ...grpc.CallOption) (*BasePath, error) {
+	out := new(BasePath)
+	err := grpc.Invoke(ctx, "/proto.radar.Radar/GetBasePath", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *radarClient) GetAbsPath(ctx context.Context, in *ContainerPath, opts ...grpc.CallOption) (*AbsolutePath, error) {
-	out := new(AbsolutePath)
-	err := grpc.Invoke(ctx, "/proto.radar.Radar/GetAbsPath", in, out, c.cc, opts...)
+func (c *radarClient) RestartMirror(ctx context.Context, in *google_protobuf.Empty, opts ...grpc.CallOption) (*Error, error) {
+	out := new(Error)
+	err := grpc.Invoke(ctx, "/proto.radar.Radar/RestartMirror", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -191,46 +134,46 @@ func (c *radarClient) GetAbsPath(ctx context.Context, in *ContainerPath, opts ..
 // Server API for Radar service
 
 type RadarServer interface {
-	ListContainerFiles(context.Context, *ContainerPath) (*Files, error)
-	GetAbsPath(context.Context, *ContainerPath) (*AbsolutePath, error)
+	GetBasePath(context.Context, *ContainerPath) (*BasePath, error)
+	RestartMirror(context.Context, *google_protobuf.Empty) (*Error, error)
 }
 
 func RegisterRadarServer(s *grpc.Server, srv RadarServer) {
 	s.RegisterService(&_Radar_serviceDesc, srv)
 }
 
-func _Radar_ListContainerFiles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Radar_GetBasePath_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ContainerPath)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RadarServer).ListContainerFiles(ctx, in)
+		return srv.(RadarServer).GetBasePath(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/proto.radar.Radar/ListContainerFiles",
+		FullMethod: "/proto.radar.Radar/GetBasePath",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RadarServer).ListContainerFiles(ctx, req.(*ContainerPath))
+		return srv.(RadarServer).GetBasePath(ctx, req.(*ContainerPath))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Radar_GetAbsPath_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ContainerPath)
+func _Radar_RestartMirror_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(google_protobuf.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RadarServer).GetAbsPath(ctx, in)
+		return srv.(RadarServer).RestartMirror(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/proto.radar.Radar/GetAbsPath",
+		FullMethod: "/proto.radar.Radar/RestartMirror",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RadarServer).GetAbsPath(ctx, req.(*ContainerPath))
+		return srv.(RadarServer).RestartMirror(ctx, req.(*google_protobuf.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -240,12 +183,12 @@ var _Radar_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*RadarServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ListContainerFiles",
-			Handler:    _Radar_ListContainerFiles_Handler,
+			MethodName: "GetBasePath",
+			Handler:    _Radar_GetBasePath_Handler,
 		},
 		{
-			MethodName: "GetAbsPath",
-			Handler:    _Radar_GetAbsPath_Handler,
+			MethodName: "RestartMirror",
+			Handler:    _Radar_RestartMirror_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -255,26 +198,20 @@ var _Radar_serviceDesc = grpc.ServiceDesc{
 func init() { proto.RegisterFile("proto/radar.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 331 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x90, 0x41, 0x4f, 0xc2, 0x30,
-	0x14, 0xc7, 0xa9, 0x30, 0x84, 0x37, 0x3c, 0xd0, 0xc4, 0x64, 0xce, 0x83, 0xb3, 0x17, 0x77, 0x2a,
-	0x06, 0xe3, 0x07, 0x20, 0x2a, 0xc6, 0xc4, 0x28, 0x59, 0xbc, 0x2f, 0x9d, 0x2d, 0xd0, 0x64, 0xa5,
-	0x64, 0x2d, 0x17, 0x3f, 0x85, 0x27, 0x3f, 0xaf, 0x69, 0xc7, 0x08, 0x8b, 0x89, 0xa7, 0xfd, 0xdf,
-	0xff, 0xbd, 0xf5, 0xfd, 0x7f, 0x0f, 0xc6, 0xdb, 0x4a, 0x5b, 0x3d, 0xa9, 0x18, 0x67, 0x15, 0xf5,
-	0x1a, 0x87, 0xfe, 0x43, 0xbd, 0x15, 0x5f, 0xad, 0xb4, 0x5e, 0x95, 0x62, 0xe2, 0xbd, 0x62, 0xb7,
-	0x9c, 0x58, 0xa9, 0x84, 0xb1, 0x4c, 0x6d, 0xeb, 0x69, 0xf2, 0x0e, 0x67, 0x0f, 0x7a, 0x63, 0x99,
-	0xdc, 0x88, 0x6a, 0xc1, 0xec, 0x1a, 0x5f, 0xc3, 0xe8, 0xb3, 0x31, 0x72, 0xc9, 0x23, 0x94, 0xa0,
-	0x74, 0x98, 0x85, 0x07, 0xef, 0x85, 0xe3, 0x4b, 0x18, 0x6e, 0x99, 0x5d, 0xe7, 0x1b, 0xa6, 0x44,
-	0x74, 0xe2, 0xfb, 0x03, 0x67, 0xbc, 0x31, 0x25, 0xc8, 0x2d, 0x04, 0x73, 0x59, 0x0a, 0x83, 0x6f,
-	0x20, 0x90, 0x56, 0x28, 0x13, 0xa1, 0xa4, 0x9b, 0x86, 0xd3, 0x31, 0x3d, 0xca, 0x45, 0xdd, 0x48,
-	0x56, 0xf7, 0xc9, 0x37, 0x82, 0x9e, 0xab, 0x31, 0x86, 0x9e, 0x7b, 0x66, 0xbf, 0xd2, 0x6b, 0xe7,
-	0x19, 0xf9, 0x55, 0xaf, 0xe9, 0x66, 0x5e, 0x3b, 0x4f, 0x69, 0x2e, 0xa2, 0x6e, 0x3d, 0xe7, 0x34,
-	0xbe, 0x87, 0x81, 0xd2, 0x3c, 0x77, 0x78, 0x51, 0x2f, 0x41, 0x69, 0x38, 0x8d, 0x69, 0xcd, 0x4e,
-	0x1b, 0x76, 0xfa, 0xd1, 0xb0, 0x67, 0xa7, 0x4a, 0x73, 0x57, 0xe1, 0x73, 0xe8, 0x4b, 0x93, 0x73,
-	0x59, 0x45, 0x41, 0x82, 0xd2, 0x41, 0x16, 0x48, 0xf3, 0x28, 0x2b, 0x42, 0x60, 0x34, 0x2b, 0x8c,
-	0x2e, 0x77, 0x56, 0x2c, 0xf6, 0x29, 0x96, 0xbb, 0xb2, 0x6c, 0x92, 0x39, 0x3d, 0xfd, 0x41, 0x10,
-	0x64, 0x0e, 0x06, 0xcf, 0x01, 0xbf, 0x4a, 0x63, 0x0f, 0x77, 0xac, 0xf9, 0xe3, 0x16, 0x70, 0xeb,
-	0xc8, 0x31, 0xfe, 0x73, 0x0c, 0x43, 0x3a, 0xf8, 0x09, 0xe0, 0x59, 0xd8, 0x59, 0x61, 0xfc, 0xce,
-	0xff, 0xfe, 0xbf, 0x68, 0xf5, 0x8e, 0xa3, 0x92, 0x4e, 0xd1, 0xf7, 0xbd, 0xbb, 0xdf, 0x00, 0x00,
-	0x00, 0xff, 0xff, 0x2e, 0x6c, 0xa2, 0x02, 0x1c, 0x02, 0x00, 0x00,
+	// 234 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0x2c, 0x28, 0xca, 0x2f,
+	0xc9, 0xd7, 0x2f, 0x4a, 0x4c, 0x49, 0x2c, 0xd2, 0x03, 0xb3, 0x85, 0xb8, 0xc1, 0x94, 0x1e, 0x58,
+	0x48, 0x4a, 0x3a, 0x3d, 0x3f, 0x3f, 0x3d, 0x27, 0x55, 0x1f, 0x2c, 0x96, 0x54, 0x9a, 0xa6, 0x9f,
+	0x9a, 0x5b, 0x50, 0x52, 0x09, 0x51, 0x29, 0x25, 0x8f, 0x2e, 0x59, 0x92, 0x99, 0x9b, 0x5a, 0x5c,
+	0x92, 0x98, 0x5b, 0x00, 0x51, 0xa0, 0x64, 0xc4, 0xc5, 0xeb, 0x9c, 0x9f, 0x57, 0x92, 0x98, 0x99,
+	0x97, 0x5a, 0x14, 0x90, 0x58, 0x92, 0x21, 0xa4, 0xc8, 0xc5, 0x93, 0x0c, 0x13, 0x88, 0xcf, 0x4c,
+	0x91, 0x60, 0x54, 0x60, 0xd4, 0xe0, 0x0c, 0xe2, 0x86, 0x8b, 0x79, 0xa6, 0x28, 0xc9, 0x71, 0x71,
+	0x38, 0x25, 0x16, 0xa7, 0x82, 0x95, 0x0b, 0x71, 0xb1, 0xa4, 0x95, 0xe6, 0xe4, 0x40, 0x95, 0x81,
+	0xd9, 0x4a, 0x92, 0x5c, 0xac, 0xae, 0x45, 0x45, 0xf9, 0x45, 0x42, 0x02, 0x5c, 0xcc, 0xb9, 0xc5,
+	0xe9, 0x50, 0x39, 0x10, 0xd3, 0xa8, 0x8b, 0x91, 0x8b, 0x35, 0x08, 0xe4, 0x6c, 0x21, 0x27, 0x2e,
+	0x6e, 0xf7, 0xd4, 0x12, 0xb8, 0x39, 0x52, 0x7a, 0x48, 0x7e, 0xd2, 0x43, 0x71, 0x92, 0x94, 0x28,
+	0x8a, 0x1c, 0x4c, 0x8b, 0x12, 0x83, 0x90, 0x2d, 0x17, 0x6f, 0x10, 0xc8, 0x37, 0x45, 0x25, 0xbe,
+	0x99, 0x60, 0x0b, 0xc5, 0xf4, 0x20, 0xfe, 0xd5, 0x83, 0xf9, 0x57, 0xcf, 0x15, 0x14, 0x18, 0x52,
+	0x42, 0x28, 0x26, 0x80, 0x1d, 0xa7, 0xc4, 0x90, 0xc4, 0x06, 0x16, 0x34, 0x06, 0x04, 0x00, 0x00,
+	0xff, 0xff, 0xb6, 0xcc, 0x1e, 0xd7, 0x62, 0x01, 0x00, 0x00,
 }
