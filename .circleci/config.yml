@@ -87,4 +87,4 @@ jobs:
           destination: binaries
 
       - store_test_results:
-          path: /tmp/$TEST_DIRECTORY
+          path: /tmp/gotest
