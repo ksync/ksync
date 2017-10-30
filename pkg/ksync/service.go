@@ -3,6 +3,7 @@ package ksync
 import (
 	"context"
 	"fmt"
+	"os/user"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -64,6 +65,11 @@ func (s *Service) containerName() string {
 // TODO: it is possible for service to not have specs or fully populated
 // containers. Make sure to return an error for this use case.
 func (s *Service) create() (*container.ContainerCreateCreatedBody, error) {
+	currentUser, err := user.Current()
+	if err != nil {
+		return nil, err
+	}
+
 	cntr, err := dockerClient.ContainerCreate(
 		context.Background(),
 		&container.Config{
@@ -88,11 +94,12 @@ func (s *Service) create() (*container.ContainerCreateCreatedBody, error) {
 				"remotePath": s.Spec.RemotePath,
 				"heritage":   "ksync",
 			},
+			User: fmt.Sprintf("%s:%s", currentUser.Uid, currentUser.Gid),
 		},
 		&container.HostConfig{
 			// TODO: need to make this configurable
 			Binds: []string{
-				fmt.Sprintf("%s:/root/.kube/config", kubeCfgPath),
+				fmt.Sprintf("%s:/.kube/config", kubeCfgPath),
 				fmt.Sprintf("%s:%s", s.Spec.LocalPath, s.Spec.LocalPath),
 			},
 			RestartPolicy: container.RestartPolicy{Name: "on-failure"},
