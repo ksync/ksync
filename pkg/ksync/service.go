@@ -3,6 +3,7 @@ package ksync
 import (
 	"context"
 	"fmt"
+	"os/user"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -42,7 +43,7 @@ func NewService(name string, cntr *Container, spec *Spec) *Service {
 	return &Service{
 		Name:      name,
 		Container: cntr,
-		image:     "busybox",
+		image:     "gcr.io/elated-embassy-152022/ksync/ksync:canary",
 		Spec:      spec,
 	}
 }
@@ -64,11 +65,26 @@ func (s *Service) containerName() string {
 // TODO: it is possible for service to not have specs or fully populated
 // containers. Make sure to return an error for this use case.
 func (s *Service) create() (*container.ContainerCreateCreatedBody, error) {
+	currentUser, err := user.Current()
+	if err != nil {
+		return nil, err
+	}
+
 	cntr, err := dockerClient.ContainerCreate(
 		context.Background(),
 		&container.Config{
-			Cmd:   []string{"/bin/sh", "-c", "while true; do sleep 100; done"},
-			Image: "busybox",
+			// TODO: make most of these options configurable.
+			// TODO: missing context
+			Cmd: []string{
+				"/ksync",
+				"--log-level=debug",
+				"run",
+				fmt.Sprintf("--pod=%s", s.Container.PodName),
+				fmt.Sprintf("--container=%s", s.Container.Name),
+				s.Spec.LocalPath,
+				s.Spec.RemotePath,
+			},
+			Image: s.image,
 			Labels: map[string]string{
 				"name":       s.Name,
 				"pod":        s.Container.PodName,
@@ -78,9 +94,14 @@ func (s *Service) create() (*container.ContainerCreateCreatedBody, error) {
 				"remotePath": s.Spec.RemotePath,
 				"heritage":   "ksync",
 			},
-			// Volumes
+			User: fmt.Sprintf("%s:%s", currentUser.Uid, currentUser.Gid),
 		},
 		&container.HostConfig{
+			// TODO: need to make this configurable
+			Binds: []string{
+				fmt.Sprintf("%s:/.kube/config", kubeCfgPath),
+				fmt.Sprintf("%s:%s", s.Spec.LocalPath, s.Spec.LocalPath),
+			},
 			RestartPolicy: container.RestartPolicy{Name: "on-failure"},
 		},
 		&network.NetworkingConfig{},
@@ -98,6 +119,7 @@ func (s *Service) create() (*container.ContainerCreateCreatedBody, error) {
 }
 
 // Start runs a service in the background.
+// TODO: run as the current user/group
 func (s *Service) Start() error {
 	status, err := s.Status()
 	if err != nil {

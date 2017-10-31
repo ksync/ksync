@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	// "github.com/stretchr/testify/require"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -22,7 +23,9 @@ var findercmd = &FinderCmd{
 
 // We have to import the ksync pkg and initialize the k8s client otherwise the deathstar goes boom
 func init() {
-	ksync.InitKubeClient("", "default")
+	if err := ksync.InitKubeClient("", "default"); err != nil {
+		log.Fatal(err)
+	}
 	findercmd.BaseCmd.Viper.Set("selector", "app=auth")
 }
 

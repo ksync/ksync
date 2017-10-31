@@ -3,6 +3,7 @@ package main
 import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/vapor-ware/ksync/pkg/cli"
 )
@@ -40,6 +41,17 @@ func init() {
 	})
 
 	if err := cli.DefaultFlags(rootCmd, "radar"); err != nil {
+		log.Fatal(err)
+	}
+
+	flags := rootCmd.PersistentFlags()
+	flags.String(
+		"pod-name",
+		"",
+		"Name of the pod this is running inside.")
+	if err := cli.BindFlag(
+		viper.GetViper(), flags.Lookup("pod-name"), "radar"); err != nil {
+
 		log.Fatal(err)
 	}
 }

@@ -13,9 +13,12 @@ type runCmd struct {
 	cli.BaseCmd
 }
 
+// TODO: update to the container method.
 func (r *runCmd) new() *cobra.Command {
 	long := `
-    Start syncing between a local and remote directory.`
+    Start syncing between a local and remote directory.
+
+    Note: this is meant to be run from within the ksync container.`
 	example := ``
 
 	r.Init("ksync", &cobra.Command{
@@ -73,6 +76,11 @@ func (r *runCmd) run(cmd *cobra.Command, args []string) {
 			r.Viper.GetString("pod"),
 			r.Viper.GetString("container"),
 			err)
+	}
+
+	// TODO: can/should we be a little bit more intelligent here?
+	if err := container.RestartMirror(); err != nil {
+		log.Fatal(err)
 	}
 
 	mirror := &ksync.Mirror{

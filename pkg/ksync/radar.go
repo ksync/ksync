@@ -109,7 +109,7 @@ func (r *RadarInstance) connection(nodeName string, port int32) (int32, error) {
 		return 0, ErrorOut("cannot get pod name", err, r)
 	}
 
-	tun, err := NewTunnel(r.namespace, podName, r.radarPort)
+	tun, err := NewTunnel(r.namespace, podName, port)
 	if err != nil {
 		return 0, ErrorOut("unable to create tunnel", err, r)
 	}

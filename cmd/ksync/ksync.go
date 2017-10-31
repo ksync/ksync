@@ -27,7 +27,6 @@ func main() {
 		(&deleteCmd{}).new(),
 		(&getCmd{}).new(),
 		(&initCmd{}).new(),
-		(&listCmd{}).new(),
 		(&runCmd{}).new(),
 		(&watchCmd{}).new(),
 	)

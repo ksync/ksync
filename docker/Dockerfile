@@ -11,9 +11,9 @@ RUN apk add --no-cache --update \
     --allow-untrusted \
     watchman
 
-# TODO: move these local
-ADD http://repo.joist.ws/mirror-all.jar /mirror/
-ADD http://repo.joist.ws/mirror /mirror/
+RUN mkdir -p mirror && \
+  wget -O /mirror/mirror-all.jar http://repo.joist.ws/mirror-all.jar
+COPY mirror.sh /mirror/
 
-WORKDIR /mirror
-CMD /bin/bash ./mirror server
+COPY bin/radar /radar
+COPY bin/ksync /ksync

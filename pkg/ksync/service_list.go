@@ -18,13 +18,12 @@ type ServiceList struct {
 func GetServices() *ServiceList {
 	list := &ServiceList{}
 
-	list.Get() // nolint: errcheck
+	list.populate() // nolint: errcheck
 
 	return list
 }
 
-// Get populates a ServiceList with all the running services.
-func (s *ServiceList) Get() error {
+func (s *ServiceList) populate() error {
 	args := filters.NewArgs()
 	args.Add("label", "heritage=ksync")
 

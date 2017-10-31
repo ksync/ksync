@@ -81,6 +81,7 @@ func (cmd *createCmd) run(_ *cobra.Command, args []string) {
 	}
 
 	newSpec := &ksync.Spec{
+		Name:       name,
 		Container:  cmd.Viper.GetString("container"),
 		Pod:        cmd.Viper.GetString("pod"),
 		Selector:   cmd.Viper.GetString("selector"),
