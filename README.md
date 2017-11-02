@@ -162,13 +162,33 @@ go install -u github.com/golang/dep/cmd/dep
 
 # Outstanding
 
-- Tests
-- Make `ksync get` status be more than just whether the container is running or not.
-- TLS for mirror
+## Major
+
 - Put some details into the task bar (see https://github.com/cratonica/trayhost)
   - Active syncs
   - Files being updated
 - Hot reload (docker restart on file change)
+
+## Minor
+
+- Only allow syncs on directories (not single files), check in add
+- Move watch to init
+    - Start with docker
+    - Refactor `Service` to work with multiple container types? This might be more work than required.
+- There is a timing error between the mirror restart and the run container restart.
+    - run restarts mirror
+    - run tries to create tunnel to mirror container
+    - mirror is still starting (not listening), tunnel doesn't connect (crashing run)
+    - loop endlessly
+- Add health and readiness checks to `ksync init` for both radar and watch. There should be a flag that disables the wait (but it should wait by default and output status).
+- Reduce the number of restarts that `ksync run` goes through while trying to setup a sync for the first time. It is tough to understand whether it is working or not (as a lot of the restarts are expected) and even harder to debug when it isn't working.
+- Verify that the configured container user can actually write to localPath
+- IO timeout errors (when the remote cluster cannot be reached) take a long time. There should be a better experience here.
+- Test coverage
+- TLS for mirror (is it required?)
+- TLS for radar (is it required?)
+- Allow configuration of who the container runs as (default to current user/group)
+    - Maybe in the spec itself?
 
 [protoc]: https://github.com/golang/protobuf/
 [protoc-gen-go]: https://github.com/golang/protobuf/

@@ -6,6 +6,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -46,17 +47,18 @@ func NewRadarInstance() *RadarInstance {
 // TODO: spin up on demand
 // TODO: wait for ready
 func (r *RadarInstance) Run(upgrade bool) error {
-	fn := kubeClient.DaemonSets(r.namespace).Create
+	daemonSets := kubeClient.DaemonSets(r.namespace)
 
-	if upgrade {
-		fn = kubeClient.DaemonSets(r.namespace).Update
+	if _, err := daemonSets.Create(r.daemonSet()); err != nil {
+		if !errors.IsAlreadyExists(err) {
+			return err
+		}
 	}
 
-	_, err := fn(r.daemonSet())
-
-	// TODO: need better error
-	if err != nil {
-		return err
+	if upgrade {
+		if _, err := daemonSets.Update(r.daemonSet()); err != nil {
+			return err
+		}
 	}
 
 	log.WithFields(MergeFields(r.Fields(), log.Fields{

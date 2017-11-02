@@ -3,6 +3,7 @@ package ksync
 import (
 	"context"
 	"fmt"
+	"os"
 	"os/user"
 
 	"github.com/docker/docker/api/types"
@@ -126,13 +127,26 @@ func (s *Service) Start() error {
 		return err
 	}
 
-	// noop for already running services.
-	// TODO: should this return an error? ala. already exists?
 	if status.Running {
 		return serviceRunningError{
 			service: s,
 		}
 	}
+
+	if _, err := os.Stat(s.Spec.LocalPath); os.IsNotExist(err) {
+		if err := os.MkdirAll(s.Spec.LocalPath, 0755); err != nil {
+			return errors.Wrap(err, "local path does not exist, cannot create")
+		}
+
+		// TODO: make this more than just a debug statement, it is important to the
+		// user.
+		log.WithFields(log.Fields{
+			"path":       s.Spec.LocalPath,
+			"permission": 0755,
+		}).Debug("created missing local directory")
+	}
+
+	// TODO: check wether the configured container user can write to localPath
 
 	cntr, err := s.create()
 	if err != nil {

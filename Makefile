@@ -6,7 +6,8 @@ IMAGE           := ${IMAGE_BASE}:${DOCKER_VERSION}
 MUTABLE_IMAGE   := ${IMAGE_BASE}:${MUTABLE_VERSION}
 
 #CMD       ?= bin/ksync --log-level=debug init --upgrade && stern --namespace=kube-system --selector=app=radar
-CMD       ?= docker ps -q | xargs docker rm -f || true && bin/ksync --log-level=debug init --upgrade && bin/ksync --log-level=debug watch
+CMD       ?= (docker ps -q | xargs docker rm -f || true) && \
+	bin/ksync --log-level=debug init --upgrade && bin/ksync --log-level=debug watch
 
 GO        ?= go
 TAGS      :=
