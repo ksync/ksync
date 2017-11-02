@@ -164,6 +164,7 @@ go install -u github.com/golang/dep/cmd/dep
 
 ## Major
 
+- Monitor k8s via. watch, not just the local FS.
 - Put some details into the task bar (see https://github.com/cratonica/trayhost)
   - Active syncs
   - Files being updated
@@ -189,6 +190,7 @@ go install -u github.com/golang/dep/cmd/dep
 - TLS for radar (is it required?)
 - Allow configuration of who the container runs as (default to current user/group)
     - Maybe in the spec itself?
+- It is possible to create a spec (via. manual addition to the config file) that is not valid. Should `watch` run through validation too?
 
 [protoc]: https://github.com/golang/protobuf/
 [protoc-gen-go]: https://github.com/golang/protobuf/

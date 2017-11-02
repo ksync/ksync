@@ -3,6 +3,7 @@ package ksync
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -70,6 +71,24 @@ func (s *Spec) Status() (string, error) {
 	}
 
 	return status, nil
+}
+
+// IsValid returns an error if the spec is not valid.
+func (s *Spec) IsValid() error {
+
+	// Cannot sync files, must do directories.
+	fstat, err := os.Stat(s.LocalPath)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			return err
+		}
+	}
+
+	if fstat != nil && !fstat.IsDir() {
+		return fmt.Errorf("local path cannot be a single file, please use a directory")
+	}
+
+	return nil
 }
 
 // AllSpecs populates a SpecMap with the configured specs. These are populated

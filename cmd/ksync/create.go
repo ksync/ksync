@@ -89,6 +89,10 @@ func (cmd *createCmd) run(_ *cobra.Command, args []string) {
 		RemotePath: syncPath.Remote,
 	}
 
+	if err := newSpec.IsValid(); err != nil {
+		log.Fatal(err)
+	}
+
 	if err := specMap.Create(
 		name, newSpec, cmd.Viper.GetBool("force")); err != nil {
 		log.Fatalf("Could not create, --force to ignore: %v", err)

@@ -50,7 +50,7 @@ func (g *getCmd) run(cmd *cobra.Command, args []string) {
 	table.SetHeader([]string{"Name", "Local", "Remote", "Status"})
 
 	var keys []string
-	for name, _ := range specMap.Items {
+	for name := range specMap.Items {
 		keys = append(keys, name)
 	}
 	sort.Strings(keys)

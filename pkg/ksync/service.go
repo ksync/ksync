@@ -133,9 +133,9 @@ func (s *Service) Start() error {
 		}
 	}
 
-	if _, err := os.Stat(s.Spec.LocalPath); os.IsNotExist(err) {
-		if err := os.MkdirAll(s.Spec.LocalPath, 0755); err != nil {
-			return errors.Wrap(err, "local path does not exist, cannot create")
+	if _, existErr := os.Stat(s.Spec.LocalPath); os.IsNotExist(existErr) {
+		if mkErr := os.MkdirAll(s.Spec.LocalPath, 0755); mkErr != nil {
+			return errors.Wrap(mkErr, "local path does not exist, cannot create")
 		}
 
 		// TODO: make this more than just a debug statement, it is important to the
