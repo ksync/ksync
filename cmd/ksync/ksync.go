@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/vapor-ware/ksync/pkg/cli"
+	"github.com/vapor-ware/ksync/pkg/docker"
 	"github.com/vapor-ware/ksync/pkg/ksync"
 )
 
@@ -84,7 +85,7 @@ func initKubeClient() {
 
 // TODO: should this be scoped only to commands that use docker?
 func initDockerClient() {
-	err := ksync.InitDockerClient()
+	err := docker.InitClient()
 	if err != nil {
 		log.Fatalf("Error creating docker client: %v", err)
 	}

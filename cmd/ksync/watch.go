@@ -22,18 +22,18 @@ func (w *watchCmd) new() *cobra.Command {
 	long := `Watch configured syncs and start them when required.`
 	example := ``
 
-	cmd := &cobra.Command{
+	w.Init("ksync", &cobra.Command{
 		Use:     "watch",
 		Short:   "Watch configured syncs and start them when required.",
 		Long:    long,
 		Example: example,
 		Run:     w.run,
-	}
-	return cmd
+	})
+
+	return w.Cmd
 }
 
 // TODO: hook up to k8s and watch for changes
-// TODO: stop watches that are no longer valid (both removed from config and k8s)
 // TODO: handle Normalize errors.
 func (w *watchCmd) run(cmd *cobra.Command, args []string) {
 	// 1. Watch config file for updates
@@ -48,7 +48,6 @@ func (w *watchCmd) run(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 	// 2. Watch k8s API for updates
-	// 3. Add/remove runs
 
 	waitForSignal()
 }

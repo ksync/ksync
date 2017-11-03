@@ -1,12 +1,15 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
+	"os"
 	"time"
 
 	"github.com/dustinkirkland/golang-petname"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/vapor-ware/ksync/pkg/cli"
 	"github.com/vapor-ware/ksync/pkg/input"
@@ -38,11 +41,21 @@ func (cmd *createCmd) new() *cobra.Command {
 	}
 
 	flags := cmd.Cmd.Flags()
+
+	rand.Seed(time.Now().UnixNano())
 	flags.String(
 		"name",
-		"",
+		petname.Generate(2, "-"),
 		"Friendly name to describe this sync.")
 	if err := cmd.BindFlag("name"); err != nil {
+		log.Fatal(err)
+	}
+
+	flags.String(
+		"user",
+		fmt.Sprintf("%d:%d", os.Getuid(), os.Getgid()),
+		"User to run the sync as locally. Defaults to current user.")
+	if err := cmd.BindFlag("user"); err != nil {
 		log.Fatal(err)
 	}
 
@@ -69,22 +82,23 @@ func (cmd *createCmd) run(_ *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	name := cmd.Viper.GetString("name")
-	if name == "" {
-		rand.Seed(time.Now().UnixNano())
-		name = petname.Generate(2, "-")
-	}
-
 	specMap, err := ksync.AllSpecs()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	newSpec := &ksync.Spec{
-		Name:       name,
-		Container:  cmd.Viper.GetString("container"),
-		Pod:        cmd.Viper.GetString("pod"),
-		Selector:   cmd.Viper.GetString("selector"),
+		Name: cmd.Viper.GetString("name"),
+		User: cmd.Viper.GetString("user"),
+
+		Namespace:   viper.GetString("namespace"),
+		Context:     viper.GetString("context"),
+		KubeCfgPath: ksync.KubeCfgPath,
+
+		Container: cmd.Viper.GetString("container"),
+		Pod:       cmd.Viper.GetString("pod"),
+		Selector:  cmd.Viper.GetString("selector"),
+
 		LocalPath:  syncPath.Local,
 		RemotePath: syncPath.Remote,
 	}
@@ -94,7 +108,10 @@ func (cmd *createCmd) run(_ *cobra.Command, args []string) {
 	}
 
 	if err := specMap.Create(
-		name, newSpec, cmd.Viper.GetBool("force")); err != nil {
+		cmd.Viper.GetString("name"),
+		newSpec,
+		cmd.Viper.GetBool("force")); err != nil {
+
 		log.Fatalf("Could not create, --force to ignore: %v", err)
 	}
 	if err := specMap.Save(); err != nil {

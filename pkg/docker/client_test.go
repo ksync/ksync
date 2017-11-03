@@ -1,15 +1,14 @@
-package ksync
+package docker
 
 import (
 	"testing"
 
 	// "github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
 )
 
-func TestInitDockerClient(t *testing.T) {
-	err := InitDockerClient()
+func TestInitClient(t *testing.T) {
+	err := InitClient()
 
 	require.NoError(t, err)
 }

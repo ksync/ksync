@@ -17,7 +17,7 @@ import (
 
 // Mirror is the definition of a sync from the local host to a remote container.
 type Mirror struct {
-	Container *Container
+	RemoteContainer *RemoteContainer
 	// TODO: should this be a SyncPath? Seems like it ...
 	LocalPath  string
 	RemotePath string
@@ -55,14 +55,14 @@ func (m *Mirror) initLogs() error {
 }
 
 func (m *Mirror) path() (string, error) {
-	client, err := m.Container.Radar()
+	client, err := m.RemoteContainer.Radar()
 	if err != nil {
 		return "", err
 	}
 
 	path, err := client.GetBasePath(
 		context.Background(), &pb.ContainerPath{
-			ContainerId: m.Container.ID,
+			ContainerId: m.RemoteContainer.ID,
 		})
 	if err != nil {
 		return "", err
@@ -102,7 +102,7 @@ func (m *Mirror) Run() error {
 		return err
 	}
 
-	port, err := NewRadarInstance().MirrorConnection(m.Container.NodeName)
+	port, err := NewRadarInstance().MirrorConnection(m.RemoteContainer.NodeName)
 	if err != nil {
 		return err
 	}

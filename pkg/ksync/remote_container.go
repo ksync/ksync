@@ -10,31 +10,32 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	apiv1 "k8s.io/client-go/pkg/api/v1"
 
+	"github.com/vapor-ware/ksync/pkg/debug"
 	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
 
-// Container is a specific container running on the remote cluster.
-type Container struct {
+// RemoteContainer is a specific container running on the remote cluster.
+type RemoteContainer struct {
 	ID       string
 	Name     string
 	NodeName string
 	PodName  string
 }
 
-func (c *Container) String() string {
-	return YamlString(c)
+func (c *RemoteContainer) String() string {
+	return debug.YamlString(c)
 }
 
 // Fields returns a set of structured fields for logging.
-func (c *Container) Fields() log.Fields {
-	return StructFields(c)
+func (c *RemoteContainer) Fields() log.Fields {
+	return debug.StructFields(c)
 }
 
 // Radar connects to the server component (radar) and returns a client.
-func (c *Container) Radar() (pb.RadarClient, error) {
+func (c *RemoteContainer) Radar() (pb.RadarClient, error) {
 	conn, err := NewRadarInstance().RadarConnection(c.NodeName)
 	if err != nil {
-		return nil, ErrorOut("Could not connect to radar", err, c)
+		return nil, debug.ErrorOut("Could not connect to radar", err, c)
 	}
 	// TODO: what's a better way to handle c?
 	// defer conn.Close()
@@ -46,7 +47,7 @@ func (c *Container) Radar() (pb.RadarClient, error) {
 
 // RestartMirror restarts the remote mirror container responsible for this
 // container.
-func (c *Container) RestartMirror() error {
+func (c *RemoteContainer) RestartMirror() error {
 	client, err := c.Radar()
 	if err != nil {
 		return err
@@ -60,7 +61,7 @@ func (c *Container) RestartMirror() error {
 	return nil
 }
 
-func getContainer(pod *apiv1.Pod, containerName string) (*Container, error) {
+func getRemoteContainer(pod *apiv1.Pod, containerName string) (*RemoteContainer, error) {
 	// TODO: runtime error because there are no container statuses while
 	// k8s master is restarting.
 	if containerName == "" {
@@ -68,7 +69,7 @@ func getContainer(pod *apiv1.Pod, containerName string) (*Container, error) {
 			return nil, fmt.Errorf("no status for container")
 		}
 
-		return &Container{
+		return &RemoteContainer{
 			pod.Status.ContainerStatuses[0].ContainerID[9:],
 			pod.Status.ContainerStatuses[0].Name,
 			pod.Spec.NodeName,
@@ -80,7 +81,7 @@ func getContainer(pod *apiv1.Pod, containerName string) (*Container, error) {
 			continue
 		}
 
-		return &Container{
+		return &RemoteContainer{
 			status.ContainerID[9:],
 			status.Name,
 			pod.Spec.NodeName,
@@ -95,8 +96,8 @@ func getContainer(pod *apiv1.Pod, containerName string) (*Container, error) {
 		pod.Name)
 }
 
-// GetByName takes a pod and container name and looks for a running Container.
-func GetByName(podName string, containerName string) (*Container, error) {
+// GetByName takes a pod and container name and looks for a running RemoteContainer.
+func GetByName(podName string, containerName string) (*RemoteContainer, error) {
 	pod, err := kubeClient.CoreV1().Pods(namespace).Get(podName, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
@@ -106,10 +107,10 @@ func GetByName(podName string, containerName string) (*Container, error) {
 		"name": pod.Name,
 	}).Debug("found pod")
 
-	return getContainer(pod, containerName)
+	return getRemoteContainer(pod, containerName)
 }
 
-func getBySelector(selector string, containerName string) ([]*Container, error) {
+func getBySelector(selector string, containerName string) ([]*RemoteContainer, error) {
 	opts := metav1.ListOptions{}
 	opts.LabelSelector = selector
 	// TODO: namespace is not global anywhere else.
@@ -123,9 +124,9 @@ func getBySelector(selector string, containerName string) ([]*Container, error) 
 		"selector": selector,
 	}).Debug("found pods by selector")
 
-	containerList := []*Container{}
+	containerList := []*RemoteContainer{}
 	for _, pod := range pods.Items {
-		cntr, err := getContainer(&pod, containerName)
+		cntr, err := getRemoteContainer(&pod, containerName)
 		if err != nil {
 			return nil, err
 		}
@@ -135,18 +136,18 @@ func getBySelector(selector string, containerName string) ([]*Container, error) 
 	return containerList, nil
 }
 
-// GetContainers uses a Locator (podName, selector, containerName) and provides
+// GetRemoteContainers uses a Locator (podName, selector, containerName) and provides
 // a list of the currently running containers. It is possible that this list is
 // empty, for when the locator does not match anything currently running.
 // TODO: this takes a little bit to execute, is there any kind of progress or output
 // that would be useful to the user?
 // TODO: make this into a channel
-func GetContainers(
+func GetRemoteContainers(
 	podName string,
 	selector string,
-	containerName string) ([]*Container, error) {
+	containerName string) ([]*RemoteContainer, error) {
 
-	containerList := []*Container{}
+	containerList := []*RemoteContainer{}
 
 	if podName != "" {
 		container, err := GetByName(podName, containerName)

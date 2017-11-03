@@ -42,7 +42,7 @@ func TestValidator(t *testing.T) {
 }
 
 func TestContainers(t *testing.T) {
-	containerList, err := findercmd.Containers()
+	containerList, err := findercmd.RemoteContainers()
 
 	assert.NoError(t, err)
 	assert.NotNil(t, containerList)

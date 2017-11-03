@@ -54,9 +54,9 @@ func (cmd *FinderCmd) Validator() error {
 	return nil
 }
 
-// Containers returns a list of all remote containers that match the finder args.
-func (cmd *FinderCmd) Containers() ([]*ksync.Container, error) {
-	containerList, err := ksync.GetContainers(
+// RemoteContainers returns a list of all remote containers that match the finder args.
+func (cmd *FinderCmd) RemoteContainers() ([]*ksync.RemoteContainer, error) {
+	containerList, err := ksync.GetRemoteContainers(
 		cmd.Viper.GetString("pod"),
 		cmd.Viper.GetString("selector"),
 		cmd.Viper.GetString("container"))

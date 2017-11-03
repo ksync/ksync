@@ -12,7 +12,7 @@ func init() {
 }
 
 func TestRadar(t *testing.T) {
-	con := &Container{
+	con := &RemoteContainer{
 		ID:   "",
 		Name: "",
 		// TODO: This has to be dynamic
@@ -29,7 +29,7 @@ func TestRadar(t *testing.T) {
 
 func TestGetByName(t *testing.T) {
 	// TODO: This has to be dynamic
-	podName := "ksync-radar-01q6r"
+	podName := "ksync-radar-wq9lg"
 	containerName := "someequallystupidname"
 
 	// Test erroring on empty containerName

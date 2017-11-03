@@ -6,14 +6,13 @@ import (
 )
 
 // MergeFields takes a slice of logging fields and merges them together.
-func MergeFields(fieldSlice ...log.Fields) (log.Fields, error) {
+func MergeFields(fieldSlice ...log.Fields) log.Fields {
 	fields := &log.Fields{}
 	for _, src := range fieldSlice {
-		err := mergo.Merge(fields, src)
-		if err != nil {
-			return nil, err
+		if err := mergo.Merge(fields, src); err != nil {
+			return nil
 		}
 	}
 
-	return *fields, nil
+	return *fields
 }

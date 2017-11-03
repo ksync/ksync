@@ -84,9 +84,9 @@ func (r *runCmd) run(cmd *cobra.Command, args []string) {
 	}
 
 	mirror := &ksync.Mirror{
-		Container:  container,
-		LocalPath:  syncPath.Local,
-		RemotePath: syncPath.Remote,
+		RemoteContainer: container,
+		LocalPath:       syncPath.Local,
+		RemotePath:      syncPath.Remote,
 	}
 	if err := mirror.Run(); err != nil {
 		log.Fatal(err)

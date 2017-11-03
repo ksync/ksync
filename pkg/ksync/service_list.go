@@ -7,6 +7,9 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/vapor-ware/ksync/pkg/debug"
+	"github.com/vapor-ware/ksync/pkg/docker"
 )
 
 // ServiceList is a list of services.
@@ -26,8 +29,9 @@ func GetServices() *ServiceList {
 func (s *ServiceList) populate() error {
 	args := filters.NewArgs()
 	args.Add("label", "heritage=ksync")
+	args.Add("label", "service=true")
 
-	cntrs, err := dockerClient.ContainerList(
+	cntrs, err := docker.Client.ContainerList(
 		context.Background(),
 		types.ContainerListOptions{
 			Filters: args,
@@ -42,7 +46,7 @@ func (s *ServiceList) populate() error {
 	for _, cntr := range cntrs {
 		service := &Service{
 			Name: cntr.Labels["name"],
-			Container: &Container{
+			RemoteContainer: &RemoteContainer{
 				PodName:  cntr.Labels["pod"],
 				Name:     cntr.Labels["container"],
 				NodeName: cntr.Labels["node"],
@@ -108,10 +112,10 @@ func (s *ServiceList) compact(specs *SpecMap) error {
 
 func (s *ServiceList) update(specs *SpecMap) error {
 	for name, spec := range specs.Items {
-		containerList, err := GetContainers(
+		containerList, err := GetRemoteContainers(
 			spec.Pod, spec.Selector, spec.Container)
 		if err != nil {
-			return ErrorOut("unable to get container list", err, nil)
+			return debug.ErrorOut("unable to get container list", err, nil)
 		}
 
 		if len(containerList) == 0 {
@@ -126,9 +130,10 @@ func (s *ServiceList) update(specs *SpecMap) error {
 		// TODO: should this be on its own?
 		for _, cntr := range containerList {
 			if err := NewService(name, cntr, spec).Start(); err != nil {
+
 				if IsServiceRunning(err) {
-					merged, _ := MergeFields(cntr.Fields(), spec.Fields())
-					log.WithFields(merged).Debug("already running")
+					log.WithFields(MergeFields(
+						cntr.Fields(), spec.Fields())).Debug("already running")
 					continue
 				}
 
