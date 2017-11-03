@@ -10,6 +10,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"k8s.io/client-go/tools/portforward"
 	"k8s.io/client-go/tools/remotecommand"
+
+	"github.com/vapor-ware/ksync/pkg/debug"
 )
 
 // Tunnel is the connection between the local host and a specific pod in the
@@ -25,12 +27,12 @@ type Tunnel struct {
 }
 
 func (t *Tunnel) String() string {
-	return YamlString(t)
+	return debug.YamlString(t)
 }
 
 // Fields returns a set of structured fields for logging.
 func (t *Tunnel) Fields() log.Fields {
-	return StructFields(t)
+	return debug.StructFields(t)
 }
 
 // NewTunnel constructs a new tunnel for the namespace, pod and port.
@@ -74,13 +76,9 @@ func (t *Tunnel) Start() error {
 	}
 	t.LocalPort = local
 
-	merged, err := MergeFields(t.Fields(), log.Fields{
+	log.WithFields(MergeFields(t.Fields(), log.Fields{
 		"url": req.URL(),
-	})
-	if err != nil {
-		return err
-	}
-	log.WithFields(merged).Debug("starting tunnel")
+	})).Debug("starting tunnel")
 
 	pf, err := portforward.New(
 		dialer,
@@ -102,7 +100,7 @@ func (t *Tunnel) Start() error {
 
 	select {
 	case err = <-errChan:
-		return ErrorOut("error forwarding ports", err, t)
+		return debug.ErrorOut("error forwarding ports", err, t)
 	case <-pf.Ready:
 		log.WithFields(t.Fields()).Debug("tunnel running")
 		return nil

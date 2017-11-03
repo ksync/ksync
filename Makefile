@@ -7,7 +7,7 @@ MUTABLE_IMAGE   := ${IMAGE_BASE}:${MUTABLE_VERSION}
 
 #CMD       ?= bin/ksync --log-level=debug init --upgrade && stern --namespace=kube-system --selector=app=radar
 CMD       ?= (docker ps -q | xargs docker rm -f || true) && \
-	bin/ksync --log-level=debug init --upgrade && bin/ksync --log-level=debug watch
+	bin/ksync --log-level=debug init --upgrade && docker ps -q | xargs docker logs -f
 
 GO        ?= go
 TAGS      :=
@@ -73,7 +73,8 @@ docker-push:
 
 .PHONY: test
 test:
-	go test -v --race ./...
+	kubectl apply -f test/test.yaml
+	go test -v ./...
 
 HAS_LINT := $(shell command -v gometalinter)
 
@@ -85,12 +86,14 @@ ifndef HAS_LINT
 endif
 	gometalinter ./... \
 		--vendor \
-		--skip "_tests" \
+		--skip "testdata" \
+		--exclude "[a-zA-Z]*_test.go" \
 		--disable=megacheck \
 		--deadline=240s
 	gometalinter ./...\
 		--vendor \
-		--skip "_tests" \
+		--skip "testdata" \
+		--exclude "[a-zA-Z]*_test.go" \
 		--disable-all \
 		--enable=megacheck \
 		--deadline=240s

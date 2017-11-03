@@ -172,10 +172,8 @@ go install -u github.com/golang/dep/cmd/dep
 
 ## Minor
 
-- Only allow syncs on directories (not single files), check in add
-- Move watch to init
-    - Start with docker
-    - Refactor `Service` to work with multiple container types? This might be more work than required.
+- Move `watch` to run inside a container if started by a user.
+- Move `run` to run inside a container if started by a user.
 - There is a timing error between the mirror restart and the run container restart.
     - run restarts mirror
     - run tries to create tunnel to mirror container

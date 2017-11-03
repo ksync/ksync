@@ -1,4 +1,4 @@
-package ksync
+package docker
 
 import (
 	apiclient "github.com/docker/docker/client"
@@ -6,11 +6,12 @@ import (
 )
 
 var (
-	dockerClient *apiclient.Client
+	// Client is a singleton docker client that is already configured.
+	Client *apiclient.Client
 )
 
-// InitDockerClient sets up the singleton for use by the ksync package.
-func InitDockerClient() error {
+// InitClient sets up the singleton for use by the ksync package.
+func InitClient() error {
 	client, err := apiclient.NewEnvClient()
 	if err != nil {
 		return err
@@ -18,7 +19,7 @@ func InitDockerClient() error {
 
 	log.Debug("docker client created")
 
-	dockerClient = client
+	Client = client
 
 	return nil
 }

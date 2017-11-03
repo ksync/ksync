@@ -8,6 +8,8 @@ import (
 	"google.golang.org/grpc"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/vapor-ware/ksync/pkg/debug"
 )
 
 // RadarInstance is the remote server component of ksync.
@@ -20,12 +22,12 @@ type RadarInstance struct {
 }
 
 func (r *RadarInstance) String() string {
-	return YamlString(r)
+	return debug.YamlString(r)
 }
 
 // Fields returns a set of structured fields for logging.
 func (r *RadarInstance) Fields() log.Fields {
-	return StructFields(r)
+	return debug.StructFields(r)
 }
 
 // NewRadarInstance constructs a RadarInstance to track the remote status.
@@ -61,13 +63,9 @@ func (r *RadarInstance) Run(upgrade bool) error {
 		}
 	}
 
-	merged, err := MergeFields(r.Fields(), log.Fields{
+	log.WithFields(MergeFields(r.Fields(), log.Fields{
 		"upgrade": upgrade,
-	})
-	if err != nil {
-		return err
-	}
-	log.WithFields(merged).Debug("started DaemonSet")
+	})).Debug("started DaemonSet")
 
 	return nil
 }
@@ -108,16 +106,16 @@ func (r *RadarInstance) podName(nodeName string) (string, error) {
 func (r *RadarInstance) connection(nodeName string, port int32) (int32, error) {
 	podName, err := r.podName(nodeName)
 	if err != nil {
-		return 0, ErrorOut("cannot get pod name", err, r)
+		return 0, debug.ErrorOut("cannot get pod name", err, r)
 	}
 
 	tun, err := NewTunnel(r.namespace, podName, port)
 	if err != nil {
-		return 0, ErrorOut("unable to create tunnel", err, r)
+		return 0, debug.ErrorOut("unable to create tunnel", err, r)
 	}
 
 	if err := tun.Start(); err != nil {
-		return 0, ErrorOut("unable to start tunnel", err, r)
+		return 0, debug.ErrorOut("unable to start tunnel", err, r)
 	}
 
 	return tun.LocalPort, nil

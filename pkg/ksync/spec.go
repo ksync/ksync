@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"strings"
 
 	homedir "github.com/mitchellh/go-homedir"
@@ -14,6 +15,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	yaml "gopkg.in/yaml.v2"
+
+	"github.com/vapor-ware/ksync/pkg/debug"
 )
 
 // SpecMap is a collection of Specs.
@@ -24,17 +27,28 @@ type SpecMap struct {
 // Spec is all the configuration required to setup a sync from a local directory
 // to a remote directory in a specific remote container.
 type Spec struct {
-	Name      string
-	Container string
+	// Local config
+	Name string
+	User string
+
+	// Kubernetes config
+	Namespace   string
+	Context     string
+	KubeCfgPath string
+
+	// RemoteContainer Locator
 	// TODO: use a locator instead?
-	Pod        string
-	Selector   string
+	Container string
+	Pod       string
+	Selector  string
+
+	// File config
 	LocalPath  string
 	RemotePath string
 }
 
 func (s *SpecMap) String() string {
-	return YamlString(s)
+	return debug.YamlString(s)
 }
 
 // Fields returns a set of structured fields for logging.
@@ -43,12 +57,12 @@ func (s *SpecMap) Fields() log.Fields {
 }
 
 func (s *Spec) String() string {
-	return YamlString(s)
+	return debug.YamlString(s)
 }
 
 // Fields returns a set of structured fields for logging.
 func (s *Spec) Fields() log.Fields {
-	return StructFields(s)
+	return debug.StructFields(s)
 }
 
 // Status returns the current status of a spec.
@@ -86,6 +100,11 @@ func (s *Spec) IsValid() error {
 
 	if fstat != nil && !fstat.IsDir() {
 		return fmt.Errorf("local path cannot be a single file, please use a directory")
+	}
+
+	// User is of format int:int
+	if result, _ := regexp.MatchString("[0-9]+:[0-9]+", s.User); !result {
+		return fmt.Errorf("user must be of format uid:gid, got: %s", s.User)
 	}
 
 	return nil

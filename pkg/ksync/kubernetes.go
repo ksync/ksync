@@ -12,9 +12,10 @@ import (
 
 var (
 	// TODO: is this singleton a good idea?
-	kubeClient  *kubernetes.Clientset
-	kubeCfg     *rest.Config
-	kubeCfgPath string
+	kubeClient *kubernetes.Clientset
+	kubeCfg    *rest.Config
+	// KubeCfgPath is the path to the currently used kubectl config
+	KubeCfgPath string
 	namespace   string
 )
 
@@ -65,7 +66,7 @@ func InitKubeClient(context string, nspace string) error {
 
 	kubeClient = client
 	kubeCfg = config
-	kubeCfgPath = cfgPath
+	KubeCfgPath = cfgPath
 	namespace = nspace
 
 	return nil
