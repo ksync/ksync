@@ -24,13 +24,13 @@ func TestValidator(t *testing.T) {
 		Local: "",
 	}
 	err := path.Validator()
-	assert.EqualError(t, err, "Must specify a local path")
+	assert.EqualError(t, err, "must specify a local path")
 
 	path = &SyncPath{
 		Local: os.TempDir(),
 	}
 	err = path.Validator()
-	assert.EqualError(t, err, "Must specify a remote path")
+	assert.EqualError(t, err, "must specify a remote path")
 
 	currentdir, patherr := os.Getwd()
 	require.NoError(t, patherr)
@@ -42,20 +42,20 @@ func TestValidator(t *testing.T) {
 		Remote: os.TempDir(),
 	}
 	err = path.Validator()
-	assert.EqualError(t, err, "Local path must be absolute.")
+	assert.EqualError(t, err, "local path must be absolute")
 
 	path = &SyncPath{
 		Local:  "/nonexistentpath",
 		Remote: os.TempDir(),
 	}
 	err = path.Validator()
-	assert.EqualError(t, err, "Local path must exist.")
+	assert.EqualError(t, err, "local path must exist")
 
 	path = &SyncPath{
 		Local:  absdirpath,
 		Remote: filepath.Base(currentdir),
 	}
 	err = path.Validator()
-	assert.EqualError(t, err, "Remote path must be absolute.")
+	assert.EqualError(t, err, "remote path must be absolute")
 
 }

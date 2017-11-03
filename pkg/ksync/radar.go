@@ -61,9 +61,13 @@ func (r *RadarInstance) Run(upgrade bool) error {
 		}
 	}
 
-	log.WithFields(MergeFields(r.Fields(), log.Fields{
+	merged, err := MergeFields(r.Fields(), log.Fields{
 		"upgrade": upgrade,
-	})).Debug("started DaemonSet")
+	})
+	if err != nil {
+		return err
+	}
+	log.WithFields(merged).Debug("started DaemonSet")
 
 	return nil
 }

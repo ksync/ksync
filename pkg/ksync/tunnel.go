@@ -74,9 +74,13 @@ func (t *Tunnel) Start() error {
 	}
 	t.LocalPort = local
 
-	log.WithFields(MergeFields(t.Fields(), log.Fields{
+	merged, err := MergeFields(t.Fields(), log.Fields{
 		"url": req.URL(),
-	})).Debug("starting tunnel")
+	})
+	if err != nil {
+		return err
+	}
+	log.WithFields(merged).Debug("starting tunnel")
 
 	pf, err := portforward.New(
 		dialer,

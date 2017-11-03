@@ -11,6 +11,8 @@ jobs:
     environment:
         TEST_DIRECTORY: "gotest"
         BINARY_NAME: "ksync"
+        CLUSTER_NAME: "tim-dev"
+        CLUSTER_ZONE: "us-central1-b"
 
     steps:
       - checkout
@@ -25,6 +27,18 @@ jobs:
           command: mkdir -p /tmp/$TEST_DIRECTORY
 
       - run:
+          name: "Install and setup GKE access"
+          background: true
+          command: |
+             curl https://sdk.cloud.google.com -o /tmp/gcloud-install
+             chmod +x /tmp/gcloud-install
+             /tmp/gcloud-install --disable-prompts
+             echo ${GOOGLE_AUTH} > ${HOME}/gcp-key.json
+             /home/circleci/google-cloud-sdk/bin/gcloud auth activate-service-account --key-file ${HOME}/gcp-key.json
+             /home/circleci/google-cloud-sdk/bin/gcloud components install kubectl --quiet
+             /home/circleci/google-cloud-sdk/bin/gcloud container clusters get-credentials $CLUSTER_NAME --zone $CLUSTER_ZONE
+
+      - run:
           name: "Installing Vendored Dependencies"
           command: |
             go get -v github.com/golang/dep/cmd/dep
@@ -36,18 +50,21 @@ jobs:
           command: |
             go get -u github.com/alecthomas/gometalinter
             gometalinter --install
-            gometalinter ./... --vendor --skip "_tests" --disable=megacheck --deadline=240s
-            gometalinter ./... --vendor --skip "_tests" --disable-all --enable=megacheck --deadline=240s
+            gometalinter ./... --vendor --skip "testdata" --disable=megacheck --deadline=240s
+            gometalinter ./... --vendor --skip "testdata" --disable-all --enable=megacheck --deadline=240s
 
       - run:
           name: "Get test to junit xml parser"
           command: go get -v -u github.com/jstemmer/go-junit-report
 
       - run:
+          name: "Running Tests (Background)"
+          background: true
+          command: go test -v ./... 2>&1 | go-junit-report > /tmp/$TEST_DIRECTORY/report.xml
+
+      - run:
           name: "Running Tests"
-          command: |
-            go test -v --race ./...
-            go test -v ./... 2>&1 | go-junit-report > /tmp/$TEST_DIRECTORY/report.xml
+          command: go test -v --race ./...
 
       - save_cache:
           when: on_success
@@ -70,4 +87,4 @@ jobs:
           destination: binaries
 
       - store_test_results:
-          path: /tmp/$TEST_DIRECTORY
+          path: /tmp/gotest
