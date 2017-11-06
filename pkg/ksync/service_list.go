@@ -18,12 +18,14 @@ type ServiceList struct {
 }
 
 // GetServices creates a ServiceList containing all the running services.
-func GetServices() *ServiceList {
+func GetServices() (*ServiceList, error) {
 	list := &ServiceList{}
 
-	list.populate() // nolint: errcheck
-
-	return list
+	err := list.populate()
+	if err != nil {
+		return list, err
+	}
+	return list, nil
 }
 
 func (s *ServiceList) populate() error {

@@ -39,13 +39,21 @@ func (w *watchCmd) run(cmd *cobra.Command, args []string) {
 	// 1. Watch config file for updates
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
-		if err := ksync.GetServices().Normalize(); err != nil {
+		list, err := ksync.GetServices()
+		if err != nil {
 			log.Fatal(err)
+		}
+		if normerr := list.Normalize(); normerr != nil {
+			log.Fatal(normerr)
 		}
 	})
 
-	if err := ksync.GetServices().Normalize(); err != nil {
+	list, err := ksync.GetServices()
+	if err != nil {
 		log.Fatal(err)
+	}
+	if normerr := list.Normalize(); normerr != nil {
+		log.Fatal(normerr)
 	}
 	// 2. Watch k8s API for updates
 

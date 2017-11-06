@@ -29,7 +29,7 @@ func TestRadar(t *testing.T) {
 
 func TestGetByName(t *testing.T) {
 	// TODO: This has to be dynamic
-	podName := "ksync-radar-wq9lg"
+	podName := "ksync-radar-m2v67"
 	containerName := "someequallystupidname"
 
 	// Test erroring on empty containerName

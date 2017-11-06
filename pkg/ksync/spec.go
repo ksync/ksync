@@ -70,7 +70,11 @@ func (s *Spec) Fields() log.Fields {
 func (s *Spec) Status() (string, error) {
 	status := "inactive"
 	// TODO: this is super naive and should be handled differently
-	if services := GetServices().Filter(s.Name); len(services.Items) != 0 {
+	servicelist, err := GetServices()
+	if err != nil {
+		return "", err
+	}
+	if services := servicelist.Filter(s.Name); len(services.Items) != 0 {
 		var statuses []string
 		for _, service := range services.Items {
 			status, err := service.Status()
