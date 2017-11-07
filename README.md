@@ -172,12 +172,10 @@ go install -u github.com/golang/dep/cmd/dep
 
 ## Minor
 
-- There is a timing error between the mirror restart and the run container restart.
-    - run restarts mirror
-    - run tries to create tunnel to mirror container
-    - mirror is still starting (not listening), tunnel doesn't connect (crashing run)
-    - loop endlessly
+- Add a version command that returns the local and remote versions.
+    - Report whether there's a new version and how to update.
 - Add health and readiness checks to `ksync init` for both radar and watch. There should be a flag that disables the wait (but it should wait by default and output status).
+- Verify that there is a running radar on the node before moving forward (and return a friendly error).
 - Reduce the number of restarts that `ksync run` goes through while trying to setup a sync for the first time. It is tough to understand whether it is working or not (as a lot of the restarts are expected) and even harder to debug when it isn't working.
 - Verify that the configured container user can actually write to localPath
 - IO timeout errors (when the remote cluster cannot be reached) take a long time. There should be a better experience here.

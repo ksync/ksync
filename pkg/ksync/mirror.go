@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
@@ -15,13 +16,20 @@ import (
 	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
 
+var (
+	maxConnectionRetries = 1
+)
+
 // Mirror is the definition of a sync from the local host to a remote container.
 type Mirror struct {
 	RemoteContainer *RemoteContainer
 	// TODO: should this be a SyncPath? Seems like it ...
 	LocalPath  string
 	RemotePath string
-	cmd        *exec.Cmd
+
+	cmd               *exec.Cmd
+	connectionRetries int
+	retryLock         sync.Mutex
 }
 
 func (m *Mirror) scanner(pipe io.Reader, logger func(...interface{})) {
@@ -75,16 +83,29 @@ func (m *Mirror) initErrorHandler() {
 	// Setup the k8s runtime to fail on unreturnable error (instead of looping).
 	// This helps cleanup zombie java processes.
 	runtime.ErrorHandlers = append(runtime.ErrorHandlers, func(fromHandler error) {
-		if err := m.cmd.Process.Kill(); err != nil {
-			log.Fatalf("couldn't kill %v", err)
-		}
+		// Connection refused errors suggest that mirror is restarting remotely
+		// and we should just be patient. If the error isn't connection refused,
+		// it is likely we have a more serious problem (such as the entire pod
+		// getting rescheduled).
+
 		// TODO: this makes me feel dirty, there must be a better way.
-		if strings.Contains(fromHandler.Error(), "Connection refused") {
-			log.Fatal(
-				"Lost connection to remote radar pod. Try again (it should restart).")
+		if !strings.Contains(fromHandler.Error(), "Connection refused") ||
+			m.connectionRetries >= maxConnectionRetries {
+
+			if err := m.cmd.Process.Kill(); err != nil {
+				log.Fatalf("couldn't kill %v", err)
+			}
+
+			log.Fatal(fromHandler)
 		}
 
-		log.Fatalf("unreturnable error: %v", fromHandler)
+		m.retryLock.Lock()
+		defer m.retryLock.Unlock()
+
+		m.connectionRetries++
+		log.WithFields(log.Fields{
+			"retries": m.connectionRetries,
+		}).Debug("lost connection to remote mirror server")
 	})
 }
 
@@ -97,6 +118,8 @@ func (m *Mirror) initErrorHandler() {
 //   - state updates (disconnected, active, idle)
 // TODO: stop gracefully when the remote pod goes away.
 func (m *Mirror) Run() error {
+	m.connectionRetries = 0
+
 	path, err := m.path()
 	if err != nil {
 		return err
