@@ -172,8 +172,6 @@ go install -u github.com/golang/dep/cmd/dep
 
 ## Minor
 
-- Move `watch` to run inside a container if started by a user.
-- Move `run` to run inside a container if started by a user.
 - There is a timing error between the mirror restart and the run container restart.
     - run restarts mirror
     - run tries to create tunnel to mirror container
@@ -184,6 +182,8 @@ go install -u github.com/golang/dep/cmd/dep
 - Verify that the configured container user can actually write to localPath
 - IO timeout errors (when the remote cluster cannot be reached) take a long time. There should be a better experience here.
 - Test coverage
+- Move `watch` to run inside a container if started by a user.
+- Move `run` to run inside a container if started by a user.
 - TLS for mirror (is it required?)
 - TLS for radar (is it required?)
 - Allow configuration of who the container runs as (default to current user/group)

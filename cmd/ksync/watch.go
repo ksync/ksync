@@ -19,7 +19,10 @@ type watchCmd struct {
 }
 
 func (w *watchCmd) new() *cobra.Command {
-	long := `Watch configured syncs and start them when required.`
+	long := `Watch configured syncs and start them when required.
+
+	Note: this is run automatically for you by 'ksync init'. It expects to be run
+	from inside a container.`
 	example := ``
 
 	w.Init("ksync", &cobra.Command{
