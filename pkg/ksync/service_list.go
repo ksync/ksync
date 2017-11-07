@@ -22,7 +22,7 @@ func GetServices() (*ServiceList, error) {
 	list := &ServiceList{}
 
 	err := list.populate()
-	if err != nil {
+	if err != nil { // nolint: megacheck
 		return list, err
 	}
 	return list, nil

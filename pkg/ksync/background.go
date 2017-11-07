@@ -68,7 +68,7 @@ func BackgroundWatch(cfgPath string, upgrade bool) error {
 		"id": cntr.ID,
 	}).Debug("container created")
 
-	if err := service.Start(&cntr); err != nil {
+	if err := service.Start(&cntr); err != nil { // nolint: megacheck
 		return err
 	}
 
