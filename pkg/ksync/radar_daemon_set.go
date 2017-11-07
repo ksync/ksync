@@ -5,6 +5,7 @@ import (
 	"time"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/pkg/api/v1"
 	v1beta1 "k8s.io/client-go/pkg/apis/extensions/v1beta1"
 )
@@ -79,6 +80,22 @@ func (r *RadarInstance) daemonSet() *v1beta1.DaemonSet {
 									Name:      "kubelet",
 									MountPath: "/var/lib/kubelet",
 								},
+							},
+							LivenessProbe: &v1.Probe{
+								Handler: v1.Handler{
+									TCPSocket: &v1.TCPSocketAction{
+										Port: intstr.FromInt(int(r.mirrorPort)),
+									},
+								},
+								InitialDelaySeconds: 10,
+							},
+							ReadinessProbe: &v1.Probe{
+								Handler: v1.Handler{
+									TCPSocket: &v1.TCPSocketAction{
+										Port: intstr.FromInt(int(r.mirrorPort)),
+									},
+								},
+								InitialDelaySeconds: 10,
 							},
 						},
 					},
