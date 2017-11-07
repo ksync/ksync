@@ -73,7 +73,7 @@ docker-push:
 
 .PHONY: test
 test:
-	kubectl apply -f test/test.yaml
+	kubectl apply -f testdata/k8s/config/testing.yaml
 	go test -v ./...
 
 HAS_LINT := $(shell command -v gometalinter)
