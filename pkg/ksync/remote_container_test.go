@@ -2,22 +2,23 @@ package ksync
 
 import (
 	"testing"
+	"os"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func init() {
-	InitKubeClient("", "kube-system")
+	InitKubeClient("", os.Getenv("TEST_RADAR_NAMESPACE"))
 }
 
 func TestRadar(t *testing.T) {
 	con := &RemoteContainer{
-		ID:   "",
+		ID:   os.Getenv("TEST_RADAR_CONTAINERID"),
 		Name: "",
 		// TODO: This has to be dynamic
-		NodeName: "gke-tim-dev-default-pool-9e45a876-pzbw",
-		PodName:  "",
+		NodeName: os.Getenv("TEST_RADAR_NODE"),
+		PodName:  os.Getenv("TEST_RADAR_POD"),
 	}
 	_, err := con.Radar()
 	// TODO: Remove logging
@@ -29,7 +30,7 @@ func TestRadar(t *testing.T) {
 
 func TestGetByName(t *testing.T) {
 	// TODO: This has to be dynamic
-	podName := "ksync-radar-m2v67"
+	podName := os.Getenv("TEST_POD")
 	containerName := "someequallystupidname"
 
 	// Test erroring on empty containerName
