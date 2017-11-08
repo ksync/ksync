@@ -17,6 +17,9 @@ if [[ -z $CIRCLECI ]]; then
   exit 1
 fi
 
+# Add google cli utilites to our path if necessary
+export PATH=${PATH}:/home/circleci/google-cloud-sdk/path.bash.inc || echo -e "${BLUE}Google install path not dectected, not modifying path${NC}"
+
 # Check if require utilities are installed and accessible
 echo -e "${BLUE}Checking if kubectl and gcloud are installed${NC}"
 if ! command -v kubectl; then
