@@ -22,34 +22,37 @@ go install -v
 # Deploy radar to the cluster
 ksync init
 # TODO: Make this wait for the deployment to actually be healthy
-sleep 30
+sleep 10
+
+# Get absolute path for kubectl in case it isn't in our shell
+TEST_KUBECTL="/home/circleci/google-cloud-sdk/bin/kubectl"
 
 # Set a namespace to use
 TEST_NAMESPACE="default"
 TEST_RADAR_NAMESPACE="kube-system"
 
 # Fetch the names of the pods launched
-PODS=($(kubectl get pods --namespace ${TEST_NAMESPACE} --selector app=test -o json | jq --raw-output '.items[].metadata.name'))
+PODS=($(${TEST_KUBECTL} get pods --namespace ${TEST_NAMESPACE} --selector app=test -o json | jq --raw-output '.items[].metadata.name'))
 echo -e "${BLUE}${PODS[@]}${NC}"
 
 # Fetch the nodes pods are scheduled on
-NODES=($(kubectl get pods --namespace ${TEST_NAMESPACE} --selector app=test -o json | jq --raw-output '.items[].spec.nodeName'))
+NODES=($(${TEST_KUBECTL} get pods --namespace ${TEST_NAMESPACE} --selector app=test -o json | jq --raw-output '.items[].spec.nodeName'))
 echo -e "${BLUE}${NODES[@]}${NC}"
 
 # Fetch the pod's ID
-CONTAINERIDS=($(kubectl get pods --namespace ${TEST_NAMESPACE} --selector app=test -o json | jq --raw-output '.items[].status.containerStatuses[].containerID' | awk '{print $NF}' FS=/))
+CONTAINERIDS=($(${TEST_KUBECTL} get pods --namespace ${TEST_NAMESPACE} --selector app=test -o json | jq --raw-output '.items[].status.containerStatuses[].containerID' | awk '{print $NF}' FS=/))
 echo -e "${BLUE}${CONTAINERIDS[@]}${NC}"
 
 # Fetch the names of the pods launched
-RADAR_PODS=($(kubectl get pods --namespace ${TEST_RADAR_NAMESPACE} --selector app=radar -o json | jq --raw-output '.items[].metadata.name'))
+RADAR_PODS=($(${TEST_KUBECTL} get pods --namespace ${TEST_RADAR_NAMESPACE} --selector app=radar -o json | jq --raw-output '.items[].metadata.name'))
 echo -e "${BLUE}${RADAR_PODS[@]}${NC}"
 
 # Fetch the nodes pods are scheduled on
-RADAR_NODES=($(kubectl get pods --namespace ${TEST_RADAR_NAMESPACE} --selector app=radar -o json | jq --raw-output '.items[].spec.nodeName'))
+RADAR_NODES=($(${TEST_KUBECTL} get pods --namespace ${TEST_RADAR_NAMESPACE} --selector app=radar -o json | jq --raw-output '.items[].spec.nodeName'))
 echo -e "${BLUE}${RADAR_NODES[@]}${NC}"
 
 # Fetch the pod's ID
-RADAR_CONTAINERIDS=($(kubectl get pods --namespace ${TEST_RADAR_NAMESPACE} --selector app=radar -o json | jq --raw-output '.items[].status.containerStatuses[].containerID' | awk '{print $NF}' FS=/))
+RADAR_CONTAINERIDS=($(${TEST_KUBECTL} get pods --namespace ${TEST_RADAR_NAMESPACE} --selector app=radar -o json | jq --raw-output '.items[].status.containerStatuses[].containerID' | awk '{print $NF}' FS=/))
 echo -e "${BLUE}${RADAR_CONTAINERIDS[@]}${NC}"
 
 # Export all necessary variables to a temporary holding place for later sourcing
