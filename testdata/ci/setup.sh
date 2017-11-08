@@ -44,4 +44,4 @@ echo -e "${GREEN}Got credentials from ${PURPLE}${CLUSTER_NAME}${NC}"
 echo -e "${BLUE}Getting necessary image (${PURPLE}This will be removed when pulling is added)${NC}"
 gcloud docker -- pull gcr.io/elated-embassy-152022/ksync/ksync:canary
 echo -e "${BLUE}Launching test deployment${NC}"
-kubectl apply -f ${CIRCLE_WORKING_DIRECTORY}/testdata/k8s/config/test-app.yaml --validate true -o json | jq
+kubectl apply -f ${CIRCLE_WORKING_DIRECTORY}/testdata/k8s/config/test-app.yaml --validate=true --force=true -o json | jq
