@@ -12,7 +12,7 @@ YELLOW='\033[0;33m'
 NC='\033[0m'
 
 # Check if we are running in CircleCI
-if [[ ! -z $CIRCLECI ]]; then
+if [[ -z $CIRCLECI ]]; then
   echo -e "${RED}We are not running on CircleCI! We must be running there.${NC}"
   exit 1
 fi
