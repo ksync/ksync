@@ -18,7 +18,7 @@ if [[ -z $CIRCLECI ]]; then
 fi
 
 # Add google cli utilites to our path if necessary
-export PATH=${PATH}:/home/circleci/google-cloud-sdk/path.bash.inc || echo -e "${BLUE}Google install path not dectected, not modifying path${NC}"
+source /home/circleci/google-cloud-sdk/path.bash.inc || echo -e "${BLUE}Google install path not dectected, not modifying path${NC}"
 
 # Check if require utilities are installed and accessible
 echo -e "${BLUE}Checking if kubectl and gcloud are installed${NC}"
@@ -41,5 +41,7 @@ gcloud container clusters get-credentials ${CLUSTER_NAME} --zone ${CLUSTER_ZONE}
 echo -e "${GREEN}Got credentials from ${PURPLE}${CLUSTER_NAME}${NC}"
 
 # Launch our test deployment
+echo -e "${BLUE}Getting necessary image (${PURPLE}This will be removed when pulling is added)${NC}"
+gcloud docker -- pull gcr.io/elated-embassy-152022/ksync/ksync:canary
 echo -e "${BLUE}Launching test deployment${NC}"
 kubectl apply -f ${CIRCLE_WORKING_DIRECTORY}/testdata/k8s/config/test-app.yaml --validate true -o json | jq
