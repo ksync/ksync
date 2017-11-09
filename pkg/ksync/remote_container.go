@@ -35,7 +35,7 @@ func (c *RemoteContainer) Fields() log.Fields {
 func (c *RemoteContainer) Radar() (pb.RadarClient, error) {
 	conn, err := NewRadarInstance().RadarConnection(c.NodeName)
 	if err != nil {
-		return nil, debug.ErrorOut("Could not connect to radar", err, c)
+		return nil, err
 	}
 	// TODO: what's a better way to handle c?
 	// defer conn.Close()
@@ -61,7 +61,8 @@ func (c *RemoteContainer) RestartMirror() error {
 	return nil
 }
 
-func getRemoteContainer(pod *apiv1.Pod, containerName string) (*RemoteContainer, error) {
+func getRemoteContainer(
+	pod *apiv1.Pod, containerName string) (*RemoteContainer, error) {
 	// TODO: runtime error because there are no container statuses while
 	// k8s master is restarting.
 	if containerName == "" {
@@ -98,7 +99,8 @@ func getRemoteContainer(pod *apiv1.Pod, containerName string) (*RemoteContainer,
 
 // GetByName takes a pod and container name and looks for a running RemoteContainer.
 func GetByName(podName string, containerName string) (*RemoteContainer, error) {
-	pod, err := kubeClient.CoreV1().Pods(namespace).Get(podName, metav1.GetOptions{})
+	pod, err := kubeClient.CoreV1().Pods(namespace).Get(
+		podName, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}

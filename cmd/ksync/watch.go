@@ -31,6 +31,8 @@ func (w *watchCmd) new() *cobra.Command {
 		Long:    long,
 		Example: example,
 		Run:     w.run,
+		// TODO: remove this when the command can be run by users.
+		Hidden: true,
 	})
 
 	return w.Cmd

@@ -130,6 +130,10 @@ TODO
 
     Watch for matching pods in the background (based off pod name and selector). Start syncs for any that come online.
 
+- `ksync doctor`
+
+    Debug what's happening under the covers and look for any possible issues with the system.
+
 # Development
 
 ## Dependencies

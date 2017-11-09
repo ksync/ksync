@@ -70,8 +70,10 @@ func init() {
 	}
 }
 
+// TODO: dependencies should verify that they're usable (and return errors otherwise).
 func initPersistent(cmd *cobra.Command, args []string) {
 	cli.InitLogging()
+
 	initKubeClient()
 	initDockerClient()
 }
