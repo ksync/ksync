@@ -1,14 +1,15 @@
 package ksync
 
 // import (
-// 	"testing"
+//  "testing"
+//  "os"
 //
 // 	// "github.com/stretchr/testify/assert"
 // 	"github.com/stretchr/testify/require"
 // )
 
 // func init() {
-// 	InitKubeClient("", "kube-system")
+// 	InitKubeClient("", os.Getenv("TEST_NAMESPACE"))
 // }
 
 // TODO: Change the function name to prevent collisions?

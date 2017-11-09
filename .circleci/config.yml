@@ -15,6 +15,8 @@ jobs:
         CLUSTER_ZONE: "us-central1-b"
 
     steps:
+      - setup_remote_docker
+
       - checkout
 
       - restore_cache:
@@ -37,6 +39,7 @@ jobs:
              /home/circleci/google-cloud-sdk/bin/gcloud auth activate-service-account --key-file ${HOME}/gcp-key.json
              /home/circleci/google-cloud-sdk/bin/gcloud components install kubectl --quiet
              /home/circleci/google-cloud-sdk/bin/gcloud container clusters get-credentials $CLUSTER_NAME --zone $CLUSTER_ZONE
+             testdata/ci/setup.sh
 
       - run:
           name: "Installing Vendored Dependencies"
@@ -54,17 +57,27 @@ jobs:
             gometalinter ./... --vendor --skip "testdata" --disable-all --enable=megacheck --deadline=240s
 
       - run:
+          name: "Launch Required Objects Into Cluster"
+          command: |
+            testdata/ci/launch.sh
+            source /tmp/test-env-variables
+
+      - run:
           name: "Get test to junit xml parser"
           command: go get -v -u github.com/jstemmer/go-junit-report
 
       - run:
           name: "Running Tests (Background)"
           background: true
-          command: go test -v ./... 2>&1 | go-junit-report > /tmp/$TEST_DIRECTORY/report.xml
+          command: |
+            source /tmp/test-env-variables
+            go test -v ./... 2>&1 | go-junit-report > /tmp/$TEST_DIRECTORY/report.xml
 
       - run:
           name: "Running Tests"
-          command: go test -v --race ./...
+          command: |
+            source /tmp/test-env-variables
+            go test -v ./...
 
       - save_cache:
           when: on_success
