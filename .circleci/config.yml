@@ -77,7 +77,7 @@ jobs:
           name: "Running Tests"
           command: |
             source /tmp/test-env-variables
-            go test -v --race ./...
+            go test -v ./...
 
       - save_cache:
           when: on_success
