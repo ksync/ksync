@@ -4,12 +4,17 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/cenkalti/backoff"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/vapor-ware/ksync/pkg/debug"
+)
+
+var (
+	maxReadyRetries = uint64(10)
 )
 
 // RadarInstance is the remote server component of ksync.
@@ -43,6 +48,70 @@ func NewRadarInstance() *RadarInstance {
 			"app":  "radar",
 		},
 	}
+}
+
+// IsInstalled makes sure radar has been submitted to the remote cluster.
+// TODO: add version checking here.
+func (r *RadarInstance) IsInstalled() (bool, error) {
+	if _, err := kubeClient.DaemonSets(r.namespace).Get(
+		r.name, metav1.GetOptions{}); err != nil {
+		if !errors.IsNotFound(err) {
+			return false, err
+		}
+
+		return false, nil
+	}
+
+	return true, nil
+}
+
+// IsHealthy verifies the target node is running radar and it is not scheduled
+// for deletion.
+func (r *RadarInstance) IsHealthy(nodeName string) (bool, error) {
+	log.WithFields(log.Fields{
+		"nodeName": nodeName,
+	}).Debug("checking to see if radar is ready")
+
+	installed, err := r.IsInstalled()
+	if err != nil {
+		return false, err
+	}
+
+	if !installed {
+		return false, fmt.Errorf("radar is not installed")
+	}
+
+	podName, err := r.podName(nodeName)
+	if err != nil {
+		if !errors.IsNotFound(err) {
+			return false, debug.ErrorOut("cannot get pod name", err, r)
+		}
+
+		return false, nil
+	}
+
+	log.WithFields(MergeFields(r.Fields(), log.Fields{
+		"nodeName": nodeName,
+		"podName":  podName,
+	})).Debug("found pod name")
+
+	pod, err := kubeClient.CoreV1().Pods(r.namespace).Get(
+		podName, metav1.GetOptions{})
+	if err != nil {
+		return false, debug.ErrorOut("cannot get pod details", err, r)
+	}
+
+	log.WithFields(log.Fields{
+		"podName":  pod.Name,
+		"nodeName": nodeName,
+		"status":   pod.Status.Phase,
+	}).Debug("found pod")
+
+	if pod.Status.Phase != "Running" || pod.DeletionTimestamp != nil {
+		return false, nil
+	}
+
+	return true, nil
 }
 
 // Run starts (or upgrades) radar on the remote cluster.
@@ -89,11 +158,21 @@ func (r *RadarInstance) podName(nodeName string) (string, error) {
 		})
 
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
-	// TODO: provide a better error here, explain to users how to fix it.
-	if len(pods.Items) != 1 {
+	// TODO: I don't want to go and setup a whole bunch of error handling code
+	// right now. The NotFound error works perfectly here for now.
+	if len(pods.Items) == 0 {
+		return "", &errors.StatusError{
+			ErrStatus: metav1.Status{
+				Status:  metav1.StatusFailure,
+				Reason:  metav1.StatusReasonNotFound,
+				Message: fmt.Sprintf("%s not found on %s", r.name, nodeName),
+			}}
+	}
+
+	if len(pods.Items) > 1 {
 		return "", fmt.Errorf(
 			"unexpected result looking up radar pod (count:%d) (node:%s)",
 			len(pods.Items),
@@ -103,7 +182,30 @@ func (r *RadarInstance) podName(nodeName string) (string, error) {
 	return pods.Items[0].Name, nil
 }
 
+func (r *RadarInstance) waitForHealthy(nodeName string) error {
+	test := func() error {
+		ready, err := r.IsHealthy(nodeName)
+		if err != nil {
+			return backoff.Permanent(err)
+		}
+
+		if !ready {
+			return fmt.Errorf("radar on %s not ready", nodeName)
+		}
+
+		return nil
+	}
+
+	return backoff.Retry(
+		test,
+		backoff.WithMaxTries(backoff.NewExponentialBackOff(), maxReadyRetries))
+}
+
 func (r *RadarInstance) connection(nodeName string, port int32) (int32, error) {
+	if err := r.waitForHealthy(nodeName); err != nil {
+		return 0, err
+	}
+
 	podName, err := r.podName(nodeName)
 	if err != nil {
 		return 0, debug.ErrorOut("cannot get pod name", err, r)

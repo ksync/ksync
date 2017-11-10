@@ -28,7 +28,8 @@ func (r *runCmd) new() *cobra.Command {
 		Example: example,
 		Args:    cobra.ExactArgs(2),
 		Run:     r.run,
-		// TODO: BashCompletionFunction
+		// TODO: remove this when the command can be run by users.
+		Hidden: true,
 	})
 
 	r.Cmd.Flags().StringP(
