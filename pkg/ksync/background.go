@@ -1,14 +1,11 @@
 package ksync
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
-	log "github.com/sirupsen/logrus"
 
-	"github.com/vapor-ware/ksync/pkg/docker"
 	"github.com/vapor-ware/ksync/pkg/service"
 )
 
@@ -31,8 +28,7 @@ func BackgroundWatch(cfgPath string, upgrade bool) error {
 		}
 	}
 
-	cntr, err := docker.Client.ContainerCreate(
-		context.Background(),
+	return service.Start(
 		&container.Config{
 			Cmd: []string{
 				"/ksync",
@@ -41,7 +37,7 @@ func BackgroundWatch(cfgPath string, upgrade bool) error {
 				"watch",
 			},
 			// TODO: make configurable
-			Image: "gcr.io/elated-embassy-152022/ksync/ksync:canary",
+			Image: imageName,
 			Labels: map[string]string{
 				"heritage": "ksync",
 			},
@@ -59,18 +55,4 @@ func BackgroundWatch(cfgPath string, upgrade bool) error {
 		},
 		&network.NetworkingConfig{},
 		"ksync-watch")
-
-	if err != nil {
-		return err
-	}
-
-	log.WithFields(log.Fields{
-		"id": cntr.ID,
-	}).Debug("container created")
-
-	if err := service.Start(&cntr); err != nil { // nolint: megacheck
-		return err
-	}
-
-	return nil
 }

@@ -7,6 +7,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func init() {
+	SetImage("gcr.io/elated-embassy-152022/ksync/ksync:canary")
+}
+
 func TestNewRadarInstance(t *testing.T) {
 	radar := NewRadarInstance()
 

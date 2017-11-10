@@ -68,6 +68,18 @@ func init() {
 
 		log.Fatal(err)
 	}
+
+	// TODO: can this be hidden?
+	flags.String(
+		"local-image",
+		"gcr.io/elated-embassy-152022/ksync/ksync:canary",
+		// TODO: this help text could be way better
+		"the image to use for running things locally.")
+	if err := cli.BindFlag(
+		viper.GetViper(), flags.Lookup("local-image"), "ksync"); err != nil {
+
+		log.Fatal(err)
+	}
 }
 
 // TODO: dependencies should verify that they're usable (and return errors otherwise).
@@ -76,6 +88,8 @@ func initPersistent(cmd *cobra.Command, args []string) {
 
 	initKubeClient()
 	initDockerClient()
+
+	ksync.SetImage(viper.GetString("local-image"))
 }
 
 func initKubeClient() {
