@@ -99,7 +99,7 @@ func (v *versionCmd) run(cmd *cobra.Command, args []string) {
 			GoVersion: runtime.Version(),
 			GitCommit: GitCommit,
 			GitTag:    GitTag,
-			BuildDate: BuildDate,
+			BuildDate: "2017-11-09T23:18:52.909075710+00:00",
 			OS:        runtime.GOOS,
 			Arch:      runtime.GOARCH,
 		},
@@ -146,12 +146,14 @@ func (v *versionCmd) run(cmd *cobra.Command, args []string) {
 			log.Fatal(err)
 		}
 	}
+
+	UpdateCheck()
 }
 
 // TODO: temporary
 func radarCheck() bool {
 	radar := ksync.NewRadarInstance()
-	containers, err := ksync.GetRemoteContainers("", "app=radar", "")
+	containers, err := ksync.GetRemoteContainers("", "app=test", "")
 	if err != nil {
 		log.Fatal(err)
 	}
