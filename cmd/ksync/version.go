@@ -14,9 +14,13 @@ import (
 )
 
 var (
+  // GitCommit is the commit hash of the commit used to build
 	GitCommit 		string
+  // VersionString is the canonical version string
 	VersionString string
+  // BuildDate contains the build timestamp
 	BuildDate 		string
+  // GitTag optionally contains the git tag used in build
 	GitTag 				string
 	)
 
@@ -129,6 +133,9 @@ func (v *versionCmd) run(cmd *cobra.Command, args []string) {
   // TODO: Change this to use template.ExecuteTemplate
 	if radarCheck() {
 		err := templateKsync.Execute(os.Stdout, version)
+		if err != nil {
+			log.Fatal(err)
+		}
 		err = templateRadar.Execute(os.Stdout, version)
 		if err != nil {
 			log.Fatal(err)
@@ -145,6 +152,9 @@ func (v *versionCmd) run(cmd *cobra.Command, args []string) {
 func radarCheck() bool {
 	radar := ksync.NewRadarInstance()
 	containers, err := ksync.GetRemoteContainers("", "app=radar", "")
+	if err != nil {
+		log.Fatal(err)
+	}
 	log.Warn(containers)
 	h, err := radar.IsHealthy(containers[0].NodeName)
 	log.WithError(err)
