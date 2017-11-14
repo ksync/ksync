@@ -2,6 +2,7 @@ package ksync
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
@@ -46,7 +47,7 @@ func BackgroundWatch(cfgPath string, upgrade bool) error {
 			// TODO: needs to be more configurable
 			Binds: []string{
 				fmt.Sprintf("%s:/root/.kube/config", KubeCfgPath),
-				fmt.Sprintf("%s:/root/.ksync.yaml", cfgPath),
+				fmt.Sprintf("%s:/root/.ksync", filepath.Dir(cfgPath)),
 				// TODO: configurable?
 				"/var/run/docker.sock:/var/run/docker.sock",
 				"/:/host",

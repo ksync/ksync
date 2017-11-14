@@ -14,33 +14,38 @@ import (
 // or environment variables if available. This is placed in the global `viper`
 // instance.
 func InitConfig(name string) error {
-	viper.SupportedExts = []string{"yaml", "yml"}
-
-	if viper.GetString("config") != "" {
-		viper.SetConfigFile(viper.GetString("config"))
-	} else {
-		home, err := homedir.Dir()
-		if err != nil {
-			return err
-		}
-
-		viper.AddConfigPath(home)
-		viper.SetConfigName(fmt.Sprintf(".%s", name))
-
-		cfgPath := filepath.Join(home, fmt.Sprintf(".%s.yaml", name))
-		fobj, _ := os.OpenFile(cfgPath, os.O_CREATE|os.O_WRONLY, 0644)
-		defer fobj.Close() // nolint: errcheck
+	home, err := homedir.Dir()
+	if err != nil {
+		return err
 	}
 
+	cfgDir := filepath.Join(home, ".ksync")
+	if _, statErr := os.Stat(cfgDir); os.IsNotExist(statErr) {
+		if mkdirErr := os.Mkdir(cfgDir, 0755); mkdirErr != nil {
+			return mkdirErr
+		}
+	}
+	cfgName := fmt.Sprintf("%s.yaml", name)
+	cfgPath := filepath.Join(cfgDir, cfgName)
+
+	fobj, err := os.OpenFile(cfgPath, os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+	defer fobj.Close() // nolint: errcheck
+
+	viper.SetConfigFile(cfgPath)
 	viper.AutomaticEnv()
 
-	if err := viper.ReadInConfig(); err == nil {
-		// TODO: the level here is *always* the default, need a better solution
-		// for output.
-		log.WithFields(log.Fields{
-			"file": viper.ConfigFileUsed(),
-		}).Debug("using config file")
+	if err := viper.ReadInConfig(); err != nil {
+		return err
 	}
+
+	// TODO: the level here is *always* the default, need a better solution
+	// for output.
+	log.WithFields(log.Fields{
+		"file": viper.ConfigFileUsed(),
+	}).Debug("using config file")
 
 	return nil
 }

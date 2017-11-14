@@ -63,13 +63,23 @@ func (c *RemoteContainer) RestartMirror() error {
 
 func getRemoteContainer(
 	pod *apiv1.Pod, containerName string) (*RemoteContainer, error) {
+	// TODO: I don't want to go and setup a whole bunch of error handling code
+	// right now. The NotFound error works perfectly here for now.
+	if pod.DeletionTimestamp != nil {
+		return nil, &errors.StatusError{
+			ErrStatus: metav1.Status{
+				Status:  metav1.StatusFailure,
+				Reason:  metav1.StatusReasonNotFound,
+				Message: fmt.Sprintf("%s scheduled for deletion", pod.Name),
+			}}
+	}
+
 	// TODO: runtime error because there are no container statuses while
 	// k8s master is restarting.
-	if containerName == "" {
-		if len(pod.Status.ContainerStatuses) == 0 {
-			return nil, fmt.Errorf("no status for container")
-		}
-
+	// TODO: added, but non-running containers don't have any status. This should
+	// be converted to something closer to `IsNotRunning()`
+	// and `IsMissingContainer()`
+	if containerName == "" && len(pod.Status.ContainerStatuses) > 0 {
 		return &RemoteContainer{
 			pod.Status.ContainerStatuses[0].ContainerID[9:],
 			pod.Status.ContainerStatuses[0].Name,
@@ -90,11 +100,12 @@ func getRemoteContainer(
 		}, nil
 	}
 
-	// TODO: should this work like `GetContainers` does and just return nil?
-	return nil, fmt.Errorf(
-		"could not find container (%s) in pod (%s)",
-		containerName,
-		pod.Name)
+	return nil, &errors.StatusError{
+		ErrStatus: metav1.Status{
+			Status:  metav1.StatusFailure,
+			Reason:  metav1.StatusReasonNotFound,
+			Message: fmt.Sprintf("%s not running %s", pod.Name, containerName),
+		}}
 }
 
 // GetByName takes a pod and container name and looks for a running RemoteContainer.
@@ -129,9 +140,14 @@ func getBySelector(selector string, containerName string) ([]*RemoteContainer, e
 	containerList := []*RemoteContainer{}
 	for _, pod := range pods.Items {
 		cntr, err := getRemoteContainer(&pod, containerName)
+		if errors.IsNotFound(err) {
+			continue
+		}
+
 		if err != nil {
 			return nil, err
 		}
+
 		containerList = append(containerList, cntr)
 	}
 

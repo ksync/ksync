@@ -33,16 +33,6 @@ func BindFlag(v *viper.Viper, flag *pflag.Flag, root string) error {
 func DefaultFlags(cmd *cobra.Command, name string) error {
 	flags := cmd.PersistentFlags()
 
-	flags.String(
-		"config",
-		"",
-		fmt.Sprintf("config file (default is $HOME/.%s.yaml", name))
-	if err := BindFlag(
-		viper.GetViper(), flags.Lookup("config"), name); err != nil {
-
-		return err
-	}
-
 	// TODO: can this be limited to a selection?
 	flags.String(
 		"log-level",
