@@ -14,9 +14,9 @@ BUILD_DATE=${BUILD_DATE:-$(date --utc --rfc-3339 ns 2> /dev/null | sed -e 's/ /T
 # Setup ldflags for runs
 export LDFLAGS="\
     -w \
-    -X github.com/vapor-ware/ksync/pkg/ksync/ksync.GitCommit=${GIT_COMMIT} \
-    -X github.com/vapor-ware/ksync/pkg/ksync/ksync.BuildDate=${BUILD_DATE} \
-    -X github.com/vapor-ware/ksync/pkg/ksync/ksync.VersionString=${BINARY_VERSION} \
+    -X github.com/vapor-ware/ksync/cmd/ksync/main.GitCommit=${GIT_COMMIT} \
+    -X github.com/vapor-ware/ksync/cmd/ksync/main.BuildDate=${BUILD_DATE} \
+    -X github.com/vapor-ware/ksync/cmd/ksync/main.VersionString=${BINARY_VERSION} \
     ${LDFLAGS:-} \
 "
 
