@@ -109,8 +109,8 @@ func (v *versionCmd) run(cmd *cobra.Command, args []string) {
 			GoVersion: runtime.Version(),
 			GitCommit: GitCommit,
 			GitTag:    GitTag,
-			BuildDate: "2017-11-09T23:18:52.909075710+00:00",
-			Healthy:   false,
+			BuildDate: BuildDate,
+			Healthy:   radarCheck(),
 		},
 	}
 
