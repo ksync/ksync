@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 	"runtime"
-	"time"
 	"text/template"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -14,15 +14,15 @@ import (
 )
 
 var (
-  // GitCommit is the commit hash of the commit used to build
-	GitCommit 		string
-  // VersionString is the canonical version string
+	// GitCommit is the commit hash of the commit used to build
+	GitCommit string
+	// VersionString is the canonical version string
 	VersionString string
-  // BuildDate contains the build timestamp
-	BuildDate 		string
-  // GitTag optionally contains the git tag used in build
-	GitTag 				string
-	)
+	// BuildDate contains the build timestamp
+	BuildDate string
+	// GitTag optionally contains the git tag used in build
+	GitTag string
+)
 
 type versionCmd struct {
 	cli.BaseCmd
@@ -65,22 +65,22 @@ type versionInfo struct {
 }
 
 type ksyncVersion struct {
-	Version		string
+	Version   string
 	GoVersion string
 	GitCommit string
-	GitTag 		string
+	GitTag    string
 	BuildDate string
-	OS				string
-	Arch			string
+	OS        string
+	Arch      string
 }
 
 type radarVersion struct {
-	Version		string
+	Version   string
 	GoVersion string
 	GitCommit string
-	GitTag 		string
+	GitTag    string
 	BuildDate string
-	Healthy 	bool
+	Healthy   bool
 }
 
 func (v *versionCmd) run(cmd *cobra.Command, args []string) {
@@ -114,7 +114,7 @@ func (v *versionCmd) run(cmd *cobra.Command, args []string) {
 		},
 	}
 
-  // Convert time to a human readable format
+	// Convert time to a human readable format
 	timeKsync, timeErr := time.Parse(time.RFC3339Nano, version.Client.BuildDate)
 	if timeErr == nil {
 		version.Client.BuildDate = timeKsync.Format(time.UnixDate)
@@ -129,8 +129,8 @@ func (v *versionCmd) run(cmd *cobra.Command, args []string) {
 		log.Fatal(timeErr)
 	}
 
-  // If radar is reachable, print that part of the template
-  // TODO: Change this to use template.ExecuteTemplate
+	// If radar is reachable, print that part of the template
+	// TODO: Change this to use template.ExecuteTemplate
 	if radarCheck() {
 		err := templateKsync.Execute(os.Stdout, version)
 		if err != nil {
