@@ -2,34 +2,30 @@ package ksync
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
-	"path/filepath"
-	"reflect"
 	"regexp"
 	"strings"
 
-	homedir "github.com/mitchellh/go-homedir"
-	"github.com/mitchellh/mapstructure"
-	"github.com/pkg/errors"
+	"github.com/fatih/structs"
 	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
-	yaml "gopkg.in/yaml.v2"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/watch"
+	"k8s.io/client-go/pkg/api/v1"
 
 	"github.com/vapor-ware/ksync/pkg/debug"
 )
 
-// SpecMap is a collection of Specs.
-type SpecMap struct {
-	Items map[string]*Spec
-}
+var (
+	specEquivalenceFields = []string{"Name"}
+)
 
 // Spec is all the configuration required to setup a sync from a local directory
 // to a remote directory in a specific remote container.
 type Spec struct {
 	// Local config
-	Name string
-	User string
+	Name    string
+	User    string
+	CfgPath string
 
 	// Kubernetes config
 	Namespace   string
@@ -45,15 +41,8 @@ type Spec struct {
 	// File config
 	LocalPath  string
 	RemotePath string
-}
 
-func (s *SpecMap) String() string {
-	return debug.YamlString(s)
-}
-
-// Fields returns a set of structured fields for logging.
-func (s *SpecMap) Fields() log.Fields {
-	return log.Fields{}
+	stopWatching chan bool
 }
 
 func (s *Spec) String() string {
@@ -70,25 +59,26 @@ func (s *Spec) Fields() log.Fields {
 func (s *Spec) Status() (string, error) {
 	status := "inactive"
 	// TODO: this is super naive and should be handled differently
-	servicelist, err := GetServices()
+	list, err := s.ServiceList()
 	if err != nil {
 		return "", err
 	}
-	if services := servicelist.Filter(s.Name); len(services.Items) != 0 {
-		var statuses []string
-		for _, service := range services.Items {
-			status, err := service.Status()
-			if err != nil {
-				return "", err
-			}
 
-			statuses = append(statuses, status.Status)
-		}
-
-		status = strings.Join(statuses, ", ")
+	if len(list.Items) == 0 {
+		return status, nil
 	}
 
-	return status, nil
+	var statuses []string
+	for _, service := range list.Items {
+		status, err := service.Status()
+		if err != nil {
+			return "", err
+		}
+
+		statuses = append(statuses, status.Status)
+	}
+
+	return strings.Join(statuses, ", "), nil
 }
 
 // IsValid returns an error if the spec is not valid.
@@ -114,101 +104,138 @@ func (s *Spec) IsValid() error {
 	return nil
 }
 
-// AllSpecs populates a SpecMap with the configured specs. These are populated
-// normally via. configuration.
-// TODO: test non-existant file
-// TODO: test missing specs
-func AllSpecs() (*SpecMap, error) {
-	var all SpecMap
-	all.Items = map[string]*Spec{}
-
-	if !viper.IsSet("spec") {
-		return &all, nil
+// Watch monitors the remote status of this spec.
+func (s *Spec) Watch() error {
+	if s.stopWatching != nil {
+		log.WithFields(s.Fields()).Debug("already watching")
+		return nil
 	}
 
-	for name, raw := range viper.GetStringMap("spec") {
-		var spec Spec
-		if err := mapstructure.Decode(raw, &spec); err != nil {
-			return nil, errors.Wrap(err, "cannot get current specs")
-		}
-
-		all.Items[name] = &spec
-	}
-
-	return &all, nil
-}
-
-// Create checks an individual input spec for likeness and duplicates
-// then adds the spec into a SpecMap
-func (s *SpecMap) Create(name string, spec *Spec, force bool) error {
-	if !force {
-		if s.Has(name) {
-			// TODO: make this into a type?
-			return fmt.Errorf("name already exists")
-		}
-
-		if s.HasLike(spec) {
-			return fmt.Errorf("similar spec exists")
-		}
-	}
-
-	s.Items[name] = spec
-	return nil
-}
-
-// Delete removes a given spec from a SpecMap
-func (s *SpecMap) Delete(name string) error {
-	if !s.Has(name) {
-		return fmt.Errorf("does not exist")
-	}
-
-	delete(s.Items, name)
-	return nil
-}
-
-// Save serializes the current SpecMap's items to the config file.
-// TODO: tests:
-//   missing config file
-//   shorter config file (removing an entry)
-func (s *SpecMap) Save() error {
-	cfgPath := viper.ConfigFileUsed()
-	if cfgPath == "" {
-		home, err := homedir.Dir()
-		if err != nil {
-			return err
-		}
-
-		cfgPath = filepath.Join(home, fmt.Sprintf(".%s.yaml", "ksync"))
-	}
-
-	log.WithFields(log.Fields{
-		"path": cfgPath,
-	}).Debug("writing config file")
-
-	viper.Set("spec", s.Items)
-	buf, err := yaml.Marshal(viper.AllSettings())
+	opts := metav1.ListOptions{}
+	opts.LabelSelector = s.Selector
+	watcher, err := kubeClient.CoreV1().Pods(namespace).Watch(opts)
 	if err != nil {
 		return err
 	}
 
-	return ioutil.WriteFile(cfgPath, buf, 0644)
-}
+	log.WithFields(s.Fields()).Debug("watching for updates")
 
-// HasLike checks a given spec for deep equivalence against another spec
-// TODO: is this the best way to do this?
-func (s *SpecMap) HasLike(target *Spec) bool {
-	for _, spec := range s.Items {
-		if reflect.DeepEqual(target, spec) {
-			return true
+	s.stopWatching = make(chan bool)
+	go func() {
+		defer watcher.Stop()
+		for {
+			select {
+			case <-s.stopWatching:
+				log.WithFields(s.Fields()).Debug("stopping watch")
+				return
+
+			case event := <-watcher.ResultChan():
+				if event.Object == nil {
+					continue
+				}
+
+				if err := s.handleEvent(event); err != nil {
+					log.WithFields(s.Fields()).Error(err)
+				}
+			}
 		}
-	}
-	return false
+	}()
+
+	return nil
 }
 
-// Has checks a given spec for simple equivalence against another spec
-func (s *SpecMap) Has(target string) bool {
-	if _, ok := s.Items[target]; ok {
-		return true
+func (s *Spec) handleEvent(event watch.Event) error {
+	pod := event.Object.(*v1.Pod)
+	if event.Type != watch.Modified && event.Type != watch.Added {
+		return nil
 	}
-	return false
+
+	log.WithFields(log.Fields{
+		"type":    event.Type,
+		"name":    pod.Name,
+		"status":  pod.Status.Phase,
+		"deleted": pod.DeletionTimestamp != nil,
+	}).Debug("new event")
+
+	if pod.DeletionTimestamp != nil {
+		return s.stopPod(pod)
+	}
+
+	if pod.Status.Phase == v1.PodRunning {
+		return s.Start()
+	}
+
+	return nil
+}
+
+func (s *Spec) stopPod(pod *v1.Pod) error {
+	log.WithFields(s.Fields()).Debug("stopping service")
+
+	list, err := s.ServiceList()
+	if err != nil {
+		return err
+	}
+
+	return list.StopByName(pod.Name)
+}
+
+// Equivalence returns a set of fields that can be used to compare specs for
+// equivalence via. reflect.DeepEqual.
+func (s *Spec) Equivalence() map[string]interface{} {
+	vals := structs.Map(s)
+	for _, k := range specEquivalenceFields {
+		delete(vals, k)
+	}
+	return vals
+}
+
+// Cleanup will remove anything running in the background, meant to be used when
+// a spec is deleted.
+func (s *Spec) Cleanup() error {
+	if s.stopWatching != nil {
+		s.stopWatching <- true
+	}
+	return s.Stop()
+}
+
+// ServiceList gets all the running services scoped to this specific spec.
+func (s *Spec) ServiceList() (*ServiceList, error) {
+	list := &ServiceList{}
+	if err := list.Update(ServiceListOptions{Name: s.Name}); err != nil {
+		return nil, err
+	}
+
+	return list, nil
+}
+
+// Start runs a service for every matching remote container.
+func (s *Spec) Start() error {
+	containers, err := GetRemoteContainers(s.Pod, s.Selector, s.Container)
+	if err != nil {
+		return debug.ErrorOut("unable to get container list", err, nil)
+	}
+
+	if len(containers) == 0 {
+		log.WithFields(s.Fields()).Debug("no matching running containers.")
+	}
+
+	for _, cntr := range containers {
+		if err := NewService(s.Name, cntr, s).Start(); err != nil &&
+			!IsServiceRunning(err) {
+			return err
+		}
+
+		log.WithFields(cntr.Fields()).Debug("container running")
+	}
+
+	return nil
+}
+
+// Stop will stop every service for this spec that is running locally.
+func (s *Spec) Stop() error {
+	list, err := s.ServiceList()
+	if err != nil {
+		return err
+	}
+	return list.Stop()
 }

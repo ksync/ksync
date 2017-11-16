@@ -110,17 +110,13 @@ TODO
     - Sets the cluster up by starting the radar daemonset.
     - Starts `ksync watch` in the background. TODO
 
-- `ksync list` TODO: current functionality should be renamed, as it should list the syncs not files.
-
-    Lists the files for a specific set of containers (selector, pod name, container name)
-
 - `ksync create`
 
-    Add a pattern to sync. This gets watched and started/stopped automatically.
+    Add a spec to sync. This gets watched and started/stopped automatically.
 
 - `ksync delete`
 
-    Remove a pattern to sync.
+    Remove a spec to sync.
 
 - `ksync run`
 
@@ -128,11 +124,15 @@ TODO
 
 - `ksync get` TODO: is this maybe a better sync list? can show running and waiting ones.
 
-    Fetch the status of all current syncs
+    Fetch the status of all current specs
 
 - `ksync watch`
 
     Watch for matching pods in the background (based off pod name and selector). Start syncs for any that come online.
+
+- `ksync doctor`
+
+    Debug what's happening under the covers and look for any possible issues with the system.
 
 # Development
 
@@ -159,34 +159,6 @@ go install -u github.com/golang/dep/cmd/dep
 # Troubleshooting
 
 - ntp issues
-
-# Outstanding
-
-## Major
-
-- Monitor k8s via. watch, not just the local FS.
-- Put some details into the task bar (see https://github.com/cratonica/trayhost)
-  - Active syncs
-  - Files being updated
-- Hot reload (docker restart on file change)
-
-## Minor
-
-- Add a version command that returns the local and remote versions.
-    - Report whether there's a new version and how to update.
-- Add health and readiness checks to `ksync init` for both radar and watch. There should be a flag that disables the wait (but it should wait by default and output status).
-- Verify that there is a running radar on the node before moving forward (and return a friendly error).
-- Reduce the number of restarts that `ksync run` goes through while trying to setup a sync for the first time. It is tough to understand whether it is working or not (as a lot of the restarts are expected) and even harder to debug when it isn't working.
-- Verify that the configured container user can actually write to localPath
-- IO timeout errors (when the remote cluster cannot be reached) take a long time. There should be a better experience here.
-- Test coverage
-- Move `watch` to run inside a container if started by a user.
-- Move `run` to run inside a container if started by a user.
-- TLS for mirror (is it required?)
-- TLS for radar (is it required?)
-- Allow configuration of who the container runs as (default to current user/group)
-    - Maybe in the spec itself?
-- It is possible to create a spec (via. manual addition to the config file) that is not valid. Should `watch` run through validation too?
 
 [protoc]: https://github.com/golang/protobuf/
 [protoc-gen-go]: https://github.com/golang/protobuf/

@@ -39,8 +39,8 @@ func (g *getCmd) new() *cobra.Command {
 // TODO: the paths can be pretty long, keep them to a certain length?
 // TODO: check for existence of the watcher, warn if it isn't running.
 func (g *getCmd) run(cmd *cobra.Command, args []string) {
-	specMap, err := ksync.AllSpecs()
-	if err != nil {
+	specs := &ksync.SpecList{}
+	if err := specs.Update(); err != nil {
 		log.Fatal(err)
 	}
 
@@ -50,13 +50,13 @@ func (g *getCmd) run(cmd *cobra.Command, args []string) {
 	table.SetHeader([]string{"Name", "Local", "Remote", "Status"})
 
 	var keys []string
-	for name := range specMap.Items {
+	for name := range specs.Items {
 		keys = append(keys, name)
 	}
 	sort.Strings(keys)
 
 	for _, name := range keys {
-		spec := specMap.Items[name]
+		spec := specs.Items[name]
 		status, err := spec.Status()
 		if err != nil {
 			log.Fatal(err)

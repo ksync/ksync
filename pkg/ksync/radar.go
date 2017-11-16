@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/pkg/api/v1"
 
 	"github.com/vapor-ware/ksync/pkg/debug"
 )
@@ -107,7 +108,6 @@ func (r *RadarInstance) IsHealthy(nodeName string) (bool, error) {
 		"status":   pod.Status.Phase,
 	}).Debug("found pod")
 
-	if pod.Status.Phase != "Running" || pod.DeletionTimestamp != nil {
 		return false, nil
 	}
 
