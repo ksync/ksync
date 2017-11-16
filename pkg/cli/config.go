@@ -49,3 +49,8 @@ func InitConfig(name string) error {
 
 	return nil
 }
+
+// ConfigPath returns the directory path being used by config.
+func ConfigPath() string {
+	return filepath.Dir(viper.ConfigFileUsed())
+}

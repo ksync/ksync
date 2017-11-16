@@ -107,4 +107,7 @@
   branch = "master"
 
 [[constraint]]
+  name = "github.com/cavaliercoder/grab"
+
+[[constraint]]
   name = "github.com/cenkalti/backoff"

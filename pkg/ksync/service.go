@@ -2,38 +2,24 @@ package ksync
 
 import (
 	"fmt"
-	"path/filepath"
 
-	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/network"
 	log "github.com/sirupsen/logrus"
-	apiErrors "k8s.io/apimachinery/pkg/api/errors"
 
 	"github.com/vapor-ware/ksync/pkg/debug"
 	"github.com/vapor-ware/ksync/pkg/service"
 )
 
-var (
-	imageName string
-)
-
-// SetImage sets the package-wide image to use for launching tasks
-// (both local and remote).
-func SetImage(name string) {
-	imageName = name
-}
-
 // Service reflects a sync that can be run in the background.
 type Service struct {
-	Name            string
 	RemoteContainer *RemoteContainer `structs:"-"`
 	Spec            *Spec            `structs:"-"`
+
+	mirror *Mirror
 }
 
 // NewService constructs a Service to manage and run local syncs from.
-func NewService(name string, cntr *RemoteContainer, spec *Spec) *Service {
+func NewService(cntr *RemoteContainer, spec *Spec) *Service {
 	return &Service{
-		Name:            name,
 		RemoteContainer: cntr,
 		Spec:            spec,
 	}
@@ -49,98 +35,38 @@ func (s *Service) Fields() log.Fields {
 }
 
 func (s *Service) containerName() string {
-	return fmt.Sprintf("%s-%s", s.Name, s.RemoteContainer.PodName)
+	return fmt.Sprintf("%s-%s", s.Spec.Name, s.RemoteContainer.PodName)
 }
 
-// Start runs a service in the background.
-// TODO: pull image for users.
+// Start runs this service in the background.
 func (s *Service) Start() error {
-	status, err := s.Status()
-	if err != nil {
+	if s.mirror != nil {
+		return fmt.Errorf("already running")
+	}
+
+	if err := s.RemoteContainer.RestartMirror(); err != nil {
 		return err
 	}
 
-	if status.Running {
-		return serviceRunningError{
-			service: s,
-		}
+	s.mirror = &Mirror{
+		SpecName:        s.Spec.Name,
+		RemoteContainer: s.RemoteContainer,
+		Reload:          s.Spec.Reload,
+		LocalPath:       s.Spec.LocalPath,
+		RemotePath:      s.Spec.RemotePath,
 	}
 
-	// TODO: check whether the configured container user can write to localPath
-	return service.Start(
-		&container.Config{
-			// TODO: make most of these options configurable.
-			// TODO: missing context
-			Cmd: []string{
-				"/ksync",
-				"--log-level=debug",
-				fmt.Sprintf("--context=%s", s.Spec.Context),
-				"run",
-				fmt.Sprintf("--pod=%s", s.RemoteContainer.PodName),
-				fmt.Sprintf("--container=%s", s.RemoteContainer.Name),
-				fmt.Sprintf("--reload=%t", s.Spec.Reload),
-				filepath.Join("/host", s.Spec.LocalPath),
-				s.Spec.RemotePath,
-			},
-			Image: imageName,
-			Labels: map[string]string{
-				"name":       s.Name,
-				"specName":   s.Spec.Name,
-				"pod":        s.RemoteContainer.PodName,
-				"container":  s.RemoteContainer.Name,
-				"node":       s.RemoteContainer.NodeName,
-				"localPath":  s.Spec.LocalPath,
-				"remotePath": s.Spec.RemotePath,
-				"heritage":   "ksync",
-				"service":    "true",
-			},
-			User: s.Spec.User,
-			Env: []string{
-				"KUBECONFIG=/.kube/config",
-				"USER=ksync",
-			},
-		},
-		&container.HostConfig{
-			// TODO: need to make this configurable
-			Binds: []string{
-				"/:/host",
-				fmt.Sprintf("%s:/.kube/config", s.Spec.KubeCfgPath),
-				fmt.Sprintf("%s:/.ksync", s.Spec.CfgPath),
-			},
-			RestartPolicy: container.RestartPolicy{Name: "on-failure"},
-		},
-		&network.NetworkingConfig{},
-		s.containerName())
+	if err := s.mirror.Run(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Stop halts a service that has been running in the background.
 func (s *Service) Stop() error {
 	log.WithFields(s.Fields()).Debug("stopping service")
-	return service.Stop(s.containerName())
-}
-
-// ShouldStop checks to see if this service should still run or not.
-func (s *Service) ShouldStop() (bool, error) {
-	// remote container still running
-	if _, err := GetByName(
-		s.RemoteContainer.PodName, s.RemoteContainer.Name); err != nil {
-		if apiErrors.IsNotFound(err) {
-			return true, nil
-		}
-
-		return false, err
-	}
-
-	list := &SpecList{}
-	if err := list.Update(); err != nil {
-		return false, err
-	}
-
-	if !list.Has(s.Name) {
-		return true, nil
-	}
-
-	return false, nil
+	return s.mirror.Stop()
 }
 
 // Status checks to see if a service is currently running and looks at its

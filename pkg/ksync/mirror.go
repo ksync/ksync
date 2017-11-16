@@ -4,14 +4,16 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"os"
 	"os/exec"
+	"os/signal"
 	"path/filepath"
 	"regexp"
-	"strings"
 	"sync"
 	"time"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"golang.org/x/net/context"
 	"k8s.io/apimachinery/pkg/util/runtime"
 
@@ -25,6 +27,7 @@ var (
 
 // Mirror is the definition of a sync from the local host to a remote container.
 type Mirror struct {
+	SpecName        string
 	RemoteContainer *RemoteContainer
 	Reload          bool
 	// TODO: should this be a SyncPath? Seems like it ...
@@ -36,6 +39,7 @@ type Mirror struct {
 	retryLock         sync.Mutex
 
 	restartContainer chan bool
+	clean            chan bool
 }
 
 func (m *Mirror) hotReload() error {
@@ -75,6 +79,8 @@ func (m *Mirror) hotReload() error {
 				log.WithFields(m.RemoteContainer.Fields()).Debug("reloaded")
 			case <-time.After(tooSoonReset):
 				tooSoon = false
+			case <-m.clean:
+				return
 			}
 		}
 	}()
@@ -103,11 +109,15 @@ func (m *Mirror) scanner(pipe io.Reader, logger func(...interface{})) error {
 }
 
 func (m *Mirror) initLogs() error {
+	logger := log.WithFields(log.Fields{
+		"name": m.SpecName,
+	})
+
 	stderr, err := m.cmd.StderrPipe()
 	if err != nil {
 		return err
 	}
-	if scanErr := m.scanner(stderr, log.Warn); scanErr != nil {
+	if scanErr := m.scanner(stderr, logger.Warn); scanErr != nil {
 		return scanErr
 	}
 
@@ -115,7 +125,7 @@ func (m *Mirror) initLogs() error {
 	if err != nil {
 		return err
 	}
-	return m.scanner(stdout, log.Debug)
+	return m.scanner(stdout, logger.Debug)
 }
 
 func (m *Mirror) path() (string, error) {
@@ -135,6 +145,8 @@ func (m *Mirror) path() (string, error) {
 	return filepath.Join(path.Full, m.RemotePath), nil
 }
 
+// TODO: this will fire for *every* disconnect (no matter what it is for). Need
+// to filter down.
 func (m *Mirror) initErrorHandler() {
 	// Setup the k8s runtime to fail on unreturnable error (instead of looping).
 	// This helps cleanup zombie java processes.
@@ -144,25 +156,39 @@ func (m *Mirror) initErrorHandler() {
 		// it is likely we have a more serious problem (such as the entire pod
 		// getting rescheduled).
 
-		// TODO: this makes me feel dirty, there must be a better way.
-		if !strings.Contains(fromHandler.Error(), "Connection refused") ||
-			m.connectionRetries >= maxConnectionRetries {
+		if m.connectionRetries < maxConnectionRetries {
+			m.retryLock.Lock()
+			defer m.retryLock.Unlock()
 
-			if err := m.cmd.Process.Kill(); err != nil {
-				log.Fatalf("couldn't kill %v", err)
-			}
+			m.connectionRetries++
+			log.WithFields(log.Fields{
+				"retries": m.connectionRetries,
+			}).Debug("lost connection to remote mirror server")
 
-			log.Fatal(fromHandler)
+			return
 		}
 
-		m.retryLock.Lock()
-		defer m.retryLock.Unlock()
+		if err := m.Stop(); err != nil {
+			log.Fatalf("couldn't stop %v", err)
+		}
 
-		m.connectionRetries++
-		log.WithFields(log.Fields{
-			"retries": m.connectionRetries,
-		}).Debug("lost connection to remote mirror server")
+		log.Fatal(fromHandler)
 	})
+}
+
+func (m *Mirror) handleTeardown() {
+	teardown := make(chan os.Signal, 2)
+	signal.Notify(teardown, os.Interrupt, os.Kill)
+	go func() {
+		for {
+			select {
+			case <-teardown:
+				m.Stop()
+			case <-m.clean:
+				return
+			}
+		}
+	}()
 }
 
 // Run starts a sync from the local host to a remote container. This is a
@@ -174,6 +200,7 @@ func (m *Mirror) initErrorHandler() {
 //   - state updates (disconnected, active, idle)
 // TODO: stop gracefully when the remote pod goes away.
 func (m *Mirror) Run() error {
+	m.clean = make(chan bool)
 	m.connectionRetries = 0
 
 	path, err := m.path()
@@ -186,11 +213,12 @@ func (m *Mirror) Run() error {
 		return err
 	}
 
+	jarPath := filepath.Join(
+		filepath.Dir(viper.ConfigFileUsed()), "mirror-all.jar")
 	cmdArgs := []string{
 		"-Xmx2G",
 		"-XX:+HeapDumpOnOutOfMemoryError",
-		// TODO: make this generic
-		"-cp", "/mirror/mirror-all.jar",
+		"-cp", jarPath,
 		"mirror.Mirror",
 		"client",
 		"-h", "localhost",
@@ -212,6 +240,8 @@ func (m *Mirror) Run() error {
 		return err
 	}
 
+	m.handleTeardown()
+
 	if err := m.cmd.Start(); err != nil {
 		return err
 	}
@@ -221,5 +251,15 @@ func (m *Mirror) Run() error {
 		"args": m.cmd.Args,
 	}).Debug("starting mirror")
 
-	return m.cmd.Wait()
+	return nil
+}
+
+// Stop halts the background process and cleans up.
+func (m *Mirror) Stop() error {
+	defer m.cmd.Process.Wait()
+	if m.clean != nil {
+		close(m.clean)
+	}
+	m.clean = nil
+	return m.cmd.Process.Kill()
 }
