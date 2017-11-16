@@ -108,9 +108,10 @@ func (r *RadarInstance) IsHealthy(nodeName string) (bool, error) {
 		"status":   pod.Status.Phase,
 	}).Debug("found pod")
 
+	if pod.Status.Phase != v1.PodRunning || pod.DeletionTimestamp != nil {
 		return false, nil
 	}
-
+	
 	return true, nil
 }
 
