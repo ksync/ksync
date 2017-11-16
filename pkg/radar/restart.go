@@ -75,7 +75,28 @@ func (r *radarServer) RestartMirror(
 		"state":  cntr.State,
 	}).Debug("restarted mirror container")
 
-	// TODO: wait until mirror's running again?
+	return &pb.Error{Msg: ""}, nil
+}
+
+// Restart restarts a local container. This is an effective "hot reload" because
+// docker restarts:
+//   - keep the overlayfs in place (we're still putting files into it)
+func (r *radarServer) Restart(
+	ctx context.Context, cntr *pb.ContainerPath) (*pb.Error, error) {
+
+	client, err := apiclient.NewEnvClient()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := client.ContainerRestart(
+		context.Background(), cntr.ContainerId, nil); err != nil {
+		return nil, err
+	}
+
+	log.WithFields(log.Fields{
+		"id": cntr.ContainerId,
+	}).Debug("restarted container")
 
 	return &pb.Error{Msg: ""}, nil
 }

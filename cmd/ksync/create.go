@@ -68,6 +68,14 @@ func (cmd *createCmd) new() *cobra.Command {
 		log.Fatal(err)
 	}
 
+	flags.Bool(
+		"reload",
+		true,
+		"Reload the remote container on file update.")
+	if err := cmd.BindFlag("reload"); err != nil {
+		log.Fatal(err)
+	}
+
 	return cmd.Cmd
 }
 
@@ -103,6 +111,8 @@ func (cmd *createCmd) run(_ *cobra.Command, args []string) {
 
 		LocalPath:  syncPath.Local,
 		RemotePath: syncPath.Remote,
+
+		Reload: cmd.Viper.GetBool("reload"),
 	}
 
 	if err := newSpec.IsValid(); err != nil {

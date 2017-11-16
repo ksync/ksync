@@ -2,12 +2,10 @@ package ksync
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
-	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	apiErrors "k8s.io/apimachinery/pkg/api/errors"
 
@@ -68,22 +66,6 @@ func (s *Service) Start() error {
 		}
 	}
 
-	// Watch is run from inside a container, because of volume mounts, `/host`
-	// must be prepended here.
-	internalPath := filepath.Join("/host", s.Spec.LocalPath)
-	if _, existErr := os.Stat(internalPath); os.IsNotExist(existErr) {
-		if mkErr := os.MkdirAll(internalPath, 0755); mkErr != nil {
-			return errors.Wrap(mkErr, "local path does not exist, cannot create")
-		}
-
-		// TODO: make this more than just a debug statement, it is important to the
-		// user.
-		log.WithFields(log.Fields{
-			"path":       s.Spec.LocalPath,
-			"permission": 0755,
-		}).Debug("created missing local directory")
-	}
-
 	// TODO: check whether the configured container user can write to localPath
 	return service.Start(
 		&container.Config{
@@ -96,7 +78,8 @@ func (s *Service) Start() error {
 				"run",
 				fmt.Sprintf("--pod=%s", s.RemoteContainer.PodName),
 				fmt.Sprintf("--container=%s", s.RemoteContainer.Name),
-				s.Spec.LocalPath,
+				fmt.Sprintf("--reload=%t", s.Spec.Reload),
+				filepath.Join("/host", s.Spec.LocalPath),
 				s.Spec.RemotePath,
 			},
 			Image: imageName,
@@ -112,13 +95,16 @@ func (s *Service) Start() error {
 				"service":    "true",
 			},
 			User: s.Spec.User,
-			Env:  []string{"KUBECONFIG=/.kube/config"},
+			Env: []string{
+				"KUBECONFIG=/.kube/config",
+				"USER=ksync",
+			},
 		},
 		&container.HostConfig{
 			// TODO: need to make this configurable
 			Binds: []string{
+				"/:/host",
 				fmt.Sprintf("%s:/.kube/config", s.Spec.KubeCfgPath),
-				fmt.Sprintf("%s:%s", s.Spec.LocalPath, s.Spec.LocalPath),
 				fmt.Sprintf("%s:/.ksync", s.Spec.CfgPath),
 			},
 			RestartPolicy: container.RestartPolicy{Name: "on-failure"},

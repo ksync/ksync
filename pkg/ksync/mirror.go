@@ -6,8 +6,10 @@ import (
 	"io"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
@@ -18,11 +20,13 @@ import (
 
 var (
 	maxConnectionRetries = 1
+	tooSoonReset         = 3 * time.Second
 )
 
 // Mirror is the definition of a sync from the local host to a remote container.
 type Mirror struct {
 	RemoteContainer *RemoteContainer
+	Reload          bool
 	// TODO: should this be a SyncPath? Seems like it ...
 	LocalPath  string
 	RemotePath string
@@ -30,36 +34,88 @@ type Mirror struct {
 	cmd               *exec.Cmd
 	connectionRetries int
 	retryLock         sync.Mutex
+
+	restartContainer chan bool
 }
 
-func (m *Mirror) scanner(pipe io.Reader, logger func(...interface{})) {
-	scanner := bufio.NewScanner(pipe)
+func (m *Mirror) hotReload() error {
+	m.restartContainer = make(chan bool)
+	conn, err := NewRadarInstance().RadarConnection(
+		m.RemoteContainer.NodeName)
+	if err != nil {
+		return err
+	}
+
+	client := pb.NewRadarClient(conn)
+
+	// TODO: this is pretty naive, there are definite edge cases here where the
+	// reload will happen but not actually get some files.
 	go func() {
-		for scanner.Scan() {
-			logger(scanner.Text())
+		defer conn.Close() // nolint: errcheck
+
+		tooSoon := false
+		for {
+			select {
+			case <-m.restartContainer:
+				if tooSoon {
+					continue
+				}
+				tooSoon = true
+
+				log.WithFields(m.RemoteContainer.Fields()).Debug("issuing reload")
+
+				if _, err := client.Restart(
+					context.Background(), &pb.ContainerPath{
+						ContainerId: m.RemoteContainer.ID,
+					}); err != nil {
+					log.WithFields(m.RemoteContainer.Fields()).Error(err)
+					continue
+				}
+
+				log.WithFields(m.RemoteContainer.Fields()).Debug("reloaded")
+			case <-time.After(tooSoonReset):
+				tooSoon = false
+			}
 		}
 	}()
+
+	return nil
+}
+
+func (m *Mirror) scanner(pipe io.Reader, logger func(...interface{})) error {
+	scanner := bufio.NewScanner(pipe)
+	pattern, err := regexp.Compile("INFO  Sending")
+	if err != nil {
+		return err
+	}
+
+	go func() {
+		for scanner.Scan() {
+			line := scanner.Text()
+			if m.Reload && pattern.MatchString(line) {
+				m.restartContainer <- true
+			}
+			logger(line)
+		}
+	}()
+
+	return nil
 }
 
 func (m *Mirror) initLogs() error {
-	logger := log.WithFields(log.Fields{
-		"path": m.cmd.Path,
-		"args": m.cmd.Args,
-	})
-
 	stderr, err := m.cmd.StderrPipe()
 	if err != nil {
 		return err
 	}
-	m.scanner(stderr, logger.Warn)
+	if scanErr := m.scanner(stderr, log.Warn); scanErr != nil {
+		return scanErr
+	}
 
 	stdout, err := m.cmd.StdoutPipe()
 	if err != nil {
 		return err
 	}
-	m.scanner(stdout, logger.Debug)
-
-	return nil
+	return m.scanner(stdout, log.Debug)
 }
 
 func (m *Mirror) path() (string, error) {
@@ -145,6 +201,12 @@ func (m *Mirror) Run() error {
 
 	m.cmd = exec.Command("java", cmdArgs...)
 	m.initErrorHandler()
+
+	if m.Reload {
+		if err := m.hotReload(); err != nil {
+			return err
+		}
+	}
 
 	if err := m.initLogs(); err != nil {
 		return err

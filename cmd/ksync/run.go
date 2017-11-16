@@ -32,7 +32,8 @@ func (r *runCmd) new() *cobra.Command {
 		Hidden: true,
 	})
 
-	r.Cmd.Flags().StringP(
+	flags := r.Cmd.Flags()
+	flags.StringP(
 		"container",
 		"c",
 		"",
@@ -42,12 +43,20 @@ func (r *runCmd) new() *cobra.Command {
 	}
 
 	// TODO: is this best as an arg instead of positional?
-	r.Cmd.Flags().StringP(
+	flags.StringP(
 		"pod",
 		"p",
 		"",
 		"Pod name.")
 	if err := r.BindFlag("pod"); err != nil {
+		log.Fatal(err)
+	}
+
+	flags.Bool(
+		"reload",
+		true,
+		"Reload the remote container on file update.")
+	if err := r.BindFlag("reload"); err != nil {
 		log.Fatal(err)
 	}
 
@@ -86,6 +95,7 @@ func (r *runCmd) run(cmd *cobra.Command, args []string) {
 
 	mirror := &ksync.Mirror{
 		RemoteContainer: container,
+		Reload:          r.Viper.GetBool("reload"),
 		LocalPath:       syncPath.Local,
 		RemotePath:      syncPath.Remote,
 	}
