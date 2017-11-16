@@ -6,6 +6,7 @@ import (
 	"golang.org/x/net/context"
 
 	pb "github.com/vapor-ware/ksync/pkg/proto"
+	"github.com/golang/protobuf/ptypes/empty"
 )
 
 // These values will be stamped at build time
@@ -33,7 +34,7 @@ type Version struct {
 }
 
 
-func (r *radarServer) GetVersionInfo(ctx context.Context) (*pb.VersionInfo, error) {
+func (r *radarServer) GetVersionInfo(ctx context.Context, _ *empty.Empty) (*pb.VersionInfo, error) {
 	radar := Version{
 		Version:   VersionString,
 		GoVersion: GoVersion,
