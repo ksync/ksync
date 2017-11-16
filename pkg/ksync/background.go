@@ -50,7 +50,6 @@ func BackgroundWatch(cfgPath string, upgrade bool) error {
 				fmt.Sprintf("%s:/root/.ksync", filepath.Dir(cfgPath)),
 				// TODO: configurable?
 				"/var/run/docker.sock:/var/run/docker.sock",
-				"/:/host",
 			},
 			RestartPolicy: container.RestartPolicy{Name: "on-failure"},
 		},
