@@ -130,6 +130,10 @@ func (s *Spec) Watch() error {
 				return
 
 			case event := <-watcher.ResultChan():
+				if event.Object == nil {
+					continue
+				}
+
 				if err := s.handleEvent(event); err != nil {
 					log.WithFields(s.Fields()).Error(err)
 				}

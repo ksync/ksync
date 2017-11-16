@@ -55,11 +55,14 @@ endif
 docker-binary: BINDIR = $(CURDIR)/docker/bin
 docker-binary: GOFLAGS += -installsuffix cgo
 docker-binary:
-	time GOOS=linux GOARCH=amd64 CGO_ENABLED=0 GOBIN=$(BINDIR) \
+	time GOOS=linux GOARCH=amd64 CGO_ENABLED=0 \
 		$(GO) install $(GOFLAGS) \
 			-tags '$(TAGS)' \
 			-ldflags '$(LDFLAGS)' \
 			github.com/vapor-ware/ksync/cmd/...
+	mkdir -p $(BINDIR)
+	cp $(GOPATH)/bin/linux_amd64/ksync $(BINDIR)/
+	cp $(GOPATH)/bin/linux_amd64/radar $(BINDIR)/
 
 .PHONY: docker-build
 docker-build:
