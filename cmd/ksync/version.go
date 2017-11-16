@@ -11,17 +11,7 @@ import (
 
 	"github.com/vapor-ware/ksync/pkg/cli"
 	"github.com/vapor-ware/ksync/pkg/ksync"
-)
-
-var (
-	// GitCommit is the commit hash of the commit used to build
-	GitCommit string
-	// VersionString is the canonical version string
-	VersionString string
-	// BuildDate contains the build timestamp
-	BuildDate string
-	// GitTag optionally contains the git tag used in build
-	GitTag string
+	"github.com/vapor-ware/ksync/pkg/radar"
 )
 
 type versionCmd struct {
@@ -60,27 +50,8 @@ var radarVersionTemplate = `{{define "radar"}}radar:
 	Healthy:    {{.Server.Healthy}}{{println}}{{end}}`
 
 type versionInfo struct {
-	Client ksyncVersion
-	Server radarVersion
-}
-
-type ksyncVersion struct {
-	Version   string
-	GoVersion string
-	GitCommit string
-	GitTag    string
-	BuildDate string
-	OS        string
-	Arch      string
-}
-
-type radarVersion struct {
-	Version   string
-	GoVersion string
-	GitCommit string
-	GitTag    string
-	BuildDate string
-	Healthy   bool
+	Client ksync.ksyncVersion
+	Server radar.radarVersion
 }
 
 func (v *versionCmd) run(cmd *cobra.Command, args []string) {
@@ -94,22 +65,22 @@ func (v *versionCmd) run(cmd *cobra.Command, args []string) {
 	}
 
 	version := versionInfo{
-		Client: ksyncVersion{
-			Version:   VersionString,
-			GoVersion: runtime.Version(),
-			GitCommit: GitCommit,
-			GitTag:    GitTag,
-			BuildDate: BuildDate,
+		Client: ksync.ksyncVersion{
+			Version:   ksync.VersionString,
+			GoVersion: ksync.GoVersion,
+			GitCommit: ksync.GitCommit,
+			GitTag:    ksync.GitTag,
+			BuildDate: ksync.BuildDate,
 			OS:        runtime.GOOS,
 			Arch:      runtime.GOARCH,
 		},
 		// TODO: get this from radar
-		Server: radarVersion{
-			Version:   VersionString,
-			GoVersion: runtime.Version(),
-			GitCommit: GitCommit,
-			GitTag:    GitTag,
-			BuildDate: BuildDate,
+		Server: radar.radarVersion{
+			Version:   radar.VersionString,
+			GoVersion: radar.GoVersion,
+			GitCommit: radar.GitCommit,
+			GitTag:    radar.GitTag,
+			BuildDate: radar.BuildDate,
 			Healthy:   radarCheck(),
 		},
 	}
