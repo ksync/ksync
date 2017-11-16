@@ -60,6 +60,7 @@ jobs:
           name: "Launch Required Objects Into Cluster"
           command: |
             testdata/ci/launch.sh
+            cat testdata/build/stamps.sh >> /tmp/test-env-variables
             source /tmp/test-env-variables
 
       - run:
@@ -93,7 +94,9 @@ jobs:
 
       - run:
           name: "Building"
-          command: gox --parallel=10 --output="bin/{{ .Dir }}_{{ .OS }}_{{ .Arch }}" -os='!netbsd' ./cmd/...
+          command: |
+            source /tmp/test-env-variables
+            gox --ldflags "${LDFLAGS}" --parallel=10 --output="bin/{{ .Dir }}_{{ .OS }}_{{ .Arch }}" -os='!netbsd' ./cmd/...
 
       - store_artifacts:
           path: bin
