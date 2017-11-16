@@ -22,7 +22,8 @@ var (
 	GoVersion string
 )
 
-type radarVersion struct {
+// Version contains version information for the binary. It is set at build time.
+type Version struct {
 	Version   string
 	GoVersion string
 	GitCommit string
@@ -33,7 +34,7 @@ type radarVersion struct {
 
 
 func (r *radarServer) GetVersionInfo(ctx context.Context) (*pb.VersionInfo, error) {
-	radar := radarVersion{
+	radar := Version{
 		Version:   VersionString,
 		GoVersion: GoVersion,
 		GitCommit: GitCommit,
@@ -50,10 +51,10 @@ func (r *radarServer) GetVersionInfo(ctx context.Context) (*pb.VersionInfo, erro
 	}).Debug("getting version info")
 
 	return &pb.VersionInfo{
-		Version:   VersionString,
-		GoVersion: GoVersion,
-		GitCommit: GitCommit,
-		GitTag:    GitTag,
-		BuildDate: BuildDate,
+		Version:   radar.Version,
+		GoVersion: radar.GoVersion,
+		GitCommit: radar.GitCommit,
+		GitTag:    radar.GitTag,
+		BuildDate: radar.BuildDate,
 		}, nil
 }

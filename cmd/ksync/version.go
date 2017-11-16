@@ -50,8 +50,8 @@ var radarVersionTemplate = `{{define "radar"}}radar:
 	Healthy:    {{.Server.Healthy}}{{println}}{{end}}`
 
 type versionInfo struct {
-	Client ksync.ksyncVersion
-	Server radar.radarVersion
+	Client ksync.Version
+	Server radar.Version
 }
 
 func (v *versionCmd) run(cmd *cobra.Command, args []string) {
@@ -65,7 +65,7 @@ func (v *versionCmd) run(cmd *cobra.Command, args []string) {
 	}
 
 	version := versionInfo{
-		Client: ksync.ksyncVersion{
+		Client: ksync.Version{
 			Version:   ksync.VersionString,
 			GoVersion: ksync.GoVersion,
 			GitCommit: ksync.GitCommit,
@@ -75,7 +75,7 @@ func (v *versionCmd) run(cmd *cobra.Command, args []string) {
 			Arch:      runtime.GOARCH,
 		},
 		// TODO: get this from radar
-		Server: radar.radarVersion{
+		Server: radar.Version{
 			Version:   radar.VersionString,
 			GoVersion: radar.GoVersion,
 			GitCommit: radar.GitCommit,
