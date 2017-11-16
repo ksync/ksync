@@ -1,7 +1,7 @@
 package radar
 
 import (
-	"github.com/grpc-ecosystem/go-grpc-middleware/tags"
+	// "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 
@@ -32,7 +32,7 @@ type radarVersion struct {
 }
 
 
-func (r *radarServer) GetVersionInfo(ctx context.Context) (radarVersion, error) {
+func (r *radarServer) GetVersionInfo(ctx context.Context) (*pb.VersionInfo, error) {
 	radar := radarVersion{
 		Version:   VersionString,
 		GoVersion: GoVersion,
@@ -49,5 +49,11 @@ func (r *radarServer) GetVersionInfo(ctx context.Context) (radarVersion, error) 
 		"BuildDate": BuildDate,
 	}).Debug("getting version info")
 
-	return radar, nil
+	return &pb.VersionInfo{
+		Version:   VersionString,
+		GoVersion: GoVersion,
+		GitCommit: GitCommit,
+		GitTag:    GitTag,
+		BuildDate: BuildDate,
+		}, nil
 }
