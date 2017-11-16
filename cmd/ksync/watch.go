@@ -38,29 +38,42 @@ func (w *watchCmd) new() *cobra.Command {
 	return w.Cmd
 }
 
+func (w *watchCmd) update(list *ksync.SpecList) error {
+	services, err := ksync.AllServices()
+	if err != nil {
+		return err
+	}
+
+	if err := services.Clean(); err != nil {
+		return err
+	}
+
+	if err := list.Update(); err != nil {
+		return err
+	}
+
+	if err := list.Watch(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // TODO: hook up to k8s and watch for changes
 // TODO: handle Normalize errors.
 func (w *watchCmd) run(cmd *cobra.Command, args []string) {
-	// 1. Watch config file for updates
-	viper.WatchConfig()
-	viper.OnConfigChange(func(e fsnotify.Event) {
-		list, err := ksync.GetServices()
-		if err != nil {
-			log.Fatal(err)
-		}
-		if normerr := list.Normalize(); normerr != nil {
-			log.Fatal(normerr)
-		}
-	})
-
-	list, err := ksync.GetServices()
-	if err != nil {
+	list := &ksync.SpecList{}
+	if err := w.update(list); err != nil {
 		log.Fatal(err)
 	}
-	if normerr := list.Normalize(); normerr != nil {
-		log.Fatal(normerr)
-	}
-	// 2. Watch k8s API for updates
+
+	viper.WatchConfig()
+	viper.OnConfigChange(func(e fsnotify.Event) {
+		log.Debug("config change")
+		if err := w.update(list); err != nil {
+			log.Fatal(err)
+		}
+	})
 
 	waitForSignal()
 }

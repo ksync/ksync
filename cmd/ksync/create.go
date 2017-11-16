@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/dustinkirkland/golang-petname"
@@ -82,14 +83,15 @@ func (cmd *createCmd) run(_ *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	specMap, err := ksync.AllSpecs()
-	if err != nil {
+	specs := &ksync.SpecList{}
+	if err := specs.Update(); err != nil {
 		log.Fatal(err)
 	}
 
 	newSpec := &ksync.Spec{
-		Name: cmd.Viper.GetString("name"),
-		User: cmd.Viper.GetString("user"),
+		Name:    cmd.Viper.GetString("name"),
+		User:    cmd.Viper.GetString("user"),
+		CfgPath: filepath.Dir(viper.ConfigFileUsed()),
 
 		Namespace:   viper.GetString("namespace"),
 		Context:     viper.GetString("context"),
@@ -107,14 +109,14 @@ func (cmd *createCmd) run(_ *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	if err := specMap.Create(
+	if err := specs.Create(
 		cmd.Viper.GetString("name"),
 		newSpec,
 		cmd.Viper.GetBool("force")); err != nil {
 
 		log.Fatalf("Could not create, --force to ignore: %v", err)
 	}
-	if err := specMap.Save(); err != nil {
+	if err := specs.Save(); err != nil {
 		log.Fatal(err)
 	}
 }

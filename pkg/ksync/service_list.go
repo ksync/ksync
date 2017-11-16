@@ -2,13 +2,13 @@ package ksync
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/vapor-ware/ksync/pkg/debug"
 	"github.com/vapor-ware/ksync/pkg/docker"
 )
 
@@ -17,21 +17,31 @@ type ServiceList struct {
 	Items []*Service
 }
 
-// GetServices creates a ServiceList containing all the running services.
-func GetServices() (*ServiceList, error) {
+// ServiceListOptions is query options for ServiceList
+type ServiceListOptions struct {
+	Name string
+}
+
+// AllServices creates a ServiceList containing all the running services.
+func AllServices() (*ServiceList, error) {
 	list := &ServiceList{}
 
-	err := list.populate()
+	err := list.Update(ServiceListOptions{})
 	if err != nil { // nolint: megacheck
-		return list, err
+		return nil, err
 	}
 	return list, nil
 }
 
-func (s *ServiceList) populate() error {
+// Update looks at the locally running containers and updates the list based on
+// that state.
+func (s *ServiceList) Update(opts ServiceListOptions) error {
 	args := filters.NewArgs()
 	args.Add("label", "heritage=ksync")
 	args.Add("label", "service=true")
+	if opts.Name != "" {
+		args.Add("label", fmt.Sprintf("name=%s", opts.Name))
+	}
 
 	cntrs, err := docker.Client.ContainerList(
 		context.Background(),
@@ -40,7 +50,6 @@ func (s *ServiceList) populate() error {
 		},
 	)
 
-	// TODO: is this even possible?
 	if err != nil {
 		return errors.Wrap(err, "could not get container list from docker.")
 	}
@@ -61,31 +70,6 @@ func (s *ServiceList) populate() error {
 	return nil
 }
 
-// Normalize starts services for any specs that don't have ones and stops the
-// services that are no longer required.
-func (s *ServiceList) Normalize() error {
-	specs, _ := AllSpecs()
-
-	if err := s.compact(specs); err != nil {
-		return err
-	}
-
-	return s.update(specs)
-}
-
-// Filter takes a name and returns a new instance of ServiceList populated with
-// elements that have that name.
-func (s *ServiceList) Filter(name string) *ServiceList {
-	list := &ServiceList{}
-	for _, service := range s.Items {
-		if service.Name == name {
-			list.Items = append(list.Items, service)
-		}
-	}
-
-	return list
-}
-
 // Stop takes all the services in a list and stops them.
 func (s *ServiceList) Stop() error {
 	for _, service := range s.Items {
@@ -97,50 +81,27 @@ func (s *ServiceList) Stop() error {
 	return nil
 }
 
-func (s *ServiceList) compact(specs *SpecMap) error {
+// StopByName stops a specific service by pod name.
+func (s *ServiceList) StopByName(name string) error {
 	for _, service := range s.Items {
-		if _, ok := specs.Items[service.Name]; ok {
-			continue
-		}
-
-		if err := service.Stop(); err != nil {
-			return errors.Wrap(
-				err, "unable to stop service that is no longer needed.")
+		if service.RemoteContainer.PodName == name {
+			return service.Stop()
 		}
 	}
 
-	return nil
+	return fmt.Errorf("no service to stop")
 }
 
-func (s *ServiceList) update(specs *SpecMap) error {
-	for name, spec := range specs.Items {
-		containerList, err := GetRemoteContainers(
-			spec.Pod, spec.Selector, spec.Container)
+// Clean looks for running services that are no longer needed.
+func (s *ServiceList) Clean() error {
+	for _, service := range s.Items {
+		remove, err := service.ShouldStop()
 		if err != nil {
-			return debug.ErrorOut("unable to get container list", err, nil)
+			return err
 		}
 
-		if len(containerList) == 0 {
-			log.WithFields(spec.Fields()).Debug("no matching running containers.")
-
-			if err := s.Filter(name).Stop(); err != nil {
-				return err
-			}
-			continue
-		}
-
-		// TODO: should this be on its own?
-		for _, cntr := range containerList {
-			if err := NewService(name, cntr, spec).Start(); err != nil {
-
-				if IsServiceRunning(err) {
-					log.WithFields(MergeFields(
-						cntr.Fields(), spec.Fields())).Debug("already running")
-					continue
-				}
-
-				return err
-			}
+		if remove {
+			return service.Stop()
 		}
 	}
 

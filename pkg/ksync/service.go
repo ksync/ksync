@@ -9,6 +9,7 @@ import (
 	"github.com/docker/docker/api/types/network"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
+	apiErrors "k8s.io/apimachinery/pkg/api/errors"
 
 	"github.com/vapor-ware/ksync/pkg/debug"
 	"github.com/vapor-ware/ksync/pkg/service"
@@ -84,7 +85,6 @@ func (s *Service) Start() error {
 	}
 
 	// TODO: check whether the configured container user can write to localPath
-
 	return service.Start(
 		&container.Config{
 			// TODO: make most of these options configurable.
@@ -92,6 +92,7 @@ func (s *Service) Start() error {
 			Cmd: []string{
 				"/ksync",
 				"--log-level=debug",
+				fmt.Sprintf("--context=%s", s.Spec.Context),
 				"run",
 				fmt.Sprintf("--pod=%s", s.RemoteContainer.PodName),
 				fmt.Sprintf("--container=%s", s.RemoteContainer.Name),
@@ -101,6 +102,7 @@ func (s *Service) Start() error {
 			Image: imageName,
 			Labels: map[string]string{
 				"name":       s.Name,
+				"specName":   s.Spec.Name,
 				"pod":        s.RemoteContainer.PodName,
 				"container":  s.RemoteContainer.Name,
 				"node":       s.RemoteContainer.NodeName,
@@ -110,12 +112,14 @@ func (s *Service) Start() error {
 				"service":    "true",
 			},
 			User: s.Spec.User,
+			Env:  []string{"KUBECONFIG=/.kube/config"},
 		},
 		&container.HostConfig{
 			// TODO: need to make this configurable
 			Binds: []string{
 				fmt.Sprintf("%s:/.kube/config", s.Spec.KubeCfgPath),
 				fmt.Sprintf("%s:%s", s.Spec.LocalPath, s.Spec.LocalPath),
+				fmt.Sprintf("%s:/.ksync", s.Spec.CfgPath),
 			},
 			RestartPolicy: container.RestartPolicy{Name: "on-failure"},
 		},
@@ -125,7 +129,32 @@ func (s *Service) Start() error {
 
 // Stop halts a service that has been running in the background.
 func (s *Service) Stop() error {
+	log.WithFields(s.Fields()).Debug("stopping service")
 	return service.Stop(s.containerName())
+}
+
+// ShouldStop checks to see if this service should still run or not.
+func (s *Service) ShouldStop() (bool, error) {
+	// remote container still running
+	if _, err := GetByName(
+		s.RemoteContainer.PodName, s.RemoteContainer.Name); err != nil {
+		if apiErrors.IsNotFound(err) {
+			return true, nil
+		}
+
+		return false, err
+	}
+
+	list := &SpecList{}
+	if err := list.Update(); err != nil {
+		return false, err
+	}
+
+	if !list.Has(s.Name) {
+		return true, nil
+	}
+
+	return false, nil
 }
 
 // Status checks to see if a service is currently running and looks at its

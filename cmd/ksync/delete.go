@@ -34,19 +34,19 @@ func (d *deleteCmd) new() *cobra.Command {
 func (d *deleteCmd) run(cmd *cobra.Command, args []string) {
 	name := args[0]
 
-	specMap, err := ksync.AllSpecs()
-	if err != nil {
+	specs := &ksync.SpecList{}
+	if err := specs.Update(); err != nil {
 		log.Fatal(err)
 	}
 
-	if !specMap.Has(name) {
+	if !specs.Has(name) {
 		log.Fatalf("%s does not exist. Did you mean something else?", name)
 	}
 
-	if err := specMap.Delete(name); err != nil {
+	if err := specs.Delete(name); err != nil {
 		log.Fatalf("Could not delete %s: %v", name, err)
 	}
-	if err := specMap.Save(); err != nil {
+	if err := specs.Save(); err != nil {
 		log.Fatal(err)
 	}
 }

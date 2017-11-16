@@ -45,6 +45,9 @@
   branch = "master"
 
 [[constraint]]
+  name = "github.com/spf13/cast"
+
+[[constraint]]
   name = "github.com/spf13/viper"
 
 [[constraint]]
