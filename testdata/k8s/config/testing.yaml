@@ -20,6 +20,7 @@ spec:
 
           args:
             - >
+              ls -la /bin;
               while true; do sleep 100; done
 
           volumeMounts:

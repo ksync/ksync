@@ -1,7 +1,8 @@
 FROM openjdk:8-alpine
 MAINTAINER Thomas Rampelberg <thomasr@vapor.io>
 
-RUN mkdir -p /var/run/watchman
+RUN mkdir -p /var/run/watchman \
+  && chmod a+w /var/run/watchman
 
 RUN apk add --no-cache --update \
     bash \
@@ -11,8 +12,8 @@ RUN apk add --no-cache --update \
     --allow-untrusted \
     watchman
 
-RUN mkdir -p mirror && \
-  wget -O /mirror/mirror-all.jar http://repo.joist.ws/mirror-all.jar
+RUN mkdir -p mirror \
+  && wget -O /mirror/mirror-all.jar http://repo.joist.ws/mirror-all.jar
 COPY mirror.sh /mirror/
 
 COPY bin/radar /radar

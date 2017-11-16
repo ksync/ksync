@@ -45,13 +45,6 @@ func TestValidator(t *testing.T) {
 	assert.EqualError(t, err, "local path must be absolute")
 
 	path = &SyncPath{
-		Local:  "/nonexistentpath",
-		Remote: os.TempDir(),
-	}
-	err = path.Validator()
-	assert.EqualError(t, err, "local path must exist")
-
-	path = &SyncPath{
 		Local:  absdirpath,
 		Remote: filepath.Base(currentdir),
 	}

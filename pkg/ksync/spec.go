@@ -42,6 +42,9 @@ type Spec struct {
 	LocalPath  string
 	RemotePath string
 
+	// Reload related options
+	Reload bool
+
 	stopWatching chan bool
 }
 

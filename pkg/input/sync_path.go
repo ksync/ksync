@@ -2,7 +2,6 @@ package input
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 )
 
@@ -33,10 +32,6 @@ func (s *SyncPath) Validator() error {
 
 	if !filepath.IsAbs(s.Local) {
 		return fmt.Errorf("local path must be absolute")
-	}
-
-	if _, err := os.Stat(s.Local); os.IsNotExist(err) {
-		return fmt.Errorf("local path must exist")
 	}
 
 	if !filepath.IsAbs(s.Remote) {
