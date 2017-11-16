@@ -55,7 +55,7 @@ var radarVersionTemplate = `{{define "radar"}}radar:
 	Version:    {{.Server.Version}}
 	Go Version: {{.Server.GoVersion}}
 	Git Commit: {{.Server.GitCommit}}
-	Git Tag:    {{if ne .Server.GitTag ""}}{{.Server.GitTag}}{{else}}No tag{{end}}
+	Git Tag:    {{if ne .Server.GitTag ""}}{{.Server.GitTag}}{{end}}
 	Built:      {{.Server.BuildDate}}
 	Healthy:    {{.Server.Healthy}}{{println}}{{end}}`
 
@@ -155,7 +155,7 @@ func radarCheck() bool {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Warn(containers)
+	log.Debug(containers)
 	h, err := radar.IsHealthy(containers[0].NodeName)
 	log.WithError(err)
 	return h
