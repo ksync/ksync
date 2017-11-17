@@ -1,10 +1,7 @@
 package main
 
 import (
-	"fmt"
 	"math/rand"
-	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/dustinkirkland/golang-petname"
@@ -52,14 +49,6 @@ func (cmd *createCmd) new() *cobra.Command {
 		log.Fatal(err)
 	}
 
-	flags.String(
-		"user",
-		fmt.Sprintf("%d:%d", os.Getuid(), os.Getgid()),
-		"User to run the sync as locally. Defaults to current user.")
-	if err := cmd.BindFlag("user"); err != nil {
-		log.Fatal(err)
-	}
-
 	flags.Bool(
 		"force",
 		false,
@@ -97,17 +86,12 @@ func (cmd *createCmd) run(_ *cobra.Command, args []string) {
 	}
 
 	newSpec := &ksync.Spec{
-		Name:    cmd.Viper.GetString("name"),
-		User:    cmd.Viper.GetString("user"),
-		CfgPath: filepath.Dir(viper.ConfigFileUsed()),
+		Name: cmd.Viper.GetString("name"),
 
-		Namespace:   viper.GetString("namespace"),
-		Context:     viper.GetString("context"),
-		KubeCfgPath: ksync.KubeCfgPath,
-
-		Container: cmd.Viper.GetString("container"),
-		Pod:       cmd.Viper.GetString("pod"),
-		Selector:  cmd.Viper.GetString("selector"),
+		ContainerName: cmd.Viper.GetString("container"),
+		Pod:           cmd.Viper.GetString("pod"),
+		Selector:      cmd.Viper.GetString("selector"),
+		Namespace:     viper.GetString("namespace"),
 
 		LocalPath:  syncPath.Local,
 		RemotePath: syncPath.Remote,
@@ -126,6 +110,7 @@ func (cmd *createCmd) run(_ *cobra.Command, args []string) {
 
 		log.Fatalf("Could not create, --force to ignore: %v", err)
 	}
+
 	if err := specs.Save(); err != nil {
 		log.Fatal(err)
 	}

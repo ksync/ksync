@@ -31,23 +31,12 @@ func (w *watchCmd) new() *cobra.Command {
 		Long:    long,
 		Example: example,
 		Run:     w.run,
-		// TODO: remove this when the command can be run by users.
-		Hidden: true,
 	})
 
 	return w.Cmd
 }
 
 func (w *watchCmd) update(list *ksync.SpecList) error {
-	services, err := ksync.AllServices()
-	if err != nil {
-		return err
-	}
-
-	if err := services.Clean(); err != nil {
-		return err
-	}
-
 	if err := list.Update(); err != nil {
 		return err
 	}
@@ -62,6 +51,10 @@ func (w *watchCmd) update(list *ksync.SpecList) error {
 // TODO: hook up to k8s and watch for changes
 // TODO: handle Normalize errors.
 func (w *watchCmd) run(cmd *cobra.Command, args []string) {
+	if !ksync.HasMirror() {
+		log.Fatal("missing required files. run `ksync init` again.")
+	}
+
 	list := &ksync.SpecList{}
 	if err := w.update(list); err != nil {
 		log.Fatal(err)

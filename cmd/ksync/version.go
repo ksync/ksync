@@ -104,6 +104,7 @@ func (v *versionCmd) run(cmd *cobra.Command, args []string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	if radarCheck() {
 		err := template.ExecuteTemplate(os.Stdout, "radar", version)
 		if err != nil {
@@ -115,12 +116,19 @@ func (v *versionCmd) run(cmd *cobra.Command, args []string) {
 // TODO: temporary
 func radarCheck() bool {
 	radar := ksync.NewRadarInstance()
-	containers, err := ksync.GetRemoteContainers("", "app=test", "")
+	nodes, err := radar.NodeNames()
 	if err != nil {
-		log.Fatal(err)
+		return false
 	}
-	log.Debug(containers)
-	h, err := radar.IsHealthy(containers[0].NodeName)
-	log.WithError(err)
-	return h
+
+	if len(nodes) == 0 {
+		return false
+	}
+
+	health, err := radar.IsHealthy(nodes[0])
+	if err != nil {
+		return false
+	}
+
+	return health
 }

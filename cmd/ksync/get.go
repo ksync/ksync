@@ -57,16 +57,17 @@ func (g *getCmd) run(cmd *cobra.Command, args []string) {
 
 	for _, name := range keys {
 		spec := specs.Items[name]
-		status, err := spec.Status()
-		if err != nil {
-			log.Fatal(err)
-		}
+		// TODO: implement status now that mirror is being run from inside watch.
+		// status, err := spec.Status()
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
 
 		table.Append([]string{
 			name,
 			spec.LocalPath,
 			spec.RemotePath,
-			status,
+			// status,
 		})
 	}
 

@@ -118,10 +118,6 @@ TODO
 
     Remove a spec to sync.
 
-- `ksync run`
-
-    Runs a specific sync for the lifetime of a pod.
-
 - `ksync get` TODO: is this maybe a better sync list? can show running and waiting ones.
 
     Fetch the status of all current specs

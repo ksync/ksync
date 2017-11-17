@@ -20,7 +20,7 @@ cd ${CIRCLE_WORKING_DIRECTORY}/cmd/radar
 go install -v
 
 # Deploy radar to the cluster
-ksync init
+ksync init --client=false
 # TODO: Make this wait for the deployment to actually be healthy
 sleep 10
 

@@ -3,11 +3,10 @@ package ksync
 import (
 	"fmt"
 	"os"
-	"regexp"
-	"strings"
 
 	"github.com/fatih/structs"
 	log "github.com/sirupsen/logrus"
+	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/pkg/api/v1"
@@ -23,20 +22,13 @@ var (
 // to a remote directory in a specific remote container.
 type Spec struct {
 	// Local config
-	Name    string
-	User    string
-	CfgPath string
-
-	// Kubernetes config
-	Namespace   string
-	Context     string
-	KubeCfgPath string
+	Name string
 
 	// RemoteContainer Locator
-	// TODO: use a locator instead?
-	Container string
-	Pod       string
-	Selector  string
+	ContainerName string
+	Pod           string
+	Selector      string
+	Namespace     string
 
 	// File config
 	LocalPath  string
@@ -45,6 +37,7 @@ type Spec struct {
 	// Reload related options
 	Reload bool
 
+	services     *ServiceList
 	stopWatching chan bool
 }
 
@@ -57,32 +50,29 @@ func (s *Spec) Fields() log.Fields {
 	return debug.StructFields(s)
 }
 
+// TODO: implement status now that mirror is being run from inside watch.
 // Status returns the current status of a spec.
 // TODO: this requires a lot more thought and effort, status is complex.
-func (s *Spec) Status() (string, error) {
-	status := "inactive"
-	// TODO: this is super naive and should be handled differently
-	list, err := s.ServiceList()
-	if err != nil {
-		return "", err
-	}
+// func (s *Spec) Status() (string, error) {
+// 	status := "inactive"
+// 	// TODO: this is super naive and should be handled differently
 
-	if len(list.Items) == 0 {
-		return status, nil
-	}
+// 	if len(s.services.Items) == 0 {
+// 		return status, nil
+// 	}
 
-	var statuses []string
-	for _, service := range list.Items {
-		status, err := service.Status()
-		if err != nil {
-			return "", err
-		}
+// 	var statuses []string
+// 	for _, service := range s.services.Items {
+// 		status, err := service.Status()
+// 		if err != nil {
+// 			return "", err
+// 		}
 
-		statuses = append(statuses, status.Status)
-	}
+// 		statuses = append(statuses, status.Status)
+// 	}
 
-	return strings.Join(statuses, ", "), nil
-}
+// 	return strings.Join(statuses, ", "), nil
+// }
 
 // IsValid returns an error if the spec is not valid.
 func (s *Spec) IsValid() error {
@@ -99,11 +89,6 @@ func (s *Spec) IsValid() error {
 		return fmt.Errorf("local path cannot be a single file, please use a directory")
 	}
 
-	// User is of format int:int
-	if result, _ := regexp.MatchString("[0-9]+:[0-9]+", s.User); !result {
-		return fmt.Errorf("user must be of format uid:gid, got: %s", s.User)
-	}
-
 	return nil
 }
 
@@ -114,9 +99,11 @@ func (s *Spec) Watch() error {
 		return nil
 	}
 
+	s.services = &ServiceList{}
+
 	opts := metav1.ListOptions{}
 	opts.LabelSelector = s.Selector
-	watcher, err := kubeClient.CoreV1().Pods(namespace).Watch(opts)
+	watcher, err := kubeClient.CoreV1().Pods(s.Namespace).Watch(opts)
 	if err != nil {
 		return err
 	}
@@ -161,25 +148,38 @@ func (s *Spec) handleEvent(event watch.Event) error {
 	}).Debug("new event")
 
 	if pod.DeletionTimestamp != nil {
-		return s.stopPod(pod)
+		return s.cleanService(pod)
 	}
 
 	if pod.Status.Phase == v1.PodRunning {
-		return s.Start()
+		return s.addService(pod)
 	}
 
 	return nil
 }
 
-func (s *Spec) stopPod(pod *v1.Pod) error {
-	log.WithFields(s.Fields()).Debug("stopping service")
+func (s *Spec) addService(pod *v1.Pod) error {
+	if err := s.services.Add(pod, s); err != nil {
+		if !errors.IsAlreadyExists(err) {
+			return err
+		}
+	}
 
-	list, err := s.ServiceList()
-	if err != nil {
+	return nil
+}
+
+func (s *Spec) cleanService(pod *v1.Pod) error {
+	service := s.services.Pop(pod.Name)
+	if service == nil {
+		log.WithFields(s.Fields()).Debug("service not found")
+		return nil
+	}
+
+	if err := service.Stop(); err != nil {
 		return err
 	}
 
-	return list.StopByName(pod.Name)
+	return nil
 }
 
 // Equivalence returns a set of fields that can be used to compare specs for
@@ -196,49 +196,7 @@ func (s *Spec) Equivalence() map[string]interface{} {
 // a spec is deleted.
 func (s *Spec) Cleanup() error {
 	if s.stopWatching != nil {
-		s.stopWatching <- true
+		close(s.stopWatching)
 	}
-	return s.Stop()
-}
-
-// ServiceList gets all the running services scoped to this specific spec.
-func (s *Spec) ServiceList() (*ServiceList, error) {
-	list := &ServiceList{}
-	if err := list.Update(ServiceListOptions{Name: s.Name}); err != nil {
-		return nil, err
-	}
-
-	return list, nil
-}
-
-// Start runs a service for every matching remote container.
-func (s *Spec) Start() error {
-	containers, err := GetRemoteContainers(s.Pod, s.Selector, s.Container)
-	if err != nil {
-		return debug.ErrorOut("unable to get container list", err, nil)
-	}
-
-	if len(containers) == 0 {
-		log.WithFields(s.Fields()).Debug("no matching running containers.")
-	}
-
-	for _, cntr := range containers {
-		if err := NewService(s.Name, cntr, s).Start(); err != nil &&
-			!IsServiceRunning(err) {
-			return err
-		}
-
-		log.WithFields(cntr.Fields()).Debug("container running")
-	}
-
-	return nil
-}
-
-// Stop will stop every service for this spec that is running locally.
-func (s *Spec) Stop() error {
-	list, err := s.ServiceList()
-	if err != nil {
-		return err
-	}
-	return list.Stop()
+	return s.services.Stop()
 }

@@ -16,7 +16,6 @@ var (
 	kubeCfg    *rest.Config
 	// KubeCfgPath is the path to the currently used kubectl config
 	KubeCfgPath string
-	namespace   string
 )
 
 func getKubeConfig(context string) (*rest.Config, string, error) {
@@ -42,10 +41,9 @@ func getKubeConfig(context string) (*rest.Config, string, error) {
 }
 
 // InitKubeClient creates a new k8s client for use in talking to the k8s api server.
-func InitKubeClient(context string, nspace string) error {
+func InitKubeClient(context string) error {
 	log.WithFields(log.Fields{
-		"context":   context,
-		"namespace": namespace,
+		"context": context,
 	}).Debug("initializing kubernetes client")
 	config, cfgPath, err := getKubeConfig(context)
 
@@ -67,7 +65,6 @@ func InitKubeClient(context string, nspace string) error {
 	kubeClient = client
 	kubeCfg = config
 	KubeCfgPath = cfgPath
-	namespace = nspace
 
 	return nil
 }
