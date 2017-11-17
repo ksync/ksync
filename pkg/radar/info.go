@@ -1,12 +1,12 @@
 package radar
 
 import (
-	// "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
+	"github.com/golang/protobuf/ptypes/empty"
+
 
 	pb "github.com/vapor-ware/ksync/pkg/proto"
-	"github.com/golang/protobuf/ptypes/empty"
 )
 
 // These values will be stamped at build time
@@ -35,14 +35,6 @@ type Version struct {
 
 
 func (r *radarServer) GetVersionInfo(ctx context.Context, _ *empty.Empty) (*pb.VersionInfo, error) {
-	radar := Version{
-		Version:   VersionString,
-		GoVersion: GoVersion,
-		GitCommit: GitCommit,
-		GitTag:    GitTag,
-		BuildDate: BuildDate,
-	}
-
 	log.WithFields(log.Fields{
 		"Version":   VersionString,
 		"GoVersion": GoVersion,
@@ -52,10 +44,10 @@ func (r *radarServer) GetVersionInfo(ctx context.Context, _ *empty.Empty) (*pb.V
 	}).Debug("getting version info")
 
 	return &pb.VersionInfo{
-		Version:   radar.Version,
-		GoVersion: radar.GoVersion,
-		GitCommit: radar.GitCommit,
-		GitTag:    radar.GitTag,
-		BuildDate: radar.BuildDate,
+		Version:   VersionString,
+		GoVersion: GoVersion,
+		GitCommit: GitCommit,
+		GitTag:    GitTag,
+		BuildDate: BuildDate,
 		}, nil
 }

@@ -100,18 +100,12 @@ func (v *versionCmd) run(cmd *cobra.Command, args []string) {
 	}
 
 	// If radar is reachable, print that part of the template
-	switch radarCheck() {
-	case true:
-		err := template.ExecuteTemplate(os.Stdout, "ksync", version)
-		if err != nil {
-			log.Fatal(err)
-		}
-		err = template.ExecuteTemplate(os.Stdout, "radar", version)
-		if err != nil {
-			log.Fatal(err)
-		}
-	case false:
-		err := template.ExecuteTemplate(os.Stdout, "ksync", version)
+	err = template.ExecuteTemplate(os.Stdout, "ksync", version)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if radarCheck() {
+		err := template.ExecuteTemplate(os.Stdout, "radar", version)
 		if err != nil {
 			log.Fatal(err)
 		}
