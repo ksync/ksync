@@ -74,7 +74,6 @@ func (v *versionCmd) run(cmd *cobra.Command, args []string) {
 			OS:        runtime.GOOS,
 			Arch:      runtime.GOARCH,
 		},
-		// TODO: get this from radar
 		Server: radar.Version{
 			Version:   radar.VersionString,
 			GoVersion: radar.GoVersion,
