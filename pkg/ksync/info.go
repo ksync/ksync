@@ -14,7 +14,8 @@ var (
 	GoVersion string
 )
 
-type ksyncVersion struct {
+// Version contains version information for the binary. It is set at build time.
+type Version struct {
 	Version   string
 	GoVersion string
 	GitCommit string
