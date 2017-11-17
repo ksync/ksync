@@ -55,11 +55,11 @@ type versionInfo struct {
 }
 
 func (v *versionCmd) run(cmd *cobra.Command, args []string) {
-	templateKsync, err := template.New("ksync").Parse(ksyncVersionTemplate)
+	template, err := template.New("ksync").Parse(ksyncVersionTemplate)
 	if err != nil {
 		log.Fatal(err)
 	}
-	templateRadar, err := template.New("radar").Parse(radarVersionTemplate)
+	template, err = template.New("radar").Parse(radarVersionTemplate)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -100,18 +100,18 @@ func (v *versionCmd) run(cmd *cobra.Command, args []string) {
 	}
 
 	// If radar is reachable, print that part of the template
-	// TODO: Change this to use template.ExecuteTemplate
-	if radarCheck() {
-		err := templateKsync.Execute(os.Stdout, version)
+	switch radarCheck() {
+	case true:
+		err := template.ExecuteTemplate(os.Stdout, "ksync", version)
 		if err != nil {
 			log.Fatal(err)
 		}
-		err = templateRadar.Execute(os.Stdout, version)
+		err = template.ExecuteTemplate(os.Stdout, "radar", version)
 		if err != nil {
 			log.Fatal(err)
 		}
-	} else {
-		err := templateKsync.Execute(os.Stdout, version)
+	case false:
+		err := template.ExecuteTemplate(os.Stdout, "ksync", version)
 		if err != nil {
 			log.Fatal(err)
 		}
