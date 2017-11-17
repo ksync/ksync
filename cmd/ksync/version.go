@@ -11,17 +11,7 @@ import (
 
 	"github.com/vapor-ware/ksync/pkg/cli"
 	"github.com/vapor-ware/ksync/pkg/ksync"
-)
-
-var (
-	// GitCommit is the commit hash of the commit used to build
-	GitCommit string
-	// VersionString is the canonical version string
-	VersionString string
-	// BuildDate contains the build timestamp
-	BuildDate string
-	// GitTag optionally contains the git tag used in build
-	GitTag string
+	"github.com/vapor-ware/ksync/pkg/radar"
 )
 
 type versionCmd struct {
@@ -60,56 +50,36 @@ var radarVersionTemplate = `{{define "radar"}}radar:
 	Healthy:    {{.Server.Healthy}}{{println}}{{end}}`
 
 type versionInfo struct {
-	Client ksyncVersion
-	Server radarVersion
-}
-
-type ksyncVersion struct {
-	Version   string
-	GoVersion string
-	GitCommit string
-	GitTag    string
-	BuildDate string
-	OS        string
-	Arch      string
-}
-
-type radarVersion struct {
-	Version   string
-	GoVersion string
-	GitCommit string
-	GitTag    string
-	BuildDate string
-	Healthy   bool
+	Client ksync.Version
+	Server radar.Version
 }
 
 func (v *versionCmd) run(cmd *cobra.Command, args []string) {
-	templateKsync, err := template.New("ksync").Parse(ksyncVersionTemplate)
+	template, err := template.New("ksync").Parse(ksyncVersionTemplate)
 	if err != nil {
 		log.Fatal(err)
 	}
-	templateRadar, err := template.New("radar").Parse(radarVersionTemplate)
+	template, err = template.New("radar").Parse(radarVersionTemplate)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	version := versionInfo{
-		Client: ksyncVersion{
-			Version:   VersionString,
-			GoVersion: runtime.Version(),
-			GitCommit: GitCommit,
-			GitTag:    GitTag,
-			BuildDate: BuildDate,
+		Client: ksync.Version{
+			Version:   ksync.VersionString,
+			GoVersion: ksync.GoVersion,
+			GitCommit: ksync.GitCommit,
+			GitTag:    ksync.GitTag,
+			BuildDate: ksync.BuildDate,
 			OS:        runtime.GOOS,
 			Arch:      runtime.GOARCH,
 		},
-		// TODO: get this from radar
-		Server: radarVersion{
-			Version:   VersionString,
-			GoVersion: runtime.Version(),
-			GitCommit: GitCommit,
-			GitTag:    GitTag,
-			BuildDate: BuildDate,
+		Server: radar.Version{
+			Version:   radar.VersionString,
+			GoVersion: radar.GoVersion,
+			GitCommit: radar.GitCommit,
+			GitTag:    radar.GitTag,
+			BuildDate: radar.BuildDate,
 			Healthy:   radarCheck(),
 		},
 	}
@@ -130,18 +100,12 @@ func (v *versionCmd) run(cmd *cobra.Command, args []string) {
 	}
 
 	// If radar is reachable, print that part of the template
-	// TODO: Change this to use template.ExecuteTemplate
+	err = template.ExecuteTemplate(os.Stdout, "ksync", version)
+	if err != nil {
+		log.Fatal(err)
+	}
 	if radarCheck() {
-		err := templateKsync.Execute(os.Stdout, version)
-		if err != nil {
-			log.Fatal(err)
-		}
-		err = templateRadar.Execute(os.Stdout, version)
-		if err != nil {
-			log.Fatal(err)
-		}
-	} else {
-		err := templateKsync.Execute(os.Stdout, version)
+		err := template.ExecuteTemplate(os.Stdout, "radar", version)
 		if err != nil {
 			log.Fatal(err)
 		}

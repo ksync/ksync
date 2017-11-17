@@ -44,12 +44,6 @@
   version = "v1.1.0"
 
 [[projects]]
-  name = "github.com/cenkalti/backoff"
-  packages = ["."]
-  revision = "61153c768f31ee5f130071d08fc82b85208528de"
-  version = "v1.1.0"
-
-[[projects]]
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
   revision = "346938d642f2ec3594ed81d874461961cd0faa76"
@@ -441,6 +435,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "5cfee3c3b4619352acf722048f32eb31d13ef1fd508291623cd53d7632fa27a0"
+  inputs-digest = "e6def59118ed16c1e6721e3698649e113155f0ef2cea301b2881c4e7609846f8"
   solver-name = "gps-cdcl"
   solver-version = 1
