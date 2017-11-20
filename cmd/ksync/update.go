@@ -7,17 +7,38 @@ import (
 	// "text/template"
 
 	log "github.com/sirupsen/logrus"
-	// "github.com/spf13/cobra"
+	"github.com/spf13/cobra"
 
 	// "github.com/inconshreveable/go-update"
 	"github.com/jpillora/overseer"
 	"github.com/jpillora/overseer/fetcher"
+
+	"github.com/vapor-ware/ksync/pkg/cli"
 )
 
 const (
 	repoUsername = "vapor-ware"
 	repoName     = "ksync"
 )
+
+type updateCmd struct {
+	cli.BaseCmd
+}
+
+func (u *updateCmd) new() *cobra.Command {
+	long := `Check for updates.`
+	example := ``
+
+	u.Init("ksync", &cobra.Command{
+		Use:     "update",
+		Short:   "Check for updates.",
+		Long:    long,
+		Example: example,
+		Run:     u.run,
+	})
+
+	return u.Cmd
+}
 
 func validateOverseer() bool {
 	log.Debugf("Checking if overseer is compatible with %s/%s", runtime.GOOS, runtime.GOARCH)
@@ -36,8 +57,8 @@ func UpdateCheck() {
 		NoRestart: true,
 		Debug: true,
 		Fetcher: &fetcher.Github{
-			User: "moby",
-			Repo: "moby",
+			User: "vapor-ware",
+			Repo: "ksync`",
 		},
 	})
 }
@@ -47,4 +68,8 @@ func runUpdater(state overseer.State) {
 		log.Fatal("Update check failed")
 	}
 	log.Debug(state)
+}
+
+func (u *updateCmd) run(cmd *cobra.Command, args []string) {
+	UpdateCheck()
 }
