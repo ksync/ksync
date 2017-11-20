@@ -16,7 +16,14 @@ import (
 
 var (
 	maxReadyRetries = uint64(10)
+	imageName       = "gcr.io/elated-embassy-152022/ksync/ksync:canary"
 )
+
+// SetImage sets the package-wide image to use for launching tasks
+// (both local and remote).
+func SetImage(name string) {
+	imageName = name
+}
 
 // RadarInstance is the remote server component of ksync.
 type RadarInstance struct {
@@ -111,8 +118,30 @@ func (r *RadarInstance) IsHealthy(nodeName string) (bool, error) {
 	if pod.Status.Phase != v1.PodRunning || pod.DeletionTimestamp != nil {
 		return false, nil
 	}
-	
+
 	return true, nil
+}
+
+// NodeNames returns a list of all the nodes radar is currently running on.
+func (r *RadarInstance) NodeNames() ([]string, error) {
+	result := []string{}
+
+	opts := metav1.ListOptions{}
+	opts.LabelSelector = "app=radar"
+	pods, err := kubeClient.CoreV1().Pods(r.namespace).List(opts)
+	if err != nil {
+		return nil, err
+	}
+
+	log.WithFields(log.Fields{
+		"count": len(pods.Items),
+	}).Debug("radar nodes")
+
+	for _, pod := range pods.Items {
+		result = append(result, pod.Spec.NodeName)
+	}
+
+	return result, nil
 }
 
 // Run starts (or upgrades) radar on the remote cluster.

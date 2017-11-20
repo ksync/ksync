@@ -2,10 +2,6 @@ package cli
 
 import (
 	"fmt"
-
-	"github.com/pkg/errors"
-
-	"github.com/vapor-ware/ksync/pkg/ksync"
 )
 
 // FinderCmd parses the options required to discover a remote container.
@@ -52,22 +48,4 @@ func (cmd *FinderCmd) Validator() error {
 	}
 
 	return nil
-}
-
-// RemoteContainers returns a list of all remote containers that match the finder args.
-func (cmd *FinderCmd) RemoteContainers() ([]*ksync.RemoteContainer, error) {
-	containerList, err := ksync.GetRemoteContainers(
-		cmd.Viper.GetString("pod"),
-		cmd.Viper.GetString("selector"),
-		cmd.Viper.GetString("container"))
-	if err != nil {
-		return nil, errors.Wrap(err, "could not get containers")
-	}
-
-	// TODO: maybe there's a better way to do this?
-	if len(containerList) == 0 {
-		return nil, fmt.Errorf("no containers found")
-	}
-
-	return containerList, nil
 }

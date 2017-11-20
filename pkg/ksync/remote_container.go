@@ -22,47 +22,10 @@ type RemoteContainer struct {
 	PodName  string
 }
 
-func (c *RemoteContainer) String() string {
-	return debug.YamlString(c)
-}
-
-// Fields returns a set of structured fields for logging.
-func (c *RemoteContainer) Fields() log.Fields {
-	return debug.StructFields(c)
-}
-
-// Radar connects to the server component (radar) and returns a client.
-func (c *RemoteContainer) Radar() (pb.RadarClient, error) {
-	conn, err := NewRadarInstance().RadarConnection(c.NodeName)
-	if err != nil {
-		return nil, err
-	}
-	// TODO: what's a better way to handle c?
-	// defer conn.Close()
-
-	log.WithFields(c.Fields()).Debug("radar connected")
-
-	return pb.NewRadarClient(conn), nil
-}
-
-// RestartMirror restarts the remote mirror container responsible for this
-// container.
-func (c *RemoteContainer) RestartMirror() error {
-	client, err := c.Radar()
-	if err != nil {
-		return err
-	}
-
-	if _, err := client.RestartMirror(
-		context.Background(), &empty.Empty{}); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func getRemoteContainer(
+// NewRemoteContainer builds a RemoteContainer from a pod.
+func NewRemoteContainer(
 	pod *apiv1.Pod, containerName string) (*RemoteContainer, error) {
+
 	// TODO: I don't want to go and setup a whole bunch of error handling code
 	// right now. The NotFound error works perfectly here for now.
 	if pod.DeletionTimestamp != nil {
@@ -108,92 +71,41 @@ func getRemoteContainer(
 		}}
 }
 
-// GetByName takes a pod and container name and looks for a running RemoteContainer.
-func GetByName(podName string, containerName string) (*RemoteContainer, error) {
-	pod, err := kubeClient.CoreV1().Pods(namespace).Get(
-		podName, metav1.GetOptions{})
+func (c *RemoteContainer) String() string {
+	return debug.YamlString(c)
+}
+
+// Fields returns a set of structured fields for logging.
+func (c *RemoteContainer) Fields() log.Fields {
+	return debug.StructFields(c)
+}
+
+// Radar connects to the server component (radar) and returns a client.
+func (c *RemoteContainer) Radar() (pb.RadarClient, error) {
+	conn, err := NewRadarInstance().RadarConnection(c.NodeName)
 	if err != nil {
 		return nil, err
 	}
+	// TODO: what's a better way to handle c?
+	// defer conn.Close()
 
-	log.WithFields(log.Fields{
-		"name": pod.Name,
-	}).Debug("found pod")
+	log.WithFields(c.Fields()).Debug("radar connected")
 
-	return getRemoteContainer(pod, containerName)
+	return pb.NewRadarClient(conn), nil
 }
 
-func getBySelector(selector string, containerName string) ([]*RemoteContainer, error) {
-	opts := metav1.ListOptions{}
-	opts.LabelSelector = selector
-	// TODO: namespace is not global anywhere else.
-	pods, err := kubeClient.CoreV1().Pods(namespace).List(opts)
+// RestartMirror restarts the remote mirror container responsible for this
+// container.
+func (c *RemoteContainer) RestartMirror() error {
+	client, err := c.Radar()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	log.WithFields(log.Fields{
-		"length":   len(pods.Items),
-		"selector": selector,
-	}).Debug("found pods by selector")
-
-	containerList := []*RemoteContainer{}
-	for _, pod := range pods.Items {
-		cntr, err := getRemoteContainer(&pod, containerName)
-		if errors.IsNotFound(err) {
-			continue
-		}
-
-		if err != nil {
-			return nil, err
-		}
-
-		containerList = append(containerList, cntr)
+	if _, err := client.RestartMirror(
+		context.Background(), &empty.Empty{}); err != nil {
+		return err
 	}
 
-	return containerList, nil
-}
-
-// GetRemoteContainers uses a Locator (podName, selector, containerName) and provides
-// a list of the currently running containers. It is possible that this list is
-// empty, for when the locator does not match anything currently running.
-// TODO: this takes a little bit to execute, is there any kind of progress or output
-// that would be useful to the user?
-// TODO: make this into a channel
-func GetRemoteContainers(
-	podName string,
-	selector string,
-	containerName string) ([]*RemoteContainer, error) {
-
-	containerList := []*RemoteContainer{}
-
-	if podName != "" {
-		container, err := GetByName(podName, containerName)
-		if err != nil && !errors.IsNotFound(err) {
-			return nil, err
-		}
-
-		// It is possible that a container wasn't found. We don't want to error out,
-		// instead just return an empty list.
-		if container != nil {
-			containerList = append(containerList, container)
-		}
-	}
-
-	if selector != "" {
-		selectorList, err := getBySelector(selector, containerName)
-		if err != nil {
-			return nil, err
-		}
-		containerList = append(containerList, selectorList...)
-	}
-
-	log.WithFields(log.Fields{
-		"podName":       podName,
-		"selector":      selector,
-		"containerName": containerName,
-		"length":        len(containerList),
-	}).Debug("found containers")
-
-	return containerList, nil
+	return nil
 }

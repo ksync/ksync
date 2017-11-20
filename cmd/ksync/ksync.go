@@ -6,7 +6,6 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/vapor-ware/ksync/pkg/cli"
-	"github.com/vapor-ware/ksync/pkg/docker"
 	"github.com/vapor-ware/ksync/pkg/ksync"
 )
 
@@ -28,7 +27,6 @@ func main() {
 		(&deleteCmd{}).new(),
 		(&getCmd{}).new(),
 		(&initCmd{}).new(),
-		(&runCmd{}).new(),
 		(&watchCmd{}).new(),
 		(&versionCmd{}).new(),
 	)
@@ -72,38 +70,30 @@ func init() {
 
 	// TODO: can this be hidden?
 	flags.String(
-		"local-image",
+		"image",
 		"gcr.io/elated-embassy-152022/ksync/ksync:canary",
 		// TODO: this help text could be way better
 		"the image to use for running things locally.")
 	if err := cli.BindFlag(
-		viper.GetViper(), flags.Lookup("local-image"), "ksync"); err != nil {
+		viper.GetViper(), flags.Lookup("image"), "ksync"); err != nil {
 
 		log.Fatal(err)
 	}
 }
 
-// TODO: dependencies should verify that they're usable (and return errors otherwise).
+// TODO: dependencies should verify that they're usable
+// (and return errors otherwise).
 func initPersistent(cmd *cobra.Command, args []string) {
 	cli.InitLogging()
 
 	initKubeClient()
-	initDockerClient()
 
-	ksync.SetImage(viper.GetString("local-image"))
+	ksync.SetImage(viper.GetString("image"))
 }
 
 func initKubeClient() {
-	err := ksync.InitKubeClient(viper.GetString("context"), viper.GetString("namespace"))
+	err := ksync.InitKubeClient(viper.GetString("context"))
 	if err != nil {
 		log.Fatalf("Error creating kubernetes client: %v", err)
-	}
-}
-
-// TODO: should this be scoped only to commands that use docker?
-func initDockerClient() {
-	err := docker.InitClient()
-	if err != nil {
-		log.Fatalf("Error creating docker client: %v", err)
 	}
 }

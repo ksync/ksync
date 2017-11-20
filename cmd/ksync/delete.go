@@ -46,6 +46,7 @@ func (d *deleteCmd) run(cmd *cobra.Command, args []string) {
 	if err := specs.Delete(name); err != nil {
 		log.Fatalf("Could not delete %s: %v", name, err)
 	}
+
 	if err := specs.Save(); err != nil {
 		log.Fatal(err)
 	}

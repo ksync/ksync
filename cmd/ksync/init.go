@@ -3,7 +3,6 @@ package main
 import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
 	"github.com/vapor-ware/ksync/pkg/cli"
 	"github.com/vapor-ware/ksync/pkg/ksync"
@@ -38,37 +37,53 @@ func (i *initCmd) new() *cobra.Command {
 	}
 
 	i.Cmd.Flags().Bool(
-		"force",
-		false,
-		"Force the upgrade to occur.")
-	if err := i.BindFlag("force"); err != nil {
+		"client",
+		true,
+		"Setup the client",
+	)
+	if err := i.BindFlag("client"); err != nil {
 		log.Fatal(err)
 	}
 
 	i.Cmd.Flags().Bool(
-		"watch",
+		"server",
 		true,
-		"Don't run watch in the background.")
-	if err := i.BindFlag("watch"); err != nil {
+		"Setup the server",
+	)
+	if err := i.BindFlag("server"); err != nil {
 		log.Fatal(err)
 	}
 
 	return i.Cmd
 }
 
-// TODO: add instructions for watchman and limits (and detect them)
-// TODO: need a better error with instructions on how to fix errors starting radar
-func (i *initCmd) run(cmd *cobra.Command, args []string) {
+func (i *initCmd) initServer() {
 	upgrade := i.Viper.GetBool("upgrade")
 	if err := ksync.NewRadarInstance().Run(upgrade); err != nil {
 		log.Fatalf("could not start radar: %v", err)
 	}
+}
 
-	if i.Viper.GetBool("watch") {
-		if err := ksync.BackgroundWatch(
-			viper.ConfigFileUsed(), upgrade); err != nil {
+func (i *initCmd) initClient() {
+	if !ksync.HasJava() {
+		log.Fatal("java is required.")
+	}
 
-			log.Fatalf("could not start watch: %v", err)
+	if !ksync.HasMirror() {
+		if err := ksync.FetchMirror(); err != nil {
+			log.Fatal(err)
 		}
+	}
+}
+
+// TODO: add instructions for watchman and limits (and detect them)
+// TODO: need a better error with instructions on how to fix errors starting radar
+func (i *initCmd) run(cmd *cobra.Command, args []string) {
+	if i.Viper.GetBool("server") {
+		i.initServer()
+	}
+
+	if i.Viper.GetBool("client") {
+		i.initClient()
 	}
 }

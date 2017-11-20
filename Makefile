@@ -6,8 +6,8 @@ IMAGE           := ${IMAGE_BASE}:${DOCKER_VERSION}
 MUTABLE_IMAGE   := ${IMAGE_BASE}:${MUTABLE_VERSION}
 
 #CMD       ?= bin/ksync --log-level=debug init --upgrade && stern --namespace=kube-system --selector=app=radar
-CMD       ?= (docker ps -q | xargs docker rm -f || true) && \
-	bin/ksync --log-level=debug init --upgrade && docker ps -q | xargs docker logs -f
+#CMD       ?= bin/ksync --log-level=debug init --upgrade && bin/ksync --log-level=debug watch
+CMD ?= bin/ksync --log-level=debug watch
 
 GO        ?= go
 TAGS      :=
@@ -31,7 +31,7 @@ build-cmd:
 	GOBIN=$(BINDIR) $(GO) install $(GOFLAGS) \
 		-tags '$(TAGS)' \
 		-ldflags '$(LDFLAGS)' \
-		github.com/vapor-ware/ksync/cmd/...
+		github.com/vapor-ware/ksync/cmd/ksync
 
 .PHONY: build-proto
 build-proto:
@@ -40,7 +40,7 @@ build-proto:
 .PHONY: watch
 watch:
 	# ag -l --ignore "pkg/proto" | entr -dr /bin/sh -c "$(MAKE) all push && $(CMD) && stern --namespace=kube-system --selector=app=radar"
-	ag -l --ignore "pkg/proto" | entr -dr /bin/sh -c "$(MAKE) all push && $(CMD)"
+	ag -l --ignore "pkg/proto" | entr -dr /bin/sh -c "$(MAKE) build && $(CMD)"
 
 HAS_DEP := $(shell command -v dep)
 
@@ -54,7 +54,7 @@ endif
 .PHONY: docker-binary
 docker-binary: BINDIR = $(CURDIR)/docker/bin
 docker-binary: GOFLAGS += -installsuffix cgo
-docker-binary: docker-binary-radar docker-binary-ksync
+docker-binary: docker-binary-radar
 
 docker-binary-%:
 	time GOOS=linux GOARCH=amd64 CGO_ENABLED=0 \

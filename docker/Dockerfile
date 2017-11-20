@@ -17,4 +17,3 @@ RUN mkdir -p mirror \
 COPY mirror.sh /mirror/
 
 COPY bin/radar /radar
-COPY bin/ksync /ksync
