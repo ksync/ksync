@@ -183,7 +183,7 @@ func (m *Mirror) handleTeardown() {
 		for {
 			select {
 			case <-teardown:
-				m.Stop()
+				m.Stop() //nolint: errcheck
 			case <-m.clean:
 				return
 			}
@@ -256,7 +256,7 @@ func (m *Mirror) Run() error {
 
 // Stop halts the background process and cleans up.
 func (m *Mirror) Stop() error {
-	defer m.cmd.Process.Wait()
+	defer m.cmd.Process.Wait() //nolint: errcheck
 	if m.clean != nil {
 		close(m.clean)
 	}
