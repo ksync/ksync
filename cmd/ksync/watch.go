@@ -1,10 +1,6 @@
 package main
 
 import (
-	"os"
-	"os/signal"
-	"syscall"
-
 	"github.com/fsnotify/fsnotify"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -12,6 +8,7 @@ import (
 
 	"github.com/vapor-ware/ksync/pkg/cli"
 	"github.com/vapor-ware/ksync/pkg/ksync"
+	"github.com/vapor-ware/ksync/pkg/ksync/server"
 )
 
 type watchCmd struct {
@@ -33,6 +30,16 @@ func (w *watchCmd) new() *cobra.Command {
 		Run:     w.run,
 	})
 
+	flags := w.Cmd.Flags()
+	flags.String(
+		"bind",
+		"127.0.0.1",
+		"interface to which the server will bind")
+
+	if err := w.BindFlag("bind"); err != nil {
+		log.Fatal(err)
+	}
+
 	return w.Cmd
 }
 
@@ -48,14 +55,7 @@ func (w *watchCmd) update(list *ksync.SpecList) error {
 	return nil
 }
 
-// TODO: hook up to k8s and watch for changes
-// TODO: handle Normalize errors.
-func (w *watchCmd) run(cmd *cobra.Command, args []string) {
-	if !ksync.HasMirror() {
-		log.Fatal("missing required files. run `ksync init` again.")
-	}
-
-	list := &ksync.SpecList{}
+func (w *watchCmd) local(list *ksync.SpecList) {
 	if err := w.update(list); err != nil {
 		log.Fatal(err)
 	}
@@ -67,12 +67,19 @@ func (w *watchCmd) run(cmd *cobra.Command, args []string) {
 			log.Fatal(err)
 		}
 	})
-
-	waitForSignal()
 }
 
-func waitForSignal() {
-	exitSignal := make(chan os.Signal)
-	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM) // nolint: megacheck
-	<-exitSignal
+// TODO: should the listen be random?
+// TODO: does this need TLS?
+func (w *watchCmd) run(cmd *cobra.Command, args []string) {
+	if !ksync.HasMirror() {
+		log.Fatal("missing required files. run `ksync init` again.")
+	}
+	list := &ksync.SpecList{}
+
+	w.local(list)
+	if err := server.Listen(
+		list, w.Viper.GetString("bind"), viper.GetInt("port")); err != nil {
+		log.Fatal(err)
+	}
 }

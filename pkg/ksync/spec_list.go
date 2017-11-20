@@ -14,6 +14,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 
 	"github.com/vapor-ware/ksync/pkg/debug"
+	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
 
 // SpecList is a list of specs.
@@ -30,17 +31,34 @@ func (s *SpecList) Fields() log.Fields {
 	return log.Fields{}
 }
 
+// Message is used to serialize over gRPC
+func (s *SpecList) Message() (*pb.SpecList, error) {
+	items := map[string]*pb.Spec{}
+
+	for n, v := range s.Items {
+		msg, err := v.Message()
+		if err != nil {
+			return nil, err
+		}
+		items[n] = msg
+	}
+
+	return &pb.SpecList{
+		Items: items,
+	}, nil
+}
+
 func allSpecs() (map[string]*Spec, error) {
 	items := map[string]*Spec{}
 
 	for _, raw := range cast.ToSlice(viper.Get("spec")) {
-		var spec Spec
-		if err := mapstructure.Decode(raw, &spec); err != nil {
+		var details SpecDetails
+		if err := mapstructure.Decode(raw, &details); err != nil {
 			return nil, err
 		}
 
 		// TODO: validate the spec
-		items[spec.Name] = &spec
+		items[details.Name] = NewSpec(&details)
 	}
 
 	return items, nil
@@ -91,19 +109,19 @@ func (s *SpecList) Watch() error {
 
 // Create checks an individual input spec for likeness and duplicates
 // then adds the spec into a SpecList
-func (s *SpecList) Create(name string, spec *Spec, force bool) error {
+func (s *SpecList) Create(details *SpecDetails, force bool) error {
 	if !force {
-		if s.Has(name) {
+		if s.Has(details.Name) {
 			// TODO: make this into a type?
 			return fmt.Errorf("name already exists")
 		}
 
-		if s.HasLike(spec) {
+		if s.HasLike(details) {
 			return fmt.Errorf("similar spec exists")
 		}
 	}
 
-	s.Items[name] = spec
+	s.Items[details.Name] = NewSpec(details)
 	return nil
 }
 
@@ -136,9 +154,9 @@ func (s *SpecList) Save() error {
 		"path": cfgPath,
 	}).Debug("writing config file")
 
-	var specs []*Spec
+	var specs []*SpecDetails
 	for _, v := range s.Items {
-		specs = append(specs, v)
+		specs = append(specs, v.Details)
 	}
 	viper.Set("spec", specs)
 	buf, err := yaml.Marshal(viper.AllSettings())
@@ -151,10 +169,10 @@ func (s *SpecList) Save() error {
 
 // HasLike checks a given spec for deep equivalence against another spec
 // TODO: is this the best way to do this?
-func (s *SpecList) HasLike(target *Spec) bool {
+func (s *SpecList) HasLike(target *SpecDetails) bool {
 	targetEq := target.Equivalence()
 	for _, spec := range s.Items {
-		if reflect.DeepEqual(targetEq, spec.Equivalence()) {
+		if reflect.DeepEqual(targetEq, spec.Details.Equivalence()) {
 			return true
 		}
 	}

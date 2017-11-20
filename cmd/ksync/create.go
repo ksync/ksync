@@ -85,7 +85,7 @@ func (cmd *createCmd) run(_ *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	newSpec := &ksync.Spec{
+	newSpec := &ksync.SpecDetails{
 		Name: cmd.Viper.GetString("name"),
 
 		ContainerName: cmd.Viper.GetString("container"),
@@ -104,7 +104,6 @@ func (cmd *createCmd) run(_ *cobra.Command, args []string) {
 	}
 
 	if err := specs.Create(
-		cmd.Viper.GetString("name"),
 		newSpec,
 		cmd.Viper.GetBool("force")); err != nil {
 

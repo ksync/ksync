@@ -74,9 +74,20 @@ func init() {
 		"image",
 		"gcr.io/elated-embassy-152022/ksync/ksync:canary",
 		// TODO: this help text could be way better
-		"the image to use for running things locally.")
+		"the image to use.")
 	if err := cli.BindFlag(
 		viper.GetViper(), flags.Lookup("image"), "ksync"); err != nil {
+
+		log.Fatal(err)
+	}
+
+	flags.Int(
+		"port",
+		40322,
+		"port on which the server will listen")
+
+	if err := cli.BindFlag(
+		viper.GetViper(), flags.Lookup("port"), "ksync"); err != nil {
 
 		log.Fatal(err)
 	}

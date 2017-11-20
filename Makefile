@@ -55,6 +55,10 @@ ifndef HAS_DEP
 endif
 	dep ensure
 
+.PHONY: update-radar
+update-radar: docker-binary-radar docker-build docker-push
+	bin/ksync --log-level=debug --image=${IMAGE} init --upgrade
+
 .PHONY: docker-binary
 docker-binary: BINDIR = $(CURDIR)/docker/bin
 docker-binary: GOFLAGS += -installsuffix cgo

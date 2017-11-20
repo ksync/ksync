@@ -8,6 +8,9 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/pkg/api/v1"
+
+	"github.com/vapor-ware/ksync/pkg/debug"
+	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
 
 // ServiceList is a list of services.
@@ -15,14 +18,47 @@ type ServiceList struct {
 	Items []*Service
 }
 
+func (s *ServiceList) String() string {
+	return debug.YamlString(s)
+}
+
+// Fields returns a set of structured fields for logging.
+func (s *ServiceList) Fields() log.Fields {
+	return log.Fields{}
+}
+
+// Message is used to serialize over gRPC
+func (s *ServiceList) Message() (*pb.ServiceList, error) {
+	items := []*pb.Service{}
+
+	for _, v := range s.Items {
+		msg, err := v.Message()
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, msg)
+	}
+
+	return &pb.ServiceList{
+		Items: items,
+	}, nil
+}
+
+// NewServiceList is a constructor for ServiceList
+func NewServiceList() *ServiceList {
+	return &ServiceList{
+		Items: []*Service{},
+	}
+}
+
 // Add takes a pod/spec, creates a new service, adds it to the list and starts it.
-func (s *ServiceList) Add(pod *v1.Pod, spec *Spec) error {
-	cntr, err := NewRemoteContainer(pod, spec.ContainerName)
+func (s *ServiceList) Add(pod *v1.Pod, details *SpecDetails) error {
+	cntr, err := NewRemoteContainer(pod, details.ContainerName)
 	if err != nil {
 		return err
 	}
 
-	service := NewService(cntr, spec)
+	service := NewService(cntr, details)
 	if s.Has(service) {
 		return &errors.StatusError{
 			ErrStatus: metav1.Status{

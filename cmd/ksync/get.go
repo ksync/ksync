@@ -1,15 +1,23 @@
 package main
 
 import (
+	"fmt"
 	"os"
+	"path/filepath"
 	"sort"
+	"time"
 
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/olekukonko/tablewriter"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
 
 	"github.com/vapor-ware/ksync/pkg/cli"
-	"github.com/vapor-ware/ksync/pkg/ksync"
+	pb "github.com/vapor-ware/ksync/pkg/proto"
+	// "github.com/vapor-ware/ksync/pkg/ksync"
 )
 
 type getCmd struct {
@@ -31,23 +39,16 @@ func (g *getCmd) new() *cobra.Command {
 	return g.Cmd
 }
 
-// TODO: add last_sync (last_run?)
-// TODO: make the columns configurable
-// TODO: add a quiet ouput that can be `ksync get -q | ksync delete`
-// TODO: output different formats (json)
-// TODO: make output configurable
-// TODO: the paths can be pretty long, keep them to a certain length?
-// TODO: check for existence of the watcher, warn if it isn't running.
-func (g *getCmd) run(cmd *cobra.Command, args []string) {
-	specs := &ksync.SpecList{}
-	if err := specs.Update(); err != nil {
+func (g *getCmd) out(specs *pb.SpecList) {
+	cwd, err := os.Getwd()
+	if err != nil {
 		log.Fatal(err)
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetBorder(false)
 	table.SetColumnSeparator(" ")
-	table.SetHeader([]string{"Name", "Local", "Remote", "Status"})
+	table.SetHeader([]string{"Name", "Local", "Remote", "Status", "Pod"})
 
 	var keys []string
 	for name := range specs.Items {
@@ -57,19 +58,58 @@ func (g *getCmd) run(cmd *cobra.Command, args []string) {
 
 	for _, name := range keys {
 		spec := specs.Items[name]
-		// TODO: implement status now that mirror is being run from inside watch.
-		// status, err := spec.Status()
-		// if err != nil {
-		// 	log.Fatal(err)
-		// }
+
+		status := spec.Status
+		if len(spec.Services.Items) > 0 {
+			status = ""
+		}
+
+		local, err := filepath.Rel(cwd, spec.Details.LocalPath)
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		table.Append([]string{
 			name,
-			spec.LocalPath,
-			spec.RemotePath,
-			// status,
+			local,
+			spec.Details.RemotePath,
+			status,
 		})
+
+		for _, service := range spec.Services.Items {
+			table.Append([]string{
+				"",
+				"",
+				"",
+				service.Status,
+				service.RemoteContainer.PodName,
+			})
+		}
 	}
 
 	table.Render()
+}
+
+// TODO: TLS?
+func (g *getCmd) run(cmd *cobra.Command, args []string) {
+	conn, err := grpc.Dial(
+		fmt.Sprintf("127.0.0.1:%d", viper.GetInt("port")),
+		[]grpc.DialOption{
+			grpc.WithTimeout(5 * time.Second),
+			grpc.WithBlock(),
+			grpc.WithInsecure(),
+		}...)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close() // nolint: errcheck
+
+	client := pb.NewKsyncClient(conn)
+
+	resp, err := client.GetSpecList(context.Background(), &empty.Empty{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	g.out(resp)
 }

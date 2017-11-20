@@ -2,6 +2,7 @@ package debug
 
 import (
 	"fmt"
+	"path/filepath"
 	"reflect"
 	"runtime"
 
@@ -38,4 +39,11 @@ func ErrorOut(msg string, err error, thing interface{}) error {
 			thing,
 		),
 	)
+}
+
+// ErrorLocation provides a way to know what line/file an error occurred in.
+func ErrorLocation(err error) error {
+	_, fname, line, _ := runtime.Caller(1)
+
+	return errors.Wrap(err, fmt.Sprintf("(%s:%d)", filepath.Base(fname), line))
 }
