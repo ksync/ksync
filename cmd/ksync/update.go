@@ -1,15 +1,11 @@
 package main
 
 import (
-	// "os"
 	"runtime"
-	// "time"
-	// "text/template"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	// "github.com/inconshreveable/go-update"
 	"github.com/jpillora/overseer"
 	"github.com/jpillora/overseer/fetcher"
 
@@ -35,6 +31,7 @@ func (u *updateCmd) new() *cobra.Command {
 		Long:    long,
 		Example: example,
 		Run:     u.run,
+		Hidden: true, // Hide this until it's ready to be used.
 	})
 
 	return u.Cmd
@@ -49,6 +46,9 @@ func validateOverseer() bool {
 	return true
 }
 
+// UpdateCheck is the wrapping function that launches the overseer process and
+// monitors the child process. In this case it just runs the update check and
+// quits.
 func UpdateCheck() {
 	overseer.Run(overseer.Config{
 		Required: true,
@@ -57,8 +57,8 @@ func UpdateCheck() {
 		NoRestart: true,
 		Debug: true,
 		Fetcher: &fetcher.Github{
-			User: "vapor-ware",
-			Repo: "ksync`",
+			User: repoUsername,
+			Repo: repoName,
 		},
 	})
 }
