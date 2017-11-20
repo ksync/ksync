@@ -6,7 +6,6 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/vapor-ware/ksync/pkg/debug"
-	"github.com/vapor-ware/ksync/pkg/service"
 )
 
 // Service reflects a sync that can be run in the background.
@@ -16,6 +15,8 @@ type Service struct {
 
 	mirror *Mirror
 }
+
+type ServiceStatus string
 
 // NewService constructs a Service to manage and run local syncs from.
 func NewService(cntr *RemoteContainer, spec *Spec) *Service {
@@ -71,6 +72,6 @@ func (s *Service) Stop() error {
 
 // Status checks to see if a service is currently running and looks at its
 // status.
-func (s *Service) Status() (*service.Status, error) {
-	return service.GetStatus(s.containerName())
+func (s *Service) Status() (ServiceStatus, error) {
+	return "", nil
 }
