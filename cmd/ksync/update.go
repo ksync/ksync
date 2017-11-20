@@ -31,7 +31,7 @@ func (u *updateCmd) new() *cobra.Command {
 		Long:    long,
 		Example: example,
 		Run:     u.run,
-		Hidden: true, // Hide this until it's ready to be used.
+		Hidden:  true, // Hide this until it's ready to be used.
 	})
 
 	return u.Cmd
@@ -51,11 +51,11 @@ func validateOverseer() bool {
 // quits.
 func UpdateCheck() {
 	overseer.Run(overseer.Config{
-		Required: true,
-		Program: runUpdater,
-		Address: ":0000",
+		Required:  true,
+		Program:   runUpdater,
+		Address:   ":0000",
 		NoRestart: true,
-		Debug: true,
+		Debug:     true,
 		Fetcher: &fetcher.Github{
 			User: repoUsername,
 			Repo: repoName,
@@ -64,7 +64,7 @@ func UpdateCheck() {
 }
 
 func runUpdater(state overseer.State) {
-	if ! validateOverseer() {
+	if !validateOverseer() {
 		log.Fatal("Update check failed")
 	}
 	log.Debug(state)

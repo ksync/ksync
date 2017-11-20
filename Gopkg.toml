@@ -111,3 +111,6 @@
 
 [[constraint]]
   name = "github.com/cenkalti/backoff"
+
+[[constraint]]
+  name = "github.com/jpillora/overseer"
