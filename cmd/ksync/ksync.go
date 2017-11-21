@@ -29,6 +29,7 @@ func main() {
 		(&initCmd{}).new(),
 		(&watchCmd{}).new(),
 		(&versionCmd{}).new(),
+		(&updateCmd{}).new(),
 	)
 	if err := rootCmd.Execute(); err != nil {
 		log.Fatalf("%v", err)

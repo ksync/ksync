@@ -130,6 +130,10 @@ TODO
 
     Debug what's happening under the covers and look for any possible issues with the system.
 
+- `ksync version`
+
+    Print out version information for the local binary. If the server binary is reachable and healthy, print information for that as well.
+
 # Development
 
 ## Dependencies
