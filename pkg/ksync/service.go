@@ -16,6 +16,7 @@ type Service struct {
 	mirror *Mirror
 }
 
+// ServiceStatus contains the current status of a given service
 type ServiceStatus string
 
 // NewService constructs a Service to manage and run local syncs from.
