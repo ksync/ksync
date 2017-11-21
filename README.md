@@ -1,3 +1,4 @@
+[![CircleCI](https://circleci.com/gh/vapor-ware/ksync.svg?style=svg&circle-token=429269824f09028301b6e65310bd0cea8031d292)](https://circleci.com/gh/vapor-ware/ksync)
 
 ksync is a tool for syncing files between a local directory and arbitrary containers running remotely on a Kubernetes cluster. It does not require any changes to the remote containers and works transparently.
 
