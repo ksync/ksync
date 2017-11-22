@@ -46,7 +46,7 @@ jobs:
           command: |
             go get -v github.com/golang/dep/cmd/dep
             go install github.com/golang/dep/cmd/dep
-            dep ensure -v
+            dep ensure -v --vendor-only
 
       - run:
           name: "Lint"
