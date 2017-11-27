@@ -61,7 +61,8 @@ jobs:
           command: |
             testdata/ci/launch.sh
             cat testdata/build/stamps.sh >> /tmp/test-env-variables
-            source /tmp/test-env-variables
+            source /home/circleci/google-cloud-sdk/path.bash.inc >> /tmp/test-en-variables
+            source /tmp/test-env-variables >> $BASH_ENV
 
       - run:
           name: "Get test to junit xml parser"
