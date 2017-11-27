@@ -227,7 +227,7 @@ func (m *Mirror) Run() error {
 		"-r", path,
 	}
 
-	m.cmd = exec.Command("java", cmdArgs...)
+	m.cmd = exec.Command("java", cmdArgs...)// #nosec
 	m.initErrorHandler()
 
 	if m.Reload {

@@ -107,6 +107,7 @@ func (t *Tunnel) Start() error {
 	}
 }
 
+// #nosec
 func getAvailablePort() (int32, error) {
 	l, err := net.Listen("tcp", ":0")
 	if err != nil {
