@@ -60,9 +60,7 @@ jobs:
           name: "Launch Required Objects Into Cluster"
           command: |
             testdata/ci/launch.sh
-            cat testdata/build/stamps.sh >> /tmp/test-env-variables
-            source /home/circleci/google-cloud-sdk/path.bash.inc >> /tmp/test-en-variables
-            source /tmp/test-env-variables >> $BASH_ENV
+            cat testdata/build/stamps.sh >> $BASH_ENV
 
       - run:
           name: "Get test to junit xml parser"
@@ -72,13 +70,11 @@ jobs:
           name: "Running Tests (Background)"
           background: true
           command: |
-            source /tmp/test-env-variables
             go test -v ./... 2>&1 | go-junit-report > /tmp/$TEST_DIRECTORY/report.xml
 
       - run:
           name: "Running Tests"
           command: |
-            source /tmp/test-env-variables
             go test -v ./...
 
       - save_cache:
@@ -96,7 +92,6 @@ jobs:
       - run:
           name: "Building"
           command: |
-            source /tmp/test-env-variables
             gox --ldflags "${LDFLAGS}" --parallel=10 --output="bin/{{ .Dir }}_{{ .OS }}_{{ .Arch }}" -os='!netbsd' ./cmd/...
 
       - run:
