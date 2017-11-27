@@ -98,6 +98,10 @@ jobs:
             source /tmp/test-env-variables
             gox --ldflags "${LDFLAGS}" --parallel=10 --output="bin/{{ .Dir }}_{{ .OS }}_{{ .Arch }}" -os='!netbsd' ./cmd/...
 
+      - run:
+          name: "Building Radar Docker Container"
+          command: make docker-build docker-push
+
       - store_artifacts:
           path: bin
           destination: binaries

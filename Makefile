@@ -66,7 +66,7 @@ docker-binary-%:
 
 .PHONY: docker-build
 docker-build:
-	docker build --rm -t ${IMAGE} docker
+	docker build --rm -t ${IMAGE} -f docker/Dockerfile ./
 	docker tag ${IMAGE} ${MUTABLE_IMAGE}
 
 .PHONY: docker-push
