@@ -19,6 +19,7 @@ SHELL=/bin/bash
 
 GOOS=linux
 GOARCH=amd64
+PATH+=:/home/circleci/google-cloud-sdk/bin
 
 .PHONY: all
 all: build docker-binary docker-build

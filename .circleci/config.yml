@@ -100,7 +100,8 @@ jobs:
 
       - run:
           name: "Building Radar Docker Container"
-          command: make docker-build docker-push
+          command: |
+            make docker-build docker-push
 
       - store_artifacts:
           path: bin
