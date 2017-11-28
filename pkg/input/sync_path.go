@@ -25,17 +25,21 @@ func GetSyncPath(args []string) SyncPath {
 // localPathHasPermission checks a given root directory, and all childen, for
 // `rw` permissions for the current user.
 func (s *SyncPath) localPathHasPermission() error {
-	root := filepath.Base(s.Local)
-	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-		permissions, permErr := permbits.Stat(path)
-		if permErr != nil {
-			return permErr
+	root, err := filepath.Abs(s.Local)
+	if err != nil {
+		return err
+	}
+	fmt.Print(root)
+	err = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		permissions, err := permbits.Stat(path)
+		if err != nil {
+			return err
 		}
 		switch {
 		case !permissions.UserRead():
-			return fmt.Errorf("File %s is not readable. It is set to %o", path, permissions)
+			return fmt.Errorf("File %s is not readable. It is set to %v", path, permissions)
 		case !permissions.UserWrite():
-			return fmt.Errorf("File %s is not writable. It is set to %o", path, permissions)
+			return fmt.Errorf("File %s is not writable. It is set to %v", path, permissions)
 		}
 		return nil
 	})
