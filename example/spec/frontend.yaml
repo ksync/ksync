@@ -1,0 +1,114 @@
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+    type: example
+data:
+  default.conf: |
+    server {
+      location / {
+        root /data;
+        index index.html;
+      }
+
+      location /pod-list {
+        root /tmp/pods;
+      }
+
+      location ~ /backend/(.*) {
+        if ($request_method != 'OPTIONS') {
+          add_header 'Access-Control-Allow-Origin' "$http_origin" always;
+          add_header 'Access-Control-Allow-Credentials' 'true' always;
+        }
+
+        if ($request_method = 'OPTIONS') {
+          add_header 'Access-Control-Allow-Origin' "$http_origin" always;
+          add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
+          add_header 'Access-Control-Allow-Headers' 'Accept,Authorization,Cache-Control,Content-Type,DNT,If-Modified-Since,Keep-Alive,Origin,User-Agent,X-Requested-With' always;
+          add_header 'Access-Control-Max-Age' 1728000;
+          return 204;
+        }
+
+        proxy_pass http://$1;
+      }
+    }
+
+  # default.conf
+# data
+
+---
+
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+    type: example
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: nginx
+          image: thomasr/example-frontend
+          imagePullPolicy: Always
+
+          resources:
+            requests:
+              cpu: 10m
+          # resources
+
+          ports:
+            - name: http
+              containerPort: 80
+          # ports
+
+          volumeMounts:
+            - name: config
+              mountPath: /etc/nginx/conf.d/
+            - name: pod-list
+              mountPath: /tmp/pods
+          # volumeMounts
+        # nginx
+
+        - name: kubectl
+          image: gcr.io/cloud-builders/kubectl
+          command: ["sh", "-c"]
+
+          args:
+            - >
+              while true; do \
+                kubectl get po --selector=app=backend -o=custom-columns=NAME:.metadata.name,IP:.status.podIP \
+                  | tail -n+2 > /tmp/pods/pod-list; \
+                sleep 5; \
+              done
+
+          resources:
+            requests:
+              cpu: 10m
+
+          volumeMounts:
+            - name: pod-list
+              mountPath: /tmp/pods
+
+
+      # containers
+
+      volumes:
+        - name: config
+          configMap:
+            name: frontend
+
+        - name: pod-list
+          emptyDir: {}
+      #volumes
+    # spec
+  # template
+# spec
