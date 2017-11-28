@@ -17,6 +17,10 @@ BINDIR    := $(CURDIR)/bin
 
 SHELL=/bin/bash
 
+GOOS=linux
+GOARCH=amd64
+PATH+=:/home/circleci/google-cloud-sdk/bin
+
 .PHONY: all
 all: build docker-binary docker-build
 
@@ -57,16 +61,16 @@ docker-binary: GOFLAGS += -installsuffix cgo
 docker-binary: docker-binary-radar
 
 docker-binary-%:
-	time GOOS=linux GOARCH=amd64 CGO_ENABLED=0 \
+	time GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=0 \
 		$(GO) build $(GOFLAGS) \
 			-tags '$(TAGS)' \
 			-ldflags '$(LDFLAGS)' \
-			-o $(BINDIR)/$* \
+			-o $(BINDIR)/$*_$(GOOS)_$(GOARCH) \
 			github.com/vapor-ware/ksync/cmd/$*
 
 .PHONY: docker-build
 docker-build:
-	docker build --rm -t ${IMAGE} docker
+	docker build --rm -t ${IMAGE} -f docker/Dockerfile ./
 	docker tag ${IMAGE} ${MUTABLE_IMAGE}
 
 .PHONY: docker-push

@@ -19,6 +19,9 @@ fi
 
 # Add google cli utilites to our path if necessary
 source /home/circleci/google-cloud-sdk/path.bash.inc || echo -e "${BLUE}Google install path not dectected, not modifying path${NC}"
+# Make sure the gcloud binary stays in our path.
+# TODO: There has to be a better way of doing this.
+echo "export PATH=${PATH}" >> ${BASH_ENV}
 
 # Check if require utilities are installed and accessible
 echo -e "${BLUE}Checking if kubectl and gcloud are installed${NC}"

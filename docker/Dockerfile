@@ -1,6 +1,9 @@
 FROM openjdk:8-alpine
 MAINTAINER Thomas Rampelberg <thomasr@vapor.io>
 
+ENV DOCKER_OS=linux
+ENV DOCKER_ARCH=amd64
+
 RUN mkdir -p /var/run/watchman \
   && chmod a+w /var/run/watchman
 
@@ -14,6 +17,6 @@ RUN apk add --no-cache --update \
 
 RUN mkdir -p mirror \
   && wget -O /mirror/mirror-all.jar http://repo.joist.ws/mirror-all.jar
-COPY mirror.sh /mirror/
+COPY docker/mirror.sh /mirror/
 
-COPY bin/radar /radar
+COPY bin/radar_${DOCKER_OS}_${DOCKER_ARCH} /radar

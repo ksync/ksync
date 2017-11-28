@@ -56,12 +56,11 @@ RADAR_CONTAINERIDS=($(${TEST_KUBECTL} get pods --namespace ${TEST_RADAR_NAMESPAC
 echo -e "${BLUE}${RADAR_CONTAINERIDS[@]}${NC}"
 
 # Export all necessary variables to a temporary holding place for later sourcing
-touch /tmp/test-env-variables
-echo "export TEST_NAMESPACE=${TEST_NAMESPACE}" >> /tmp/test-env-variables
-echo "export TEST_POD=${PODS[0]}" >> /tmp/test-env-variables
-echo "export TEST_CONTAINERID=${CONTAINERIDS[0]}" >> /tmp/test-env-variables
-echo "export TEST_NODE=${NODES[0]}" >> /tmp/test-env-variables
-echo "export TEST_RADAR_NAMESPACE=${TEST_RADAR_NAMESPACE}" >> /tmp/test-env-variables
-echo "export TEST_RADAR_POD=${RADAR_PODS[0]}" >> /tmp/test-env-variables
-echo "export TEST_RADAR_CONTAINERID=${RADAR_CONTAINERIDS[0]}" >> /tmp/test-env-variables
-echo "export TEST_RADAR_NODE=${RADAR_NODES[0]}" >> /tmp/test-env-variables
+echo "export TEST_NAMESPACE=${TEST_NAMESPACE}" >> ${BASH_ENV}
+echo "export TEST_POD=${PODS[0]}" >> ${BASH_ENV}
+echo "export TEST_CONTAINERID=${CONTAINERIDS[0]}" >> ${BASH_ENV}
+echo "export TEST_NODE=${NODES[0]}" >> ${BASH_ENV}
+echo "export TEST_RADAR_NAMESPACE=${TEST_RADAR_NAMESPACE}" >> ${BASH_ENV}
+echo "export TEST_RADAR_POD=${RADAR_PODS[0]}" >> ${BASH_ENV}
+echo "export TEST_RADAR_CONTAINERID=${RADAR_CONTAINERIDS[0]}" >> ${BASH_ENV}
+echo "export TEST_RADAR_NODE=${RADAR_NODES[0]}" >> ${BASH_ENV}
