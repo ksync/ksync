@@ -296,6 +296,12 @@
   version = "v1.0.1"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/phayes/permbits"
+  packages = ["."]
+  revision = "529f712b661aa1075f21a3d7380f3a998556c1a2"
+
+[[projects]]
   name = "github.com/pkg/errors"
   packages = ["."]
   revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
@@ -441,6 +447,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "68a96c00aacf9871746eab0649ee72d835bac67649a23dd15aed01f2c280e07a"
+  inputs-digest = "eff7cebc1cd6505994c8664887794231dbeefadd04e35ea327a806d261a0c4c9"
   solver-name = "gps-cdcl"
   solver-version = 1
