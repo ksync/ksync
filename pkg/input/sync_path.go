@@ -2,7 +2,10 @@ package input
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
+
+	"github.com/phayes/permbits"
 )
 
 // SyncPath has both the local and remote file paths for a specific sync.
@@ -17,6 +20,29 @@ func GetSyncPath(args []string) SyncPath {
 		args[0],
 		args[1],
 	}
+}
+
+// localPathHasPermission checks a given root directory, and all childen, for
+// `rw` permissions for the current user.
+func (s *SyncPath) localPathHasPermission() error {
+	root, err := filepath.Abs(s.Local)
+	if err != nil {
+		return err
+	}
+	err = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		permissions, err := permbits.Stat(path)
+		if err != nil {
+			return err
+		}
+		switch {
+		case !permissions.UserRead():
+			return fmt.Errorf("File %s is not readable. It is set to %v", path, permissions)
+		case !permissions.UserWrite():
+			return fmt.Errorf("File %s is not writable. It is set to %v", path, permissions)
+		}
+		return nil
+	})
+	return err
 }
 
 // Validator ensures the SyncPath is valid and can be used to configure a
@@ -36,6 +62,10 @@ func (s *SyncPath) Validator() error {
 
 	if !filepath.IsAbs(s.Remote) {
 		return fmt.Errorf("remote path must be absolute")
+	}
+
+	if err := s.localPathHasPermission(); err != nil {
+		return err
 	}
 
 	return nil

@@ -114,3 +114,7 @@
 
 [[constraint]]
   name = "github.com/jpillora/overseer"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/phayes/permbits"
