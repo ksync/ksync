@@ -30,9 +30,9 @@ func (s *SyncPath) localPathHasPermission() error {
 		return err
 	}
 	err = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-		permissions, err := permbits.Stat(path)
-		if err != nil {
-			return err
+		permissions, ErrPerm := permbits.Stat(path)
+		if ErrPerm != nil {
+			return ErrPerm
 		}
 		switch {
 		case !permissions.UserRead():

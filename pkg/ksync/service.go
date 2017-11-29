@@ -36,10 +36,6 @@ func (s *Service) Fields() log.Fields {
 	return debug.StructFields(s)
 }
 
-func (s *Service) containerName() string {
-	return fmt.Sprintf("%s-%s", s.Spec.Name, s.RemoteContainer.PodName)
-}
-
 // Start runs this service in the background.
 func (s *Service) Start() error {
 	if s.mirror != nil {
@@ -58,7 +54,7 @@ func (s *Service) Start() error {
 		RemotePath:      s.Spec.RemotePath,
 	}
 
-	if err := s.mirror.Run(); err != nil {
+	if err := s.mirror.Run(); err != nil { // nolint: megacheck
 		return err
 	}
 

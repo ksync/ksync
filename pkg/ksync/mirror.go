@@ -178,7 +178,7 @@ func (m *Mirror) initErrorHandler() {
 
 func (m *Mirror) handleTeardown() {
 	teardown := make(chan os.Signal, 2)
-	signal.Notify(teardown, os.Interrupt, os.Kill)
+	signal.Notify(teardown, os.Interrupt) // Removed `os.Kill` as SIGTERMs will always be caught
 	go func() {
 		for {
 			select {

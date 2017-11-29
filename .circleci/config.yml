@@ -53,8 +53,12 @@ jobs:
           command: |
             go get -u github.com/alecthomas/gometalinter
             gometalinter --install
-            gometalinter ./... --vendor --skip "testdata" --disable=megacheck --deadline=240s
-            gometalinter ./... --vendor --skip "testdata" --disable-all --enable=megacheck --deadline=240s
+            gometalinter ./... --vendor --skip "testdata" \
+            --tests --sort=severity --aggregate \
+            --disable=megacheck --deadline=240s
+            gometalinter ./... --vendor --skip "testdata" \
+            --tests --sort=severity --aggregate \
+            --disable-all --enable=megacheck --deadline=240s
 
       - run:
           name: "Launch Required Objects Into Cluster"

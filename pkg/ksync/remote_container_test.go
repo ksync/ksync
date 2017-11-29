@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	InitKubeClient("")
+	InitKubeClient("") // nolint: errcheck
 }
 
 func TestRadar(t *testing.T) {
