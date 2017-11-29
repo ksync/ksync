@@ -59,10 +59,10 @@ func TestValidator(t *testing.T) {
 
   // Check if path contains files that are not `rw`
   // Create out unreadable file and write content to it
-	badfile, err := ioutil.TempFile(os.TempDir(), "badfile")
-	_, err = badfile.WriteString("We should not be able to read this.")
-	err = badfile.Close()
-	err = os.Chmod(badfile.Name(), 0100)
+	badfile, err := ioutil.TempFile(os.TempDir(), "badfile") //nolint: ineffassign
+	_, err = badfile.WriteString("We should not be able to read this.") //nolint: ineffassign
+	err = badfile.Close() //nolint: ineffassign
+	err = os.Chmod(badfile.Name(), 0100) //nolint: ineffassign
 	t.Logf("File: %s", badfile.Name())
 	require.NoError(t, err)
 
