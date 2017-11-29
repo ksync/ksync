@@ -29,7 +29,6 @@ func (s *SyncPath) localPathHasPermission() error {
 	if err != nil {
 		return err
 	}
-	fmt.Print(root)
 	err = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		permissions, err := permbits.Stat(path)
 		if err != nil {
