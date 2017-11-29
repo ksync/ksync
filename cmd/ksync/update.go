@@ -39,9 +39,9 @@ func (u *updateCmd) new() *cobra.Command {
 
 func validateOverseer() bool {
 	log.Debugf("Checking if overseer is compatible with %s/%s", runtime.GOOS, runtime.GOARCH)
-	if supported := overseer.IsSupported(); supported != true {
+	if !overseer.IsSupported() {
 		log.Fatal("Overseer not compatible with this os or architecture")
-		return supported
+		return overseer.IsSupported()
 	}
 	return true
 }

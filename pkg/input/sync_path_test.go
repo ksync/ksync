@@ -67,7 +67,7 @@ func TestValidator(t *testing.T) {
 	require.NoError(t, err)
 
   // Clean up after ourselves
-	defer os.Remove(badfile.Name())
+	defer os.Remove(badfile.Name()) //nolint: errcheck
 
 	path = &SyncPath{
 		Local: os.TempDir(),
