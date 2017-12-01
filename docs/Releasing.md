@@ -10,7 +10,7 @@ This workflow should be zero-touch and lead to regular, stable, releases. Releas
   - Tests test for most common theoretical conditions
 - Passes linting using all supported linters (using `gometalinter`)
 - Contains substantial or necessary changes from previous releases
-- Contains a `CHANGELOG.MD` entry with changes listed
+- Contains a `CHANGELOG.md` entry with changes listed
 - All necessary documentation created or updated
 - Signed off on and acceptable for general use (except in "pre-release" conditions)
 - Contains all elements
@@ -24,10 +24,10 @@ Releases will be handled via CI and be released using the GitHub release mechani
 ###### Steps
 1. A new tag is created for a specific commit and pushed to GitHub
 2. Push triggers CI
-  - `master` branch is pulled
-  - Standard CI flow is run
-  - If passing, tag creation triggers secondary flow
-3. github.com/tcnksm/ghr is used to create a prerelease setup from tag and build artifacts
+  * `master` branch is pulled
+  * Standard CI flow is run
+  * If passing, tag creation triggers secondary flow
+3. [GHR](github.com/tcnksm/ghr) is used to create a prerelease setup from tag and build artifacts
 4. Pre-release object is pushed to GitHub
 5. (Optional) Pre-release is manually verified and promoted to full release.
 
