@@ -24,9 +24,14 @@ Releases will be handled via CI and be released using the GitHub release mechani
 ###### Steps
 1. A new tag is created for a specific commit and pushed to GitHub
 2. Push triggers CI
-  1. `master` branch is pulled
-  2. Standard CI flow is run
-  3. If passing, tag creation triggers secondary flow
+  - `master` branch is pulled
+  - Standard CI flow is run
+  - If passing, tag creation triggers secondary flow
 3. github.com/tcnksm/ghr is used to create a prerelease setup from tag and build artifacts
 4. Pre-release object is pushed to GitHub
 5. (Optional) Pre-release is manually verified and promoted to full release.
+
+#### Updates
+When a new version is released updates can be handled one of two ways. A new set of binaries and container image can be downloaded from the release page, in the same manner as a first installation. Alternatively, the inline updater `ksync update` will check the GitHub release page for newer releases and, if found, download the local binary.
+
+In either case, the user must run `ksync init --upgrade` to update the server side container and binary if version parity is needed.
