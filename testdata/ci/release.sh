@@ -13,7 +13,7 @@ NC='\033[0m'
 
 # Check if this is a tag we're building. If it is then push an unpublished release
 echo -e "${BLUE}Checking if this should be a release${NC}"
-if ${CIRCLE_TAG} == ""; then
+if [ -z ${CIRCLE_TAG} ]; then
   echo -e "${YELLOW}No tag detected. Not pushing a release.${NC}"
   exit 0
 else
@@ -25,7 +25,7 @@ echo -e "${BLUE}Checking if GHR is installed${NC}"
 if ! command -v ghr; then
   echo -e "${RED}GHR Is not installed. It must be installed to run.${NC}"
   exit 1
-elif ${GITHUB_TOKEN} == ""; then
+elif [ -z ${GITHUB_TOKEN} ]; then
   echo -e "${RED}No GitHub token is set! A token must be passed to upload releases.${NC}"
   exit 1
 else
