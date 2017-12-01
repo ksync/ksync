@@ -103,6 +103,11 @@ jobs:
           command: |
             make docker-build docker-push
 
+      - run:
+          name: "Checking for Release"
+          command: testdata/ci/release.sh
+          when: on_success
+
       - store_artifacts:
           path: bin
           destination: binaries
