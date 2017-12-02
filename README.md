@@ -15,7 +15,23 @@ TODO
 
 # Install
 
-TODO
+## Quick
+Grab the [latest release](link-needed) from the [releases](https://github.com/vapor-ware/ksync/releases) page. Place the binary in your `PATH` and make executable. Alternatively you can run the following command to do this for you (places binary in `/usr/local/bin`).
+
+```shell
+curl <release link here> -o /usr/local/bin/ksync && chmod +x /usr/local/bin/ksync
+```
+
+## Development
+You can also get the code and compile it yourself. If you have `go` installed you can run the following.
+
+```shell
+go get github.com/vapor-ware/ksync
+cd ${GOPATH}/src/github.com/vapor-ware/ksync
+go install cmd/*
+```
+
+**Note**: If you compile the binaries yourself the output of `ksync version` may not be correct. Only the binaries on the [releases](https://github.com/vapor-ware/ksync/releases) page are stamped with this information.
 
 # Getting started
 
