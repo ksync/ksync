@@ -16,10 +16,10 @@ TODO
 # Install
 
 ## Quick
-Grab the [latest release](link-needed) from the [releases](https://github.com/vapor-ware/ksync/releases) page. Place the binary in your `PATH` and make executable. Alternatively you can run the following command to do this for you (places binary in `/usr/local/bin`).
+Grab the [latest release](https://github.com/vapor-ware/ksync/releases/latest) from the [releases](https://github.com/vapor-ware/ksync/releases) page. Place the binary in your `PATH` and make executable. Alternatively you can run the following command to do this for you (places binary in `/usr/local/bin`).
 
 ```shell
-curl <release link here> -o /usr/local/bin/ksync && chmod +x /usr/local/bin/ksync
+curl https://github.com/vapor-ware/ksync/releases/download/latest/ksync_$(go env GOHOSTOS)_$(go env GOHOSTARCH) -o /usr/local/bin/ksync && chmod +x /usr/local/bin/ksync
 ```
 
 ## Development
