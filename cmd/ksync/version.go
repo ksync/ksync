@@ -8,10 +8,13 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"golang.org/x/net/context"
+	"github.com/golang/protobuf/ptypes/empty"
 
 	"github.com/vapor-ware/ksync/pkg/cli"
 	"github.com/vapor-ware/ksync/pkg/ksync"
 	"github.com/vapor-ware/ksync/pkg/radar"
+	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
 
 type versionCmd struct {
@@ -65,17 +68,20 @@ func (v *versionCmd) run(cmd *cobra.Command, args []string) {
 	}
 
   // Get version info from radar running remotely
+  // TODO: Lots of clean up. I don't like the way this works.
+	var radarVersion *pb.VersionInfo
 	if radarCheck() {
 		radar := ksync.NewRadarInstance()
 		nodes, err := radar.NodeNames()
 		if err != nil {
 			log.Fatal(err)
 		}
-		client, err := radar.RadarConnection(nodes[0])
+		connection, err := radar.RadarConnection(nodes[0])
 		if err != nil {
 			log.Fatal(err)
 		}
-		radarVersion, err := client.GetVersionInfo()
+		radarVersion, err = pb.NewRadarClient(
+			connection).GetVersionInfo(context.Background(), &empty.Empty{})
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -92,11 +98,11 @@ func (v *versionCmd) run(cmd *cobra.Command, args []string) {
 			Arch:      runtime.GOARCH,
 		},
 		Server: radar.Version{
-			Version:   radar.VersionString,
-			GoVersion: radar.GoVersion,
-			GitCommit: radar.GitCommit,
-			GitTag:    radar.GitTag,
-			BuildDate: radar.BuildDate,
+			Version:   radarVersion.Version,
+			GoVersion: radarVersion.GoVersion,
+			GitCommit: radarVersion.GitCommit,
+			GitTag:    radarVersion.GitTag,
+			BuildDate: radarVersion.BuildDate,
 			Healthy:   radarCheck(),
 		},
 	}
