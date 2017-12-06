@@ -51,3 +51,15 @@ func (r *radarServer) GetVersionInfo(ctx context.Context, _ *empty.Empty) (*pb.V
 		BuildDate: BuildDate,
 		}, nil
 }
+
+func SetVersionInfo() error {
+	radarServer := &radarServer{}
+	versionInfo, err := radarServer.GetVersionInfo(context.Background(), &empty.Empty{})
+
+	VersionString = versionInfo.Version
+	GoVersion = versionInfo.GoVersion
+	GitCommit = versionInfo.GitCommit
+	GitTag = versionInfo.GitTag
+	BuildDate = versionInfo.BuildDate
+	return err
+}

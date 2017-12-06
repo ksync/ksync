@@ -64,6 +64,23 @@ func (v *versionCmd) run(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
+  // Get version info from radar running remotely
+	if radarCheck() {
+		radar := ksync.NewRadarInstance()
+		nodes, err := radar.NodeNames()
+		if err != nil {
+			log.Fatal(err)
+		}
+		client, err := radar.RadarConnection(nodes[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+		radarVersion, err := client.GetVersionInfo()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
 	version := versionInfo{
 		Client: ksync.Version{
 			Version:   ksync.VersionString,
