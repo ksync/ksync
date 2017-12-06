@@ -6,15 +6,15 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/golang/protobuf/ptypes/empty"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"golang.org/x/net/context"
-	"github.com/golang/protobuf/ptypes/empty"
 
 	"github.com/vapor-ware/ksync/pkg/cli"
 	"github.com/vapor-ware/ksync/pkg/ksync"
-	"github.com/vapor-ware/ksync/pkg/radar"
 	pb "github.com/vapor-ware/ksync/pkg/proto"
+	"github.com/vapor-ware/ksync/pkg/radar"
 )
 
 type versionCmd struct {
@@ -57,7 +57,7 @@ type versionInfo struct {
 	Server radar.Version
 }
 
-func (v *versionCmd) run(cmd *cobra.Command, args []string) {
+func (v *versionCmd) run(cmd *cobra.Command, args []string) { // nolint: gocyclo
 	template, err := template.New("ksync").Parse(ksyncVersionTemplate)
 	if err != nil {
 		log.Fatal(err)
@@ -67,16 +67,16 @@ func (v *versionCmd) run(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-  // Get version info from radar running remotely
-  // TODO: Lots of clean up. I don't like the way this works.
+	// Get version info from radar running remotely
+	// TODO: Lots of clean up. I don't like the way this works.
 	var radarVersion *pb.VersionInfo
 	if radarCheck() {
-		radar := ksync.NewRadarInstance()
-		nodes, err := radar.NodeNames()
+		radarInstance := ksync.NewRadarInstance()
+		nodes, err := radarInstance.NodeNames() // nolint: vetshadow
 		if err != nil {
 			log.Fatal(err)
 		}
-		connection, err := radar.RadarConnection(nodes[0])
+		connection, err := radarInstance.RadarConnection(nodes[0])
 		if err != nil {
 			log.Fatal(err)
 		}
