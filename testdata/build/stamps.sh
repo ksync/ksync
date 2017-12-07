@@ -8,6 +8,13 @@
 
 BINARY_VERSION=${BINARY_VERSION:-"corrupted-version"}
 GIT_COMMIT=${GIT_COMMIT:-$(git rev-parse --short HEAD 2> /dev/null || true)}
+# Deal with macOS
+if (( $(uname) == "Darwin" )); then
+  BUILD_DATE_UNIX=${BUILD_DATE_UNIX:-$(date -u +%Y-%m-%dT%T 2> /dev/null)}
+  BUILD_DATE_OFFSET=${BUILD_DATE_OFFSET:-"+00:00"}
+  BUILD_DATE_FAKE_NANOSECONDS=${BUILD_DATE_FAKE_NANOSECONDS:-".000000000"}
+  BUILD_DATE=${BUILD_DATE:-${BUILD_DATE_UNIX}${BUILD_DATE_FAKE_NANOSECONDS}${BUILD_DATE_OFFSET}}
+fi
 # This requires gnu-date!
 BUILD_DATE=${BUILD_DATE:-$(date --utc --rfc-3339 ns 2> /dev/null | sed -e 's/ /T/')}
 # This seems nasty
