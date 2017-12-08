@@ -1,0 +1,43 @@
+$enable-gradients: true;
+$enable-shadows: true;
+$enable-rounded: true;
+$enable-transitions: true;
+
+$brand-primary: #77164d;
+$brand-dark: #170814;
+$secondary: #e5e5e5;
+$vapor-gradient-light: #0a79ad;
+$vapor-gradient-dark: #18b6c2;
+$light-pink: #b32a78;
+$light-dark: #3d0324;
+$vapor-dark: #140f1c;
+$nav-item-color: #7b7d97;
+
+$body-bg: #f2f3f8 !default;
+$body-color: #595f70 !default;
+$font-family-sans-serif: Poppins !default;
+$box-shadow-color: #d3d3d3;
+$font-size-base: .875rem;
+
+
+$h1-font-size: $font-size-base * 2.75 !default;
+$h2-font-size: $font-size-base * 2.25 !default;
+$h3-font-size: $font-size-base * 1.75 !default;
+$h4-font-size: $font-size-base * 1.25 !default;
+$h5-font-size: $font-size-base !default;
+$headings-font-weight: 600;
+$headings-font-family: Roboto;
+
+$card-cap-bg: #fff;
+
+$navbar-dark-color: $nav-item-color !default;
+$navbar-dark-hover-color: #fff !default;
+$navbar-dark-active-color: #fff !default;
+
+$primary: #00c5dc !default;
+$success: #27ca41 !default;
+$info: #716aca  !default;
+$warning: #ffc750 !default;
+$danger:  #f4516c !default;
+$dark: #303132 !default;
+$light: #f8f9fa !default;

@@ -1,0 +1,17 @@
+@import './custom.scss';
+@import 'bootstrap/scss/bootstrap';
+
+@import url('https://fonts.googleapis.com/css?family=Poppins');
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
+.details-body {
+  height: 300px;
+  overflow: auto;
+}
+
+.file {
+  .progress {
+    height: 10px;
+    width: 50px;
+  }
+}

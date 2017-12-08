@@ -1,0 +1,16 @@
+{
+  "presets": [
+    "env",
+    "flow",
+    "react",
+    "stage-2"
+  ],
+  "plugins": [
+    "babel-plugin-root-import",
+    ["react-intl", {
+      "messagesDir": "intl",
+      "extractSourceLocation": true
+    }],
+    "transform-strict-mode"
+  ]
+}
