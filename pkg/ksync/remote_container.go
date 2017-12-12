@@ -3,7 +3,9 @@ package ksync
 import (
 	"fmt"
 
+	"github.com/fatih/structs"
 	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/mitchellh/mapstructure"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -80,11 +82,20 @@ func (c *RemoteContainer) Fields() log.Fields {
 	return debug.StructFields(c)
 }
 
+// Message is used to serialize over gRPC
+func (c *RemoteContainer) Message() (*pb.RemoteContainer, error) {
+	var result pb.RemoteContainer
+	if err := mapstructure.Decode(structs.Map(c), &result); err != nil {
+		return nil, debug.ErrorLocation(err)
+	}
+	return &result, nil
+}
+
 // Radar connects to the server component (radar) and returns a client.
 func (c *RemoteContainer) Radar() (pb.RadarClient, error) {
 	conn, err := NewRadarInstance().RadarConnection(c.NodeName)
 	if err != nil {
-		return nil, err
+		return nil, debug.ErrorLocation(err)
 	}
 	// TODO: what's a better way to handle c?
 	// defer conn.Close()
@@ -104,7 +115,7 @@ func (c *RemoteContainer) RestartMirror() error {
 
 	if _, err := client.RestartMirror(
 		context.Background(), &empty.Empty{}); err != nil {
-		return err
+		return debug.ErrorLocation(err)
 	}
 
 	return nil

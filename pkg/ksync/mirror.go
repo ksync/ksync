@@ -3,12 +3,10 @@ package ksync
 import (
 	"bufio"
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
 	"os/signal"
 	"path/filepath"
-	"regexp"
 	"sync"
 	"time"
 
@@ -17,12 +15,17 @@ import (
 	"golang.org/x/net/context"
 	"k8s.io/apimachinery/pkg/util/runtime"
 
+	"github.com/vapor-ware/ksync/pkg/debug"
 	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
 
 var (
 	maxConnectionRetries = 1
 	tooSoonReset         = 3 * time.Second
+	// The assumption is that it'll not take more than 5 seconds to send a file,
+	// while this isn't actually true for large files .. it is good enough for
+	// now as we're unable to get real progress from mirror.
+	resetStatusTime = 5 * time.Second
 )
 
 // Mirror is the definition of a sync from the local host to a remote container.
@@ -30,16 +33,37 @@ type Mirror struct {
 	SpecName        string
 	RemoteContainer *RemoteContainer
 	Reload          bool
-	// TODO: should this be a SyncPath? Seems like it ...
-	LocalPath  string
-	RemotePath string
+	LocalPath       string
+	RemotePath      string
+	Status          ServiceStatus
 
 	cmd               *exec.Cmd
 	connectionRetries int
 	retryLock         sync.Mutex
 
+	resetTimer       *time.Timer
 	restartContainer chan bool
 	clean            chan bool
+}
+
+// NewMirror is a constructor for Mirror
+func NewMirror(service *Service) *Mirror {
+	return &Mirror{
+		SpecName:        service.SpecDetails.Name,
+		RemoteContainer: service.RemoteContainer,
+		Reload:          service.SpecDetails.Reload,
+		LocalPath:       service.SpecDetails.LocalPath,
+		RemotePath:      service.SpecDetails.RemotePath,
+	}
+}
+
+func (m *Mirror) String() string {
+	return debug.YamlString(m)
+}
+
+// Fields returns a set of structured fields for logging.
+func (m *Mirror) Fields() log.Fields {
+	return debug.StructFields(m)
 }
 
 func (m *Mirror) hotReload() error {
@@ -88,20 +112,72 @@ func (m *Mirror) hotReload() error {
 	return nil
 }
 
-func (m *Mirror) scanner(pipe io.Reader, logger func(...interface{})) error {
-	scanner := bufio.NewScanner(pipe)
-	pattern, err := regexp.Compile("INFO  Sending")
+func (m *Mirror) resetStatus(status ServiceStatus) {
+	log.Print(status)
+	if m.resetTimer != nil && m.resetTimer.Reset(resetStatusTime) {
+		return
+	}
+
+	m.resetTimer = time.AfterFunc(resetStatusTime, func() { m.Status = status })
+}
+
+func (m *Mirror) errHandler(logger func(...interface{})) error {
+	stderr, err := m.cmd.StderrPipe()
 	if err != nil {
 		return err
 	}
 
+	scanner := bufio.NewScanner(stderr)
+
+	go func() {
+		for scanner.Scan() {
+			logger(scanner.Text())
+		}
+	}()
+
+	return nil
+}
+
+func (m *Mirror) lineHandler(logger func(...interface{})) error {
+	stdout, err := m.cmd.StdoutPipe()
+	if err != nil {
+		return err
+	}
+
+	handler, err := NewLineStatus(map[ServiceStatus]string{
+		ServiceConnecting: "INFO  Increasing file limit",
+		ServiceConnected:  "INFO  Connected",
+		ServiceWatching:   "INFO  Tree populated",
+		ServiceSending:    "INFO  Sending",
+		ServiceReceiving:  "INFO  Remote update",
+		ServiceError:      "ERROR",
+	})
+
+	if err != nil {
+		return err
+	}
+
+	log.Error("fail boat")
+	scanner := bufio.NewScanner(stdout)
+
 	go func() {
 		for scanner.Scan() {
 			line := scanner.Text()
-			if m.Reload && pattern.MatchString(line) {
-				m.restartContainer <- true
-			}
 			logger(line)
+
+			switch status := handler.Next(line); status {
+			case "":
+			default:
+				m.Status = status
+				fallthrough
+			case ServiceSending:
+				if m.Reload {
+					m.restartContainer <- true
+				}
+				m.resetStatus(ServiceWatching)
+			case ServiceReceiving:
+				m.resetStatus(ServiceWatching)
+			}
 		}
 	}()
 
@@ -113,19 +189,11 @@ func (m *Mirror) initLogs() error {
 		"name": m.SpecName,
 	})
 
-	stderr, err := m.cmd.StderrPipe()
-	if err != nil {
+	if err := m.errHandler(logger.Warn); err != nil {
 		return err
-	}
-	if scanErr := m.scanner(stderr, logger.Warn); scanErr != nil {
-		return scanErr
 	}
 
-	stdout, err := m.cmd.StdoutPipe()
-	if err != nil {
-		return err
-	}
-	return m.scanner(stdout, logger.Debug)
+	return m.lineHandler(logger.Debug)
 }
 
 func (m *Mirror) path() (string, error) {
@@ -208,6 +276,8 @@ func (m *Mirror) Run() error {
 		return err
 	}
 
+	m.Status = ServiceStarting
+
 	port, err := NewRadarInstance().MirrorConnection(m.RemoteContainer.NodeName)
 	if err != nil {
 		return err
@@ -227,7 +297,7 @@ func (m *Mirror) Run() error {
 		"-r", path,
 	}
 
-	m.cmd = exec.Command("java", cmdArgs...)// #nosec
+	m.cmd = exec.Command("java", cmdArgs...) // #nosec
 	m.initErrorHandler()
 
 	if m.Reload {

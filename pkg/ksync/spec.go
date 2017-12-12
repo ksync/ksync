@@ -1,10 +1,6 @@
 package ksync
 
 import (
-	"fmt"
-	"os"
-
-	"github.com/fatih/structs"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -12,32 +8,26 @@ import (
 	"k8s.io/client-go/pkg/api/v1"
 
 	"github.com/vapor-ware/ksync/pkg/debug"
+	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
 
-var (
-	specEquivalenceFields = []string{"Name"}
+// SpecStatus is the status of a spec
+type SpecStatus string
+
+// See docs/spec-lifecycle.png
+const (
+	SpecWaiting SpecStatus = "waiting"
+	SpecRunning SpecStatus = "running"
 )
 
 // Spec is all the configuration required to setup a sync from a local directory
 // to a remote directory in a specific remote container.
 type Spec struct {
-	// Local config
-	Name string
+	Details  *SpecDetails
+	Services *ServiceList `structs:"-"`
 
-	// RemoteContainer Locator
-	ContainerName string
-	Pod           string
-	Selector      string
-	Namespace     string
+	Status SpecStatus
 
-	// File config
-	LocalPath  string
-	RemotePath string
-
-	// Reload related options
-	Reload bool
-
-	services     *ServiceList
 	stopWatching chan bool
 }
 
@@ -47,49 +37,35 @@ func (s *Spec) String() string {
 
 // Fields returns a set of structured fields for logging.
 func (s *Spec) Fields() log.Fields {
-	return debug.StructFields(s)
+	return s.Details.Fields()
 }
 
-// TODO: implement status now that mirror is being run from inside watch.
-// Status returns the current status of a spec.
-// TODO: this requires a lot more thought and effort, status is complex.
-// func (s *Spec) Status() (string, error) {
-// 	status := "inactive"
-// 	// TODO: this is super naive and should be handled differently
-
-// 	if len(s.services.Items) == 0 {
-// 		return status, nil
-// 	}
-
-// 	var statuses []string
-// 	for _, service := range s.services.Items {
-// 		status, err := service.Status()
-// 		if err != nil {
-// 			return "", err
-// 		}
-
-// 		statuses = append(statuses, status.Status)
-// 	}
-
-// 	return strings.Join(statuses, ", "), nil
-// }
-
-// IsValid returns an error if the spec is not valid.
-func (s *Spec) IsValid() error {
-
-	// Cannot sync files, must do directories.
-	fstat, err := os.Stat(s.LocalPath)
+// Message is used to serialize over gRPC
+func (s *Spec) Message() (*pb.Spec, error) {
+	details, err := s.Details.Message()
 	if err != nil {
-		if !os.IsNotExist(err) {
-			return err
-		}
+		return nil, err
 	}
 
-	if fstat != nil && !fstat.IsDir() {
-		return fmt.Errorf("local path cannot be a single file, please use a directory")
+	services, err := s.Services.Message()
+	if err != nil {
+		return nil, err
 	}
 
-	return nil
+	return &pb.Spec{
+		Details:  details,
+		Services: services,
+		Status:   string(s.Status),
+	}, nil
+}
+
+// NewSpec is a constructor for Specs
+func NewSpec(details *SpecDetails) *Spec {
+	return &Spec{
+		Details:  details,
+		Services: NewServiceList(),
+		Status:   SpecWaiting,
+	}
 }
 
 // Watch monitors the remote status of this spec.
@@ -99,11 +75,9 @@ func (s *Spec) Watch() error {
 		return nil
 	}
 
-	s.services = &ServiceList{}
-
 	opts := metav1.ListOptions{}
-	opts.LabelSelector = s.Selector
-	watcher, err := kubeClient.CoreV1().Pods(s.Namespace).Watch(opts)
+	opts.LabelSelector = s.Details.Selector
+	watcher, err := kubeClient.CoreV1().Pods(s.Details.Namespace).Watch(opts)
 	if err != nil {
 		return err
 	}
@@ -152,6 +126,7 @@ func (s *Spec) handleEvent(event watch.Event) error {
 	}
 
 	if pod.Status.Phase == v1.PodRunning {
+		s.Status = SpecRunning
 		return s.addService(pod)
 	}
 
@@ -159,7 +134,7 @@ func (s *Spec) handleEvent(event watch.Event) error {
 }
 
 func (s *Spec) addService(pod *v1.Pod) error {
-	if err := s.services.Add(pod, s); err != nil {
+	if err := s.Services.Add(pod, s.Details); err != nil {
 		if !errors.IsAlreadyExists(err) {
 			return err
 		}
@@ -169,7 +144,7 @@ func (s *Spec) addService(pod *v1.Pod) error {
 }
 
 func (s *Spec) cleanService(pod *v1.Pod) error {
-	service := s.services.Pop(pod.Name)
+	service := s.Services.Pop(pod.Name)
 	if service == nil {
 		log.WithFields(s.Fields()).Debug("service not found")
 		return nil
@@ -179,17 +154,11 @@ func (s *Spec) cleanService(pod *v1.Pod) error {
 		return err
 	}
 
-	return nil
-}
-
-// Equivalence returns a set of fields that can be used to compare specs for
-// equivalence via. reflect.DeepEqual.
-func (s *Spec) Equivalence() map[string]interface{} {
-	vals := structs.Map(s)
-	for _, k := range specEquivalenceFields {
-		delete(vals, k)
+	if len(s.Services.Items) == 0 {
+		s.Status = SpecWaiting
 	}
-	return vals
+
+	return nil
 }
 
 // Cleanup will remove anything running in the background, meant to be used when
@@ -198,5 +167,5 @@ func (s *Spec) Cleanup() error {
 	if s.stopWatching != nil {
 		close(s.stopWatching)
 	}
-	return s.services.Stop()
+	return s.Services.Stop()
 }

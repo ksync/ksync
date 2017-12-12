@@ -172,11 +172,11 @@ func (r *RadarInstance) Run(upgrade bool) error {
 // TODO: add TLS
 // TODO: add grpc_retry?
 func (r *RadarInstance) opts() []grpc.DialOption {
-	return append([]grpc.DialOption{
+	return []grpc.DialOption{
 		grpc.WithTimeout(5 * time.Second),
 		grpc.WithBlock(),
-		// TODO: add client side tracing
-	}, grpc.WithInsecure())
+		grpc.WithInsecure(),
+	}
 }
 
 func (r *RadarInstance) podName(nodeName string) (string, error) {
@@ -258,7 +258,7 @@ func (r *RadarInstance) connection(nodeName string, port int32) (int32, error) {
 func (r *RadarInstance) RadarConnection(nodeName string) (*grpc.ClientConn, error) {
 	localPort, err := r.connection(nodeName, r.radarPort)
 	if err != nil {
-		return nil, err
+		return nil, debug.ErrorLocation(err)
 	}
 
 	return grpc.Dial(fmt.Sprintf("127.0.0.1:%d", localPort), r.opts()...)

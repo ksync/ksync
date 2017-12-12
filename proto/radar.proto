@@ -1,7 +1,7 @@
 
 syntax = "proto3";
 
-package proto.radar;
+package proto.ksync;
 
 import "google/protobuf/empty.proto";
 
