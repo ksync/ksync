@@ -11,6 +11,11 @@ BLUE='\033[0;34m'
 YELLOW='\033[0;33m'
 NC='\033[0m'
 
+# Quick fix for #71 ($CIRCLE_TAG not populated)
+$(if git describe --exact-match --tags HEAD; then
+  CIRCLE_TAG=$(git describe --exact-match --tags HEAD)
+fi)
+
 # Check if this is a tag we're building. If it is then push an unpublished release
 echo -e "${BLUE}Checking if this should be a release${NC}"
 if [ -z ${CIRCLE_TAG} ]; then
