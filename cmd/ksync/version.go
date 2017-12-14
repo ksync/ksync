@@ -53,8 +53,8 @@ var radarVersionTemplate = `{{define "radar"}}radar:
 	Healthy:    {{.Server.Healthy}}{{println}}{{end}}`
 
 type versionInfo struct {
-	Client ksync.Version
-	Server radar.Version
+	Client *ksync.Version
+	Server *radar.Version
 }
 
 func (v *versionCmd) run(cmd *cobra.Command, args []string) { // nolint: gocyclo
@@ -62,96 +62,82 @@ func (v *versionCmd) run(cmd *cobra.Command, args []string) { // nolint: gocyclo
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	template, err = template.New("radar").Parse(radarVersionTemplate)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Get version info from radar running remotely
-	// TODO: Lots of clean up. I don't like the way this works.
-	var radarVersion *pb.VersionInfo
-	if radarCheck() {
-		radarInstance := ksync.NewRadarInstance()
-		nodes, err := radarInstance.NodeNames() // nolint: vetshadow
-		if err != nil {
-			log.Fatal(err)
-		}
-		connection, err := radarInstance.RadarConnection(nodes[0])
-		if err != nil {
-			log.Fatal(err)
-		}
-		radarVersion, err = pb.NewRadarClient(
-			connection).GetVersionInfo(context.Background(), &empty.Empty{})
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-
 	version := versionInfo{
-		Client: ksync.Version{
+		Client: &ksync.Version{
 			Version:   ksync.VersionString,
 			GoVersion: ksync.GoVersion,
 			GitCommit: ksync.GitCommit,
 			GitTag:    ksync.GitTag,
-			BuildDate: ksync.BuildDate,
+			BuildDate: fixVersionTime(ksync.BuildDate),
 			OS:        runtime.GOOS,
 			Arch:      runtime.GOARCH,
 		},
-		Server: radar.Version{
-			Version:   radarVersion.Version,
-			GoVersion: radarVersion.GoVersion,
-			GitCommit: radarVersion.GitCommit,
-			GitTag:    radarVersion.GitTag,
-			BuildDate: radarVersion.BuildDate,
-			Healthy:   radarCheck(),
-		},
 	}
 
-	// Convert time to a human readable format
-	timeKsync, timeErr := time.Parse(time.RFC3339Nano, version.Client.BuildDate)
-	if timeErr == nil {
-		version.Client.BuildDate = timeKsync.Format(time.UnixDate)
-	} else {
-		log.Fatal(timeErr)
-	}
-
-	timeRadar, timeErr := time.Parse(time.RFC3339, version.Server.BuildDate)
-	if timeErr == nil {
-		version.Server.BuildDate = timeRadar.Format(time.UnixDate)
-	} else {
-		log.Fatal(timeErr)
-	}
-
-	// If radar is reachable, print that part of the template
 	err = template.ExecuteTemplate(os.Stdout, "ksync", version)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if radarCheck() {
-		err := template.ExecuteTemplate(os.Stdout, "radar", version)
-		if err != nil {
-			log.Fatal(err)
-		}
+	radarVersion, err := radarVersion()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if radarVersion == nil {
+		return
+	}
+
+	version.Server = &radar.Version{
+		Version:   radarVersion.Version,
+		GoVersion: radarVersion.GoVersion,
+		GitCommit: radarVersion.GitCommit,
+		GitTag:    radarVersion.GitTag,
+		BuildDate: fixVersionTime(radarVersion.BuildDate),
+		Healthy:   true,
+	}
+
+	if err := template.ExecuteTemplate(os.Stdout, "radar", version); err != nil {
+		log.Fatal(err)
 	}
 }
 
+func fixVersionTime(version string) string {
+	timeRadar, err := time.Parse(time.RFC3339, version)
+	if err != nil {
+		return ""
+	}
+
+	return timeRadar.Format(time.UnixDate)
+}
+
 // TODO: temporary
-func radarCheck() bool {
+func radarVersion() (*pb.VersionInfo, error) {
 	radar := ksync.NewRadarInstance()
 	nodes, err := radar.NodeNames()
 	if err != nil {
-		return false
+		return nil, nil
 	}
 
 	if len(nodes) == 0 {
-		return false
+		return nil, nil
 	}
 
-	health, err := radar.IsHealthy(nodes[0])
+	if _, healthErr := radar.IsHealthy(nodes[0]); err != nil {
+		return nil, healthErr
+	}
+
+	connection, err := radar.RadarConnection(nodes[0])
 	if err != nil {
-		return false
+		return nil, err
 	}
 
-	return health
+	return pb.NewRadarClient(connection).GetVersionInfo(
+		context.Background(), &empty.Empty{})
 }

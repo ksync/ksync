@@ -1,35 +1,35 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: backend
+  name: app
   labels:
-    app: backend
+    app: app
 spec:
   ports:
     - port: 80
       name: http
   clusterIP: None
   selector:
-    app: backend
+    app: app
 
 ---
 
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
-  name: backend
+  name: app
   labels:
-    app: backend
+    app: app
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: backend
+        app: app
     spec:
       containers:
-        - name: backend
-          image: thomasr/example-app
+        - name: app
+          image: vaporio/ksync-example
           imagePullPolicy: Always
 
           resources:
@@ -48,7 +48,13 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
           # env
-        # backend
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+          # readinessProbe
+        # app
       # containers
     # spec
   # template

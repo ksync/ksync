@@ -113,7 +113,6 @@ func (m *Mirror) hotReload() error {
 }
 
 func (m *Mirror) resetStatus(status ServiceStatus) {
-	log.Print(status)
 	if m.resetTimer != nil && m.resetTimer.Reset(resetStatusTime) {
 		return
 	}
@@ -157,7 +156,6 @@ func (m *Mirror) lineHandler(logger func(...interface{})) error {
 		return err
 	}
 
-	log.Error("fail boat")
 	scanner := bufio.NewScanner(stdout)
 
 	go func() {

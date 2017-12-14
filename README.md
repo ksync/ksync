@@ -1,183 +1,155 @@
 [![CircleCI](https://circleci.com/gh/vapor-ware/ksync.svg?style=svg&circle-token=429269824f09028301b6e65310bd0cea8031d292)](https://circleci.com/gh/vapor-ware/ksync)
 
-ksync is a tool for syncing files between a local directory and arbitrary containers running remotely on a Kubernetes cluster. It does not require any changes to the remote containers and works transparently.
+ksync speeds up developers who build applications for Kubernetes. It syncs files between a local directory and arbitrary containers running remotely. You do not need to change your existing workflow to develop directly on a Kubernetes cluster.
 
-TODO - something about the watch flow instead of run.
+Using ksync is as simple as:
 
-Use ksync to:
+1. `ksync init` to run the server component.
+1. `ksync create --pod=my-pod local_directory remote_directory` to configure a new place to sync files.
+1. `ksync watch` to monitor the kubernetes API and sync.
+1. Use your favorite editor, like [VSCode][vscode] or [Sublime Text][st3] to modify the application. It will auto-reload for you remotely, in seconds.
 
-- Develop applications remotely, while still using your favorite editor and local environment.
-- TODO
+# Installation
 
-# Demo
-
-TODO
-
-# Install
-
-## Quick
-Grab the [latest release](https://github.com/vapor-ware/ksync/releases/latest) from the [releases](https://github.com/vapor-ware/ksync/releases) page. Place the binary in your `PATH` and make executable. Alternatively you can run the following command to do this for you (places binary in `/usr/local/bin`).
-
-```shell
-curl https://raw.githubusercontent.com/vapor-ware/gimme-that/master/gimme.sh | bash
+```bash
+curl https://vapor-ware.github.io/gimme-that/gimme.sh | \
+    TARGET_BIN=ksync TARGET_PROJECT=vapor-ware/ksync bash
 ```
 
-## Development
-You can also get the code and compile it yourself. If you have `go` installed you can run the following.
+You can also download the [latest release][latest-release] and install it yourself.
 
-```shell
-go get github.com/vapor-ware/ksync
-cd ${GOPATH}/src/github.com/vapor-ware/ksync
-go install cmd/*
-```
+# Getting Started
 
-**Note**: If you compile the binaries yourself the output of `ksync version` may not be correct. Only the binaries on the [releases](https://github.com/vapor-ware/ksync/releases) page are stamped with this information.
+You'll need to have a running kubernetes cluster and configured `kubectl` to talk to it. Take a look at the [docs][k8s-setup] for instructions on how to do it.
 
-# Getting started
+A couple fast and easy solutions:
 
-1. Initialize ksync and install radar.
+- To keep it all local, check out [minikube][minikube].
+- If you'd like something remote, [GKE][GKE] can create a cluster fast.
+
+Once you have your cluster running, you can get started.
+
+1. Install ksync. This will fetch the binary and put it at `/usr/local/bin`.
+
+    ```bash
+    curl https://vapor-ware.github.io/gimme-that/gimme.sh \
+        | TARGET_BIN=ksync TARGET_PROJECT=vapor-ware/ksync bash
+    ```
+
+1. Initialize ksync and install the server component on your cluster. The server component is a DaemonSet that provides access to each node's filesystem.
 
     ```bash
     ksync init
     ```
 
-1. Startup watch in the background.
+1. Startup the local client. It watches your local config to start new jobs and the kubernetes API to react when things change there. This will just put it into the background. Feel free to run in a separate terminal or add as a service to your host.
 
     ```bash
-    ksync watch
+    ksync watch &
     ```
 
-1. Create a new spec.
+1. Add the [demo app][demo-app] to your cluster. This is a simple python app made with flask. Because ksync simply moves files around, it would work for any kind of data you'd like to move between your local system and the cluster.
 
     ```bash
-    ksync create --selector=app=demo /tmp/demo /demo-files
+    kubectl apply -f https://vapor-ware.github.io/ksync/example/app/app.yaml
     ```
 
-1. Start the demo container on your cluster.
+1. Make sure that the app is ready and running.
 
     ```bash
-    kubectl apply -f TODO
+    kubectl get po --selector=app=app
     ```
 
-1. Look at the status of your specs.
+1. Create a new spec to sync from a local directory to the remote cluster. This will immediately start up, and sync all the code from the container locally. Note that this is just a convenient way to get the code from the container. If you're working with a local copy already, only the most recently updated files will be transfered between the container and your local machine.
+
+    ```bash
+    ksync create --selector=app=app $(pwd)/ksync /code
+    ```
+
+1. Check on the status.
 
     ```bash
     ksync get
     ```
 
-1. See the local files that were written to your local environment.
+1. Forward the remote port to your local system.
 
     ```bash
-    ls /tmp/demo
+    kubectl get po --selector=app=app -o=custom-columns=:metadata.name --no-headers | \
+        xargs -IPOD kubectl port-forward POD 8080:80 &
     ```
 
-1. Edit something locally (to see it sync to the remote container).
+1. Take a look at what the app's response is now. You'll see all the files in the remote container, their modification times and when the container was last restarted.
 
     ```bash
-    touch /tmp/demo/foobar
+    curl localhost:8080
     ```
 
-1. Verify that it updated.
+1. Open up the code in your favorite editor. For demo purposes, this assumes you've configured `EDITOR`. You really can open it however you'd like though.
 
     ```bash
-    kubectl exec -it \
-        $(kubectl get po --selector=app=volume \
-            | tail -n1 \
-            | awk '{ print $1 }') \
-        -- ls -la /tmp/demo
+    open ksync/server.py
     ```
 
-# Config
+1. Add a new key to the JSON response by editing the return value.
 
-TODO
+    ```python
+    return jsonify({
+        "ksync": True,
+        "restart": LAST_RESTART,
+        "pod": os.environ.get('POD_NAME'),
+        "files": file_list,
+    })
+    ```
 
-# Architecture
+1. Take a look at the status now, it should be sending the file to the remote container.
 
-TODO
+    ```bash
+    ksync get
+    ```
 
-- ksync has three parts: a client (`ksync`), a server (`radar`) and a server to handle file syncing (`mirror`).
-- Radar and mirror run inside of your Kubernetes cluster as a DaemonSet on every node.
-- Radar provides an API to discover what the remote container's filepath is and manage the container lifecycle.
-- [Mirror][mirror] is a real-time, two-way sync. The server operates on your Kubernetes cluster and the client is managed by `ksync` locally.
+1. After about 10 seconds, hit the container again and you should see your new response.
 
-## Workflow
+    ```bash
+    curl localhost:8080
+    ```
 
-1. `ksync init` starts the DaemonSet on the remote cluster.
+## Further Exploration
 
-1. `ksync watch` starts up to manage the lifecycle of syncs.
+- Modify the number of replicas and see what happens.
 
-1. `ksync create` adds a spec to the config. This contains everything required to locate a remote container.
+    ```bash
+    kubectl scale deployment/app --replicas=2
+    ```
 
-1. `ksync watch` sees a change to the config and looks up the remote container.
+- Startup the [visualization][frontend] so you can see updates in real time. Save some files and change the replica count of app to see the updates. TODO: screenshot
 
-    - If it does not exist, `watch` will continue to monitor the Kubernetes cluster for something that matches. When that happens, it will move to the next step.
-
-1. `ksync watch` finds a remote container and creates a tunnel to the `radar` server running on the node that the remote container is running on.
-
-1. The remote `radar` server inspects the remote container and returns the file path that contains the container's mounted filesystem.
-
-1. `watch` starts a docker container in the background. This has the correct host path mounted into it.
-
-1. The docker container runs `ksync run`. This creates a tunnel to the `mirror` server running on the node that the remote container is running on. It then executes the `mirror` client with the local host path and the remote container path.
-
-# Commands
-
-- `ksync init`
-
-    - Sets the cluster up by starting the radar daemonset.
-    - Starts `ksync watch` in the background. TODO
-
-- `ksync create`
-
-    Add a spec to sync. This gets watched and started/stopped automatically.
-
-- `ksync delete`
-
-    Remove a spec to sync.
-
-- `ksync get` TODO: is this maybe a better sync list? can show running and waiting ones.
-
-    Fetch the status of all current specs
-
-- `ksync watch`
-
-    Watch for matching pods in the background (based off pod name and selector). Start syncs for any that come online.
-
-- `ksync doctor`
-
-    Debug what's happening under the covers and look for any possible issues with the system.
-
-- `ksync version`
-
-    Print out version information for the local binary. If the server binary is reachable and healthy, print information for that as well.
-
-# Development
-
-## Dependencies
-
-- [protoc][protoc]
-
-```bash
-brew install protobuf
-```
-
-- [protoc-gen-go][protoc-gen-go]
-
-```bash
-go get -u github.com/golang/protobuf/protoc-gen-go
-```
-
-- [dep][dep]
-
-```bash
-go install -u github.com/golang/dep/cmd/dep
-```
+    ```bash
+    kubectl apply -f https://vapor-ware.github.io/ksync/example/frontend/frontend.yaml
+    kubectl get po \
+        --selector=app=frontend \
+        -o=custom-columns=:metadata.name \
+        --no-headers \
+        | xargs -IPOD kubectl port-forward POD 8081:80 &
+    python -mwebbrowser http://localhost:8081
+    ```
 
 # Troubleshooting
 
-- ntp issues
+# Documentation
 
-[protoc]: https://github.com/golang/protobuf/
-[protoc-gen-go]: https://github.com/golang/protobuf/
-[dep]: https://github.com/golang/dep/
-[mirror]: https://github.com/stephenh/mirror
+More detailed documentation can be found in the [docs](docs) directory.
+
+- [Architecture](docs/architecture.md)
+- [Commands](docs/commands.md)
+- [Development](docs/development.md)
+- [Releasing](docs/releasing.md)
+
+[vscode]: https://code.visualstudio.com/
+[st3]: https://www.sublimetext.com/
+[latest-release]: https://github.com/vapor-ware/ksync/releases
+[k8s-setup]: https://kubernetes.io/docs/setup/pick-right-solution/
+[GKE]: https://cloud.google.com/kubernetes-engine/docs/quickstart
+[minikube]: https://github.com/kubernetes/minikube
+[demo-app]: https://vapor-ware.github.io/ksync/example/app/app.yaml
+[frontend]: https://vapor-ware.github.io/ksync/example/frontend/frontend.yaml

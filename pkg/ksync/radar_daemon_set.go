@@ -33,7 +33,7 @@ func (r *RadarInstance) daemonSet() *v1beta1.DaemonSet {
 						{
 							Name: r.name,
 							// TODO: configurable
-							Image:           imageName,
+							Image:           RadarImageName,
 							ImagePullPolicy: "Always",
 							Command:         []string{"/radar", "--log-level=debug", "serve"},
 							Env: []v1.EnvVar{
@@ -60,7 +60,7 @@ func (r *RadarInstance) daemonSet() *v1beta1.DaemonSet {
 						{
 							Name: "mirror",
 							// TODO: configurable
-							Image:           imageName,
+							Image:           RadarImageName,
 							ImagePullPolicy: "Always",
 							Command:         []string{"/bin/bash", "/mirror/mirror.sh", "server"},
 							Ports: []v1.ContainerPort{

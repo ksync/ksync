@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -69,12 +71,14 @@ func init() {
 		log.Fatal(err)
 	}
 
-	// TODO: can this be hidden?
 	flags.String(
 		"image",
-		"gcr.io/elated-embassy-152022/ksync/ksync:canary",
-		// TODO: this help text could be way better
-		"the image to use.")
+		fmt.Sprintf("vaporio/ksync:git-%s", ksync.GitCommit),
+		"the image to use for radar.")
+	if err := flags.MarkHidden("image"); err != nil {
+		log.Fatal(err)
+	}
+
 	if err := cli.BindFlag(
 		viper.GetViper(), flags.Lookup("image"), "ksync"); err != nil {
 

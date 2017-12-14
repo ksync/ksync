@@ -1,6 +1,7 @@
 package ksync
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -8,7 +9,7 @@ import (
 )
 
 func init() {
-	SetImage("gcr.io/elated-embassy-152022/ksync/ksync:canary")
+	SetImage(os.Getenv("IMAGE"))
 }
 
 func TestNewRadarInstance(t *testing.T) {

@@ -30,16 +30,22 @@ func (s *SyncPath) localPathHasPermission() error {
 		return err
 	}
 	err = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-		permissions, ErrPerm := permbits.Stat(path)
-		if ErrPerm != nil {
-			return ErrPerm
+		permissions, errStat := permbits.Stat(path)
+		if os.IsNotExist(errStat) {
+			return nil
 		}
+
+		if errStat != nil {
+			return errStat
+		}
+
 		switch {
 		case !permissions.UserRead():
 			return fmt.Errorf("File %s is not readable. It is set to %v", path, permissions)
 		case !permissions.UserWrite():
 			return fmt.Errorf("File %s is not writable. It is set to %v", path, permissions)
 		}
+
 		return nil
 	})
 	return err

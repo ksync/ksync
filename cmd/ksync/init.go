@@ -27,7 +27,8 @@ func (i *initCmd) new() *cobra.Command {
 		Run:     i.run,
 	})
 
-	i.Cmd.Flags().BoolP(
+	flags := i.Cmd.Flags()
+	flags.BoolP(
 		"upgrade",
 		"u",
 		false,
@@ -36,7 +37,7 @@ func (i *initCmd) new() *cobra.Command {
 		log.Fatal(err)
 	}
 
-	i.Cmd.Flags().Bool(
+	flags.Bool(
 		"client",
 		true,
 		"Setup the client",
@@ -45,12 +46,21 @@ func (i *initCmd) new() *cobra.Command {
 		log.Fatal(err)
 	}
 
-	i.Cmd.Flags().Bool(
+	flags.Bool(
 		"server",
 		true,
 		"Setup the server",
 	)
 	if err := i.BindFlag("server"); err != nil {
+		log.Fatal(err)
+	}
+
+	flags.Bool(
+		"skip-checks",
+		false,
+		"Skip the environment validation checks.",
+	)
+	if err := i.BindFlag("skip-checks"); err != nil {
 		log.Fatal(err)
 	}
 
@@ -65,6 +75,10 @@ func (i *initCmd) initServer() {
 }
 
 func (i *initCmd) initClient() {
+	if i.Viper.GetBool("skip-checks") {
+		return
+	}
+
 	if !ksync.HasJava() {
 		log.Fatal("java is required.")
 	}

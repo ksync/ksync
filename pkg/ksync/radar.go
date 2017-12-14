@@ -16,13 +16,14 @@ import (
 
 var (
 	maxReadyRetries = uint64(10)
-	imageName       = "gcr.io/elated-embassy-152022/ksync/ksync:canary"
+	// RadarImageName is the docker image to use for running radar.
+	RadarImageName = "vaporio/ksync"
 )
 
 // SetImage sets the package-wide image to use for launching tasks
 // (both local and remote).
 func SetImage(name string) {
-	imageName = name
+	RadarImageName = name
 }
 
 // RadarInstance is the remote server component of ksync.
