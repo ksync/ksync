@@ -141,6 +141,7 @@ workflows:
   release:
     jobs:
       - build:
+          context: org-global
           filters:
             tags:
               only: /.*/
