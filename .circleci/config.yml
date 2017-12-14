@@ -126,7 +126,7 @@ jobs:
           at: .
 
       - run:
-          name: "Getting builder"
+          name: "Getting Distributor"
           command: |
             go get -v github.com/tcnksm/ghr
 
@@ -134,6 +134,16 @@ jobs:
           name: "Checking for Release"
           command: testdata/ci/release.sh
           when: on_success
+
+      - run:
+          name: "Generate Changelog"
+          command: |
+            docker pull timfallmk/github-changelog-generator
+            docker run --name changelog timfallmk/github-changelog-generator \
+            -u vapor-ware \
+            -p ${BINARY_NAME} \
+            -t ${GITHUB_TOKEN}
+            docker cp changelog:/usr/local/src/you-app/CHANGELOG.md ./
 
 workflows:
   version: 2
