@@ -91,7 +91,6 @@ jobs:
           name: "Getting builder"
           command: |
             go get -v github.com/mitchellh/gox
-            go get -v github.com/tcnksm/ghr
 
       - run:
           name: "Building"
@@ -103,13 +102,8 @@ jobs:
           command: |
             make docker-build docker-push
 
-      - run:
-          name: "Checking for Release"
-          command: testdata/ci/release.sh
-          when: on_success
-
       - persist_to_workspace:
-          root: /tmp/artifacts
+          root: .
           paths:
             - bin
 
@@ -121,22 +115,41 @@ jobs:
           path: /tmp/gotest
 
   release:
-    working_directory: /tmp
+    working_directory: /go/src/github.com/vapor-ware/ksync
     docker:
       - image: circleci/golang:latest
-    steps:
-      - attach_workspace:
-          at: /tmp/artifacts
 
-      - run: |
-          find /tmp
+    steps:
+      - checkout
+
+      - attach_workspace:
+          at: .
+
+      - run:
+          name: "Getting builder"
+          command: |
+            go get -v github.com/tcnksm/ghr
+
+      - run:
+          name: "Checking for Release"
+          command: testdata/ci/release.sh
+          when: on_success
 
 workflows:
   version: 2
 
   release:
     jobs:
-      - build
+      - build:
+          filters:
+            tags:
+              only: /.*/
+
       - release:
           requires:
             - build
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v[0-9]*(\.[0-9]*)*$/

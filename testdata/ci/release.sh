@@ -12,17 +12,8 @@ YELLOW='\033[0;33m'
 NC='\033[0m'
 
 # Quick fix for #71 ($CIRCLE_TAG not populated)
-$(if git describe --exact-match --tags HEAD; then
+if git describe --exact-match --tags HEAD; then
   CIRCLE_TAG=$(git describe --exact-match --tags HEAD)
-fi)
-
-# Check if this is a tag we're building. If it is then push an unpublished release
-echo -e "${BLUE}Checking if this should be a release${NC}"
-if [ -z ${CIRCLE_TAG} ]; then
-  echo -e "${YELLOW}No tag detected. Not pushing a release.${NC}"
-  exit 0
-else
-  echo -e "${GREEN} Tag detected. Creating release for ${CIRCLE_TAG}.${NC}"
 fi
 
 # Check if `ghr` (https://github.com/tcnksm/ghr) is installed.
@@ -43,6 +34,7 @@ echo -e "${BLUE}Commit: ${CIRCLE_SHA1}${NC}"
 echo -e "${BLUE}Changes: ${CIRCLE_COMPARE_URL}${NC}"
 
 ghr \
+  -u ${GITHUB_USER} \
   -t ${GITHUB_TOKEN} \
   -p 5 \
   -draft \
