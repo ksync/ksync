@@ -31,7 +31,7 @@ func (u *updateCmd) new() *cobra.Command {
 		Long:    long,
 		Example: example,
 		Run:     u.run,
-		Hidden:  true, // Hide this until it's ready to be used.
+		Hidden:  false,
 	})
 
 	return u.Cmd
