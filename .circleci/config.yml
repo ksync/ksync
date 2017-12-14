@@ -108,9 +108,35 @@ jobs:
           command: testdata/ci/release.sh
           when: on_success
 
+      - persist_to_workspace:
+          root: /tmp/artifacts
+          paths:
+            - bin
+
       - store_artifacts:
           path: bin
           destination: binaries
 
       - store_test_results:
           path: /tmp/gotest
+
+  release:
+    working_directory: /tmp
+    docker:
+      - image: circleci/golang:latest
+    steps:
+      - attach_workspace:
+          at: /tmp/artifacts
+
+      - run: |
+          find /tmp
+
+workflows:
+  version: 2
+
+  release:
+    jobs:
+      - build
+      - release:
+          requires:
+            - build
