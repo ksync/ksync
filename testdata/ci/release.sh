@@ -36,6 +36,7 @@ echo -e "${BLUE}Changes: ${CIRCLE_COMPARE_URL}${NC}"
 ghr \
   -u ${GITHUB_USER} \
   -t ${GITHUB_TOKEN} \
+  -b CHANGELOG.md \
   -p 5 \
   -draft \
   ${CIRCLE_TAG} bin/
