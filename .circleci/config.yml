@@ -141,7 +141,7 @@ jobs:
             docker pull timfallmk/github-changelog-generator
             docker run --name changelog timfallmk/github-changelog-generator \
             -u vapor-ware \
-            -p ${BINARY_NAME} \
+            -p ksync \
             -t ${GITHUB_TOKEN}
             docker cp changelog:/usr/local/src/you-app/CHANGELOG.md ./
 
