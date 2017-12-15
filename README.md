@@ -20,7 +20,6 @@ Grab the [latest release](https://github.com/vapor-ware/ksync/releases/latest) f
 
 ```shell
 curl https://raw.githubusercontent.com/vapor-ware/gimme-that/master/gimme.sh | bash
-chmod +x /usr/local/bin/ksync
 ```
 
 ## Development
