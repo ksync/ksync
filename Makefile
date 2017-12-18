@@ -152,11 +152,11 @@ most-lint:
 		--tests \
 		--sort=severity \
 		--aggregate \
-		--deadline=240s
+		--deadline=500s
 
 .PHONY: megacheck
 megacheck:
-	gometalinter ./...\
+	gometalinter ./... \
 		--vendor \
 		--skip "testdata" \
 		--exclude "[a-zA-Z]*_test.go" \
