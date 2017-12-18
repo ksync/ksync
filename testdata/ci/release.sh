@@ -39,4 +39,4 @@ ghr \
   -b "$(cat ./CHANGELOG.md)" \
   -p 5 \
   -draft \
-  ${CIRCLE_TAG} bin/
+  ${CIRCLE_TAG} bin/ksync*
