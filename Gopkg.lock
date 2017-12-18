@@ -238,7 +238,7 @@
 [[projects]]
   branch = "master"
   name = "github.com/jpillora/overseer"
-  packages = [".","fetcher"]
+  packages = ["fetcher"]
   revision = "7516f444813ce395f57562c049a0c2ac5e0283cb"
 
 [[projects]]
@@ -362,6 +362,12 @@
   revision = "2aa2c176b9dab406a6970f6a55f513e8a8c8b18f"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/timfallmk/overseer"
+  packages = ["."]
+  revision = "3f6a00445e03d0f00215ea454d3940ff9f91abc4"
+
+[[projects]]
   name = "github.com/ugorji/go"
   packages = ["codec"]
   revision = "8c0409fcbb70099c748d71f714529204975f6c3f"
@@ -447,6 +453,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "eff7cebc1cd6505994c8664887794231dbeefadd04e35ea327a806d261a0c4c9"
+  inputs-digest = "0d1034359f209ace033e630f97ab914a1479597a69bd2be84cb4ed9bcb869b3c"
   solver-name = "gps-cdcl"
   solver-version = 1
