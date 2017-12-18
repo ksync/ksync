@@ -12,8 +12,7 @@ Using ksync is as simple as:
 # Installation
 
 ```bash
-curl https://vapor-ware.github.io/gimme-that/gimme.sh | \
-    TARGET_BIN=ksync TARGET_PROJECT=vapor-ware/ksync bash
+curl https://vapor-ware.github.io/gimme-that/gimme.sh | bash
 ```
 
 You can also download the [latest release][latest-release] and install it yourself.
