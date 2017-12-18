@@ -57,7 +57,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: thomasr/example-frontend
+          image: vaporio/ksync-example-frontend
           imagePullPolicy: Always
 
           resources:
@@ -85,7 +85,7 @@ spec:
           args:
             - >
               while true; do \
-                kubectl get po --selector=app=backend -o=custom-columns=NAME:.metadata.name,IP:.status.podIP \
+                kubectl get po --selector=app=app -o=custom-columns=NAME:.metadata.name,IP:.status.podIP \
                   | tail -n+2 > /tmp/pods/pod-list; \
                 sleep 5; \
               done
@@ -97,8 +97,8 @@ spec:
           volumeMounts:
             - name: pod-list
               mountPath: /tmp/pods
-
-
+          # volumeMounts
+        # kubectl
       # containers
 
       volumes:
@@ -108,7 +108,7 @@ spec:
 
         - name: pod-list
           emptyDir: {}
-      #volumes
+      # volumes
     # spec
   # template
 # spec

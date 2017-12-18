@@ -1,21 +1,41 @@
 
-IMAGE_BASE      := gcr.io/elated-embassy-152022/ksync/ksync
-MUTABLE_VERSION := canary
-DOCKER_VERSION  := git-$(shell git rev-parse --short HEAD)
-IMAGE           := ${IMAGE_BASE}:${DOCKER_VERSION}
-MUTABLE_IMAGE   := ${IMAGE_BASE}:${MUTABLE_VERSION}
+BINARY_VERSION  ?= "corrupted-version"
+GIT_COMMIT      ?= $(shell git rev-parse --short HEAD)
 
-#CMD       ?= bin/ksync --log-level=debug init --upgrade && stern --namespace=kube-system --selector=app=radar
-#CMD       ?= bin/ksync --log-level=debug init --upgrade && bin/ksync --log-level=debug watch
-CMD ?= bin/ksync --log-level=debug watch
+DATE            := $(shell (which gdate > /dev/null && echo "gdate") || echo "date")
+BUILD_DATE      := $(shell date --utc --rfc-3339 ns 2> /dev/null | sed -e 's/ /T/')
+GO_VERSION      := $(shell go version | awk '{ print $$3 }')
+
+IMAGE_BASE      := vaporio/ksync
+MUTABLE_VERSION := canary
+DOCKER_VERSION  := git-${GIT_COMMIT}
+export IMAGE    := ${IMAGE_BASE}:${DOCKER_VERSION}
+MUTABLE_IMAGE   := ${IMAGE_BASE}:${MUTABLE_VERSION}
+ifdef CIRCLE_TAG
+IMAGE_TAG       := ${IMAGE_BASE}:${CIRCLE_TAG}
+endif
+
+CMD       ?= bin/ksync --log-level=debug watch
 
 GO        ?= go
 TAGS      :=
-LDFLAGS   :=
+LDFLAGS   := -w \
+	-X github.com/vapor-ware/ksync/pkg/ksync.GitCommit=${GIT_COMMIT} \
+	-X github.com/vapor-ware/ksync/pkg/ksync.BuildDate=${BUILD_DATE} \
+	-X github.com/vapor-ware/ksync/pkg/ksync.VersionString=${BINARY_VERSION} \
+	-X github.com/vapor-ware/ksync/pkg/ksync.GoVersion=${GO_VERSION} \
+	-X github.com/vapor-ware/ksync/pkg/ksync.GitTag=${CIRCLE_TAG} \
+	-X github.com/vapor-ware/ksync/pkg/radar.GitCommit=${GIT_COMMIT} \
+	-X github.com/vapor-ware/ksync/pkg/radar.BuildDate=${BUILD_DATE} \
+	-X github.com/vapor-ware/ksync/pkg/radar.VersionString=${BINARY_VERSION} \
+	-X github.com/vapor-ware/ksync/pkg/radar.GoVersion=${GO_VERSION} \
+	-X github.com/vapor-ware/ksync/pkg/radar.GitTag=${CIRCLE_TAG} \
+	${LDFLAGS}
+
 GOFLAGS   :=
 BINDIR    := $(CURDIR)/bin
 
-SHELL=/bin/bash
+SHELL=/bin/bash -o pipefail
 
 GOOS=linux
 GOARCH=amd64
@@ -30,6 +50,10 @@ push: docker-push
 .PHONY: build
 build: build-proto build-cmd
 
+.PHONY: build-ci
+build-ci:
+	gox --ldflags "${LDFLAGS}" --parallel=10 --output="bin/{{ .Dir }}_{{ .OS }}_{{ .Arch }}" ${OPTS} ./cmd/...
+
 .PHONY: build-cmd
 build-cmd:
 	GOBIN=$(BINDIR) $(GO) install $(GOFLAGS) \
@@ -43,7 +67,6 @@ build-proto:
 
 .PHONY: watch
 watch:
-	# ag -l --ignore "pkg/proto" | entr -dr /bin/sh -c "$(MAKE) all push && $(CMD) && stern --namespace=kube-system --selector=app=radar"
 	ag -l --ignore "pkg/proto" | entr -dr /bin/sh -c "$(MAKE) build && $(CMD)"
 
 HAS_DEP := $(shell command -v dep)
@@ -56,8 +79,11 @@ endif
 	dep ensure
 
 .PHONY: update-radar
-update-radar: docker-binary-radar docker-build docker-push
-	bin/ksync --log-level=debug --image=${IMAGE} init --upgrade
+update-radar: docker-binary-radar docker-build docker-push update-radar-image
+
+.PHONY: update-radar-image
+update-radar-image:
+	bin/ksync* --log-level=debug --image=${IMAGE} init --upgrade --skip-checks
 
 .PHONY: docker-binary
 docker-binary: BINDIR = $(CURDIR)/docker/bin
@@ -76,36 +102,68 @@ docker-binary-%:
 docker-build:
 	docker build --rm -t ${IMAGE} -f docker/Dockerfile ./
 	docker tag ${IMAGE} ${MUTABLE_IMAGE}
+ifdef CIRCLE_TAG
+	docker tag ${IMAGE} ${IMAGE_TAG}
+endif
 
 .PHONY: docker-push
 docker-push:
-	gcloud docker -- push ${IMAGE}
-	gcloud docker -- push ${MUTABLE_IMAGE}
+	docker push ${IMAGE}
+
+.PHONY: docker-tag-release
+docker-tag-release:
+	docker pull ${IMAGE}
+ifdef CIRCLE_TAG
+	docker tag ${IMAGE} ${IMAGE_TAG}
+	docker push ${IMAGE_TAG}
+endif
 
 .PHONY: test
 test:
 	kubectl apply -f testdata/k8s/config/testing.yaml
 	go test -v ./...
 
+.PHONY: ci-test
+ci-test:
+	go test -v ./... 2>&1 | tee /tmp/${TEST_DIRECTORY}/test.out
+	cat /tmp/${TEST_DIRECTORY}/test.out \
+		| go-junit-report \
+		> /tmp/${TEST_DIRECTORY}/report.xml
+
 HAS_LINT := $(shell command -v gometalinter)
 
 .PHONY: lint
-lint:
+lint: install-linter most-lint megacheck
+
+.PHONY: install-linter
+install-linter:
 ifndef HAS_LINT
 	go get -u github.com/alecthomas/gometalinter
 	gometalinter --install
 endif
+
+.PHONY: most-lint
+most-lint:
 	gometalinter ./... \
 		--vendor \
 		--skip "testdata" \
 		--exclude "[a-zA-Z]*_test.go" \
 		--disable=megacheck \
+		--tests \
+		--sort=severity \
+		--aggregate \
 		--deadline=240s
+
+.PHONY: megacheck
+megacheck:
 	gometalinter ./...\
 		--vendor \
 		--skip "testdata" \
 		--exclude "[a-zA-Z]*_test.go" \
 		--disable-all \
+		--tests \
+		--sort=severity \
+		--aggregate \
 		--enable=megacheck \
 		--deadline=240s
 
