@@ -159,7 +159,12 @@ func (s *SpecList) Save() error {
 		specs = append(specs, v.Details)
 	}
 	viper.Set("spec", specs)
-	buf, err := yaml.Marshal(viper.AllSettings())
+
+	settings := viper.AllSettings()
+	// Workaround for #91
+	delete(settings, "image")
+
+	buf, err := yaml.Marshal(settings)
 	if err != nil {
 		return err
 	}

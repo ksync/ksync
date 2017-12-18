@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
+	"os"
 	"time"
 
 	"github.com/dustinkirkland/golang-petname"
@@ -77,6 +79,9 @@ func (cmd *createCmd) run(_ *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 	if err := syncPath.Validator(); err != nil {
+		if os.IsNotExist(err) {
+			log.Fatal(fmt.Sprintf("local directory must exist (%s)", syncPath.Local))
+		}
 		log.Fatal(err)
 	}
 
