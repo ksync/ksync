@@ -61,6 +61,7 @@ Once you have your cluster running, you can get started.
 1. Create a new spec to sync from a local directory to the remote cluster. This will immediately start up, and sync all the code from the container locally. Note that this is just a convenient way to get the code from the container. If you're working with a local copy already, only the most recently updated files will be transfered between the container and your local machine.
 
     ```bash
+    mkdir -p $(pwd)/ksync
     ksync create --selector=app=app $(pwd)/ksync /code
     ```
 
