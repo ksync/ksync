@@ -117,4 +117,8 @@
 
 [[constraint]]
   branch = "master"
+  name = "github.com/timfallmk/overseer"
+
+[[constraint]]
+  branch = "master"
   name = "github.com/phayes/permbits"
