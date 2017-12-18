@@ -31,8 +31,7 @@ Once you have your cluster running, you can get started.
 1. Install ksync. This will fetch the binary and put it at `/usr/local/bin`.
 
     ```bash
-    curl https://vapor-ware.github.io/gimme-that/gimme.sh \
-        | TARGET_BIN=ksync TARGET_PROJECT=vapor-ware/ksync bash
+    curl https://vapor-ware.github.io/gimme-that/gimme.sh | bash
     ```
 
 1. Initialize ksync and install the server component on your cluster. The server component is a DaemonSet that provides access to each node's filesystem.
