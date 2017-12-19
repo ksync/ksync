@@ -37,6 +37,6 @@ ghr \
   -u ${GITHUB_USER} \
   -t ${GITHUB_TOKEN} \
   -b "$(cat ./CHANGELOG.md)" \
-  -p 5 \
+  -p 1 \
   -draft \
   ${CIRCLE_TAG} bin/
