@@ -138,7 +138,7 @@ jobs:
             docker run --name changelog timfallmk/github-changelog-generator \
               -u vapor-ware \
               -p ${BINARY_NAME} \
-              -due-tag $(git describe --abbrev=0 --tags `git rev-list --tags --skip=1 --max-count=1`) \
+              --due-tag $(git describe --abbrev=0 --tags `git rev-list --tags --skip=1 --max-count=1`) \
               -t ${GITHUB_TOKEN}
             docker cp changelog:/usr/local/src/your-app/CHANGELOG.md ./
 
