@@ -1,4 +1,5 @@
 [![CircleCI](https://circleci.com/gh/vapor-ware/ksync.svg?style=svg&circle-token=429269824f09028301b6e65310bd0cea8031d292)](https://circleci.com/gh/vapor-ware/ksync)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fvapor-ware%2Fksync.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fvapor-ware%2Fksync?ref=badge_shield)
 
 ksync speeds up developers who build applications for Kubernetes. It syncs files between a local directory and arbitrary containers running remotely. You do not need to change your existing workflow to develop directly on a Kubernetes cluster.
 
@@ -152,3 +153,7 @@ More detailed documentation can be found in the [docs](docs) directory.
 [minikube]: https://github.com/kubernetes/minikube
 [demo-app]: https://vapor-ware.github.io/ksync/example/app/app.yaml
 [frontend]: https://vapor-ware.github.io/ksync/example/frontend/frontend.yaml
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fvapor-ware%2Fksync.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fvapor-ware%2Fksync?ref=badge_large)
