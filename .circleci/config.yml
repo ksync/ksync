@@ -16,7 +16,8 @@ jobs:
         CLUSTER_ZONE: "us-central1-b"
 
     steps:
-      - setup_remote_docker
+      - setup_remote_docker:
+          docker_layer_caching: true
 
       - checkout
 
