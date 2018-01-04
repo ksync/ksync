@@ -9,7 +9,9 @@ import (
 )
 
 func init() {
-	SetImage(os.Getenv("IMAGE"))
+	if os.Getenv("IMAGE") != "" {
+		SetImage(os.Getenv("IMAGE"))
+	}
 }
 
 func TestNewRadarInstance(t *testing.T) {
