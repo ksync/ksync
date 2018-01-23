@@ -1,3 +1,5 @@
+![logo](logos/ksync_logo_color.png)
+
 [![CircleCI](https://circleci.com/gh/vapor-ware/ksync.svg?style=svg&circle-token=429269824f09028301b6e65310bd0cea8031d292)](https://circleci.com/gh/vapor-ware/ksync)
 
 ksync speeds up developers who build applications for Kubernetes. It syncs files between a local directory and arbitrary containers running remotely. You do not need to change your existing workflow to develop directly on a Kubernetes cluster.
@@ -17,18 +19,21 @@ curl https://vapor-ware.github.io/gimme-that/gimme.sh | bash
 
 You can also download the [latest release][latest-release] and install it yourself.
 
+# Prerequisites
+
+- Kubernetes cluster. Take a look at the [docs][k8s-setup] for instructions on how to do it.
+
+    A couple fast and easy solutions:
+
+    - To keep it all local, check out [minikube][minikube].
+    - If you'd like something remote, [GKE][GKE] can create a cluster fast.
+
+- `kubectl` configured to talk to your cluster.
+- `java` on your local system.
+
 # Getting Started
 
-You'll need to have a running kubernetes cluster and configured `kubectl` to talk to it. Take a look at the [docs][k8s-setup] for instructions on how to do it.
-
-A couple fast and easy solutions:
-
-- To keep it all local, check out [minikube][minikube].
-- If you'd like something remote, [GKE][GKE] can create a cluster fast.
-
-Once you have your cluster running, you can get started.
-
-1. Install ksync. This will fetch the binary and put it at `/usr/local/bin`.
+1. Install ksync. This will fetch the binary and put it at `/usr/local/bin`. Feel free to just download the release binary for your platform and install it yourself.
 
     ```bash
     curl https://vapor-ware.github.io/gimme-that/gimme.sh | bash
@@ -133,7 +138,40 @@ Once you have your cluster running, you can get started.
     python -mwebbrowser http://localhost:8081
     ```
 
+# Tested Configurations
+
+## Cluster
+
+- Minikube
+    - v0.23.*
+    - v0.24.*
+
+- GKE
+    - v1.7.*
+    - v1.8.*
+
+- Docker for Mac (Kubernetes)
+    - 17.12-ce
+
+## Docker
+
+- Docker
+    - 1.13.*
+    - 17.*-ce
+
+## Filesystem
+
+- OverlayFS (overlay2)
+
 # Troubleshooting
+
+- `ERROR Path ... does not exist on the server`
+
+    There's likely something in your configuration that we're not able to handle yet.
+
+- `client is newer than server (client API version: ..., server API version: ...)`
+
+    You're using an older version of docker than we support.
 
 # Documentation
 
