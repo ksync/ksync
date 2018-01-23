@@ -3,9 +3,7 @@ package ksync
 import (
 	"bufio"
 	"fmt"
-	"os"
 	"os/exec"
-	"os/signal"
 	"path/filepath"
 	"sync"
 	"time"
@@ -20,7 +18,7 @@ import (
 )
 
 var (
-	maxConnectionRetries = 1
+	maxConnectionRetries = 5
 	tooSoonReset         = 3 * time.Second
 	// The assumption is that it'll not take more than 5 seconds to send a file,
 	// while this isn't actually true for large files .. it is good enough for
@@ -238,23 +236,8 @@ func (m *Mirror) initErrorHandler() {
 			log.Fatalf("couldn't stop %v", err)
 		}
 
-		log.Fatal(fromHandler)
+		log.Fatalf("unable to connect to mirror on the cluster")
 	})
-}
-
-func (m *Mirror) handleTeardown() {
-	teardown := make(chan os.Signal, 2)
-	signal.Notify(teardown, os.Interrupt) // Removed `os.Kill` as SIGTERMs will always be caught
-	go func() {
-		for {
-			select {
-			case <-teardown:
-				m.Stop() //nolint: errcheck
-			case <-m.clean:
-				return
-			}
-		}
-	}()
 }
 
 // Run starts a sync from the local host to a remote container. This is a
@@ -307,8 +290,6 @@ func (m *Mirror) Run() error {
 	if err := m.initLogs(); err != nil {
 		return err
 	}
-
-	m.handleTeardown()
 
 	if err := m.cmd.Start(); err != nil {
 		return err
