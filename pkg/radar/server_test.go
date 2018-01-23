@@ -1,19 +1,18 @@
 package radar
 
 import (
-  "testing"
+	"testing"
 
-  "github.com/stretchr/testify/assert"
-  // "github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/assert"
+	// "github.com/stretchr/testify/require"
 
-  "google.golang.org/grpc"
-
+	"google.golang.org/grpc"
 )
 
 func TestNewServer(t *testing.T) {
-  server := NewServer()
+	server := NewServer()
 
-  assert.NotPanics(t, func() { NewServer() })
-  assert.NotEmpty(t, server)
-  assert.IsType(t, &grpc.Server{}, server)
+	assert.NotPanics(t, func() { NewServer() })
+	assert.NotEmpty(t, server)
+	assert.IsType(t, &grpc.Server{}, server)
 }

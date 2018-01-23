@@ -22,7 +22,7 @@ func GetSyncPath(args []string) SyncPath {
 	}
 }
 
-// localPathHasPermission checks a given root directory, and all childen, for
+// localPathHasPermission checks a given root directory, and all children, for
 // `rw` permissions for the current user.
 func (s *SyncPath) localPathHasPermission() error {
 	root, err := filepath.Abs(s.Local)

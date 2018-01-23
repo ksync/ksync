@@ -2,6 +2,8 @@
 
 [![CircleCI](https://circleci.com/gh/vapor-ware/ksync.svg?style=svg&circle-token=429269824f09028301b6e65310bd0cea8031d292)](https://circleci.com/gh/vapor-ware/ksync)
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/vapor-ware/ksync)](https://goreportcard.com/report/github.com/vapor-ware/ksync)
+
 ksync speeds up developers who build applications for Kubernetes. It syncs files between a local directory and arbitrary containers running remotely. You do not need to change your existing workflow to develop directly on a Kubernetes cluster.
 
 Using ksync is as simple as:
@@ -9,7 +11,7 @@ Using ksync is as simple as:
 1. `ksync init` to run the server component.
 1. `ksync create --pod=my-pod local_directory remote_directory` to configure a new place to sync files.
 1. `ksync watch` to monitor the kubernetes API and sync.
-1. Use your favorite editor, like [VSCode][vscode] or [Sublime Text][st3] to modify the application. It will auto-reload for you remotely, in seconds.
+1. Use your favorite editor, like [Atom][atom] or [Sublime Text][st3] to modify the application. It will auto-reload for you remotely, in seconds.
 
 # Installation
 
@@ -182,7 +184,7 @@ More detailed documentation can be found in the [docs](docs) directory.
 - [Development](docs/development.md)
 - [Releasing](docs/releasing.md)
 
-[vscode]: https://code.visualstudio.com/
+[atom]: https://atom.io/
 [st3]: https://www.sublimetext.com/
 [latest-release]: https://github.com/vapor-ware/ksync/releases
 [k8s-setup]: https://kubernetes.io/docs/setup/pick-right-solution/

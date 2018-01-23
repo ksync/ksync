@@ -10,6 +10,7 @@ import (
 
 // JavaBin contains the name of the java binary
 var JavaBin = "java"
+
 // MirrorBin contains the name of the mirror binary
 var MirrorBin = "mirror-all.jar"
 

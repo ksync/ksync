@@ -1,10 +1,9 @@
 package radar
 
 import (
+	"github.com/golang/protobuf/ptypes/empty"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
-	"github.com/golang/protobuf/ptypes/empty"
-
 
 	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
@@ -19,7 +18,7 @@ var (
 	BuildDate string
 	// GitTag optionally contains the git tag used in build
 	GitTag string
-  // GoVersion contains the Go version used in build
+	// GoVersion contains the Go version used in build
 	GoVersion string
 )
 
@@ -32,7 +31,6 @@ type Version struct {
 	BuildDate string
 	Healthy   bool
 }
-
 
 func (r *radarServer) GetVersionInfo(ctx context.Context, _ *empty.Empty) (*pb.VersionInfo, error) {
 	log.WithFields(log.Fields{
@@ -49,5 +47,5 @@ func (r *radarServer) GetVersionInfo(ctx context.Context, _ *empty.Empty) (*pb.V
 		GitCommit: GitCommit,
 		GitTag:    GitTag,
 		BuildDate: BuildDate,
-		}, nil
+	}, nil
 }

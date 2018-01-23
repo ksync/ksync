@@ -4,17 +4,16 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-// "github.com/stretchr/testify/require"
+	// "github.com/stretchr/testify/require"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"github.com/spf13/pflag"
-
+	"github.com/spf13/viper"
 )
 
 func TestBindFlag(t *testing.T) {
 	viper := viper.New()
-  // Create a fake flag to replace
+	// Create a fake flag to replace
 	flag := pflag.Flag{
 		Name: "testflag",
 	}
