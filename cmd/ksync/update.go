@@ -6,8 +6,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	"github.com/timfallmk/overseer"
 	"github.com/jpillora/overseer/fetcher"
+	"github.com/timfallmk/overseer"
 
 	"github.com/vapor-ware/ksync/pkg/cli"
 )

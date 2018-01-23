@@ -21,7 +21,7 @@ func InitConfig(name string) error {
 
 	cfgDir := filepath.Join(home, ".ksync")
 	if _, statErr := os.Stat(cfgDir); os.IsNotExist(statErr) {
-    // #nosec
+		// #nosec
 		if mkdirErr := os.Mkdir(cfgDir, 0755); mkdirErr != nil {
 			return mkdirErr
 		}
@@ -29,7 +29,7 @@ func InitConfig(name string) error {
 	cfgName := fmt.Sprintf("%s.yaml", name)
 	cfgPath := filepath.Join(cfgDir, cfgName)
 
-	fobj, err := os.OpenFile(cfgPath, os.O_CREATE|os.O_WRONLY, 0644)// #nosec
+	fobj, err := os.OpenFile(cfgPath, os.O_CREATE|os.O_WRONLY, 0644) // #nosec
 	if err != nil {
 		return err
 	}

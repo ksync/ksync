@@ -1,19 +1,18 @@
 package radar
 
 import (
-  "testing"
-  "context"
+	"context"
+	"testing"
 
-  "github.com/stretchr/testify/assert"
-  // "github.com/stretchr/testify/require"
-
+	"github.com/stretchr/testify/assert"
+	// "github.com/stretchr/testify/require"
 )
 
 func TestRestartMirror(t *testing.T) {
-  radarserver := &radarServer{}
-  cntx := context.Background()
+	radarserver := &radarServer{}
+	cntx := context.Background()
 
-  _, err := radarserver.RestartMirror(cntx, nil)
+	_, err := radarserver.RestartMirror(cntx, nil)
 
-  assert.Error(t, err)
+	assert.Error(t, err)
 }
