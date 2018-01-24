@@ -122,3 +122,9 @@
 [[constraint]]
   branch = "master"
   name = "github.com/phayes/permbits"
+
+[[constraint]]
+  name = "github.com/parnurzeal/gorequest"
+
+[[constraint]]
+  name = "github.com/syncthing/syncthing"

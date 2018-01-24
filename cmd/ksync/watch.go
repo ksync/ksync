@@ -72,12 +72,14 @@ func (w *watchCmd) local(list *ksync.SpecList) {
 // TODO: should the listen be random?
 // TODO: does this need TLS?
 func (w *watchCmd) run(cmd *cobra.Command, args []string) {
-	if !ksync.HasMirror() {
-		log.Fatal("missing required files. run `ksync init` again.")
-	}
 	list := &ksync.SpecList{}
 
 	w.local(list)
+
+	if err := ksync.NewSyncthing().Run(); err != nil {
+		log.Fatal(err)
+	}
+
 	if err := server.Listen(
 		list, w.Viper.GetString("bind"), viper.GetInt("port")); err != nil {
 		log.Fatal(err)

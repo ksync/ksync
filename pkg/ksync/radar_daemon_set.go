@@ -10,10 +10,34 @@ import (
 	v1beta1 "k8s.io/client-go/pkg/apis/extensions/v1beta1"
 )
 
+var syncthingConfig = `
+<configuration version="26">
+    <gui enabled="true" tls="false" debugging="false">
+        <address>0.0.0.0:8384</address>
+        <apikey>ksync</apikey>
+        <theme>default</theme>
+    </gui>
+    <options>
+        <globalAnnounceEnabled>false</globalAnnounceEnabled>
+        <localAnnounceEnabled>false</localAnnounceEnabled>
+        <reconnectionIntervalS>1</reconnectionIntervalS>
+        <relaysEnabled>false</relaysEnabled>
+        <startBrowser>false</startBrowser>
+        <natEnabled>false</natEnabled>
+        <urAccepted>-1</urAccepted>
+        <urPostInsecurely>false</urPostInsecurely>
+        <urInitialDelayS>1800</urInitialDelayS>
+        <restartOnWakeup>true</restartOnWakeup>
+        <autoUpgradeIntervalH>0</autoUpgradeIntervalH>
+        <stunKeepaliveSeconds>0</stunKeepaliveSeconds>
+        <defaultFolderPath></defaultFolderPath>
+    </options>
+</configuration>
+`
+
 func (r *RadarInstance) daemonSet() *v1beta1.DaemonSet {
 	return &v1beta1.DaemonSet{
 		ObjectMeta: metav1.ObjectMeta{
-			// TODO: configurable
 			Namespace: r.namespace,
 			Name:      r.name,
 			Labels:    r.labels,
@@ -58,13 +82,17 @@ func (r *RadarInstance) daemonSet() *v1beta1.DaemonSet {
 							},
 						},
 						{
-							Name: "mirror",
-							// TODO: configurable
+							Name:            "syncthing",
 							Image:           RadarImageName,
 							ImagePullPolicy: "Always",
-							Command:         []string{"/bin/bash", "/mirror/mirror.sh", "server"},
+							Command: []string{
+								"/syncthing/syncthing",
+								"-home", "/var/syncthing/config",
+								"-verbose",
+							},
 							Ports: []v1.ContainerPort{
-								{ContainerPort: r.mirrorPort, Name: "grpc"},
+								{ContainerPort: r.syncthingAPI, Name: "rest"},
+								{ContainerPort: r.syncthingListener, Name: "sync"},
 							},
 							// TODO: resources
 							VolumeMounts: []v1.VolumeMount{
@@ -84,7 +112,7 @@ func (r *RadarInstance) daemonSet() *v1beta1.DaemonSet {
 							LivenessProbe: &v1.Probe{
 								Handler: v1.Handler{
 									TCPSocket: &v1.TCPSocketAction{
-										Port: intstr.FromInt(int(r.mirrorPort)),
+										Port: intstr.FromInt(int(r.syncthingAPI)),
 									},
 								},
 								InitialDelaySeconds: 10,
@@ -92,7 +120,7 @@ func (r *RadarInstance) daemonSet() *v1beta1.DaemonSet {
 							ReadinessProbe: &v1.Probe{
 								Handler: v1.Handler{
 									TCPSocket: &v1.TCPSocketAction{
-										Port: intstr.FromInt(int(r.mirrorPort)),
+										Port: intstr.FromInt(int(r.syncthingAPI)),
 									},
 								},
 								InitialDelaySeconds: 10,

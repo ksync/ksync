@@ -28,11 +28,12 @@ func SetImage(name string) {
 
 // RadarInstance is the remote server component of ksync.
 type RadarInstance struct {
-	namespace  string
-	name       string
-	labels     map[string]string
-	mirrorPort int32
-	radarPort  int32
+	namespace         string
+	name              string
+	labels            map[string]string
+	radarPort         int32
+	syncthingAPI      int32
+	syncthingListener int32
 }
 
 func (r *RadarInstance) String() string {
@@ -48,10 +49,11 @@ func (r *RadarInstance) Fields() log.Fields {
 // TODO: make namespace, name?, service account configurable
 func NewRadarInstance() *RadarInstance {
 	return &RadarInstance{
-		namespace:  "kube-system",
-		name:       "ksync-radar",
-		mirrorPort: 49172,
-		radarPort:  40321,
+		namespace:         "kube-system",
+		name:              "ksync-radar",
+		syncthingAPI:      8384,
+		syncthingListener: 22000,
+		radarPort:         40321,
 		labels: map[string]string{
 			"name": "ksync-radar",
 			"app":  "radar",
@@ -268,5 +270,5 @@ func (r *RadarInstance) RadarConnection(nodeName string) (*grpc.ClientConn, erro
 // MirrorConnection creates a tunnel to the remote mirror instance running on
 // the specified node.
 func (r *RadarInstance) MirrorConnection(nodeName string) (int32, error) {
-	return r.connection(nodeName, r.mirrorPort)
+	return r.connection(nodeName, r.syncthingAPI)
 }

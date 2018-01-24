@@ -86,7 +86,7 @@ update-radar-image:
 	bin/ksync* --log-level=debug --image=${IMAGE} init --upgrade --skip-checks
 
 .PHONY: docker-binary
-docker-binary: BINDIR = $(CURDIR)/docker/bin
+docker-binary: BINDIR = $(CURDIR)/bin
 docker-binary: GOFLAGS += -installsuffix cgo
 docker-binary: docker-binary-radar
 
