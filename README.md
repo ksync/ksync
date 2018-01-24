@@ -21,6 +21,28 @@ curl https://vapor-ware.github.io/gimme-that/gimme.sh | bash
 
 You can also download the [latest release][latest-release] and install it yourself.
 
+## Updating
+
+To update to (or check for) a newer version of `ksync`, you can simply call the built in updater.
+
+```shell
+ksync update
+```
+
+This will check GitHub for the [latest official release][latest-release] and download it if newer. You can also follow the [installation](#installation) instructions or compile the binary yourself.
+
+Once a newer `ksync` binary has been downloaded, the cluster portion can be updated with `ksync init`.
+
+```shell
+ksync init --upgrade
+```
+
+This will deploy the version of `radar` matching your `ksync` version to the target cluster. You can check the versions of both `ksync` and `radar` by running `ksync version`.
+
+```shell
+ksync version
+```
+
 # Prerequisites
 
 - Kubernetes cluster. Take a look at the [docs][k8s-setup] for instructions on how to do it.

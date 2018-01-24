@@ -26,3 +26,7 @@
 - `ksync version`
 
     Print out version information for the local binary. If the server binary is reachable and healthy, print information for that as well.
+
+- `ksync update`
+
+    Check the current binary version and compare it against the latest stable release on GitHub. If the latest release is newer than the local version, download the update.
