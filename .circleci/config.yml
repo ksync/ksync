@@ -51,7 +51,7 @@ jobs:
           name: "Building Radar Docker Container"
           command: |
             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
-            make docker-build docker-push
+            make docker-binary docker-build docker-push
 
       - run:
           name: "Install and setup GKE access"

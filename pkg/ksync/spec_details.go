@@ -16,7 +16,8 @@ var (
 	specEquivalenceFields = []string{"Name"}
 )
 
-// SpecDetails contains all the details required for a spec.
+// SpecDetails encapsulates all the configuration required to sync files between
+// a local and remote folder.
 type SpecDetails struct {
 	// Local config
 	Name string

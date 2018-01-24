@@ -8,6 +8,7 @@ import (
 	"k8s.io/client-go/pkg/api/v1"
 
 	"github.com/vapor-ware/ksync/pkg/debug"
+	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
 	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
 
@@ -20,8 +21,9 @@ const (
 	SpecRunning SpecStatus = "running"
 )
 
-// Spec is all the configuration required to setup a sync from a local directory
-// to a remote directory in a specific remote container.
+// Spec is what manages the configuration and state of a folder being synced
+// between the localhost and a remote container. It has a list of services
+// for remote containers that match the SpecDetails (active folder syncs).
 type Spec struct {
 	Details  *SpecDetails
 	Services *ServiceList `structs:"-"`
@@ -68,7 +70,10 @@ func NewSpec(details *SpecDetails) *Spec {
 	}
 }
 
-// Watch monitors the remote status of this spec.
+// Watch will contact the cluster's api server and start watching for events
+// that match the spec. If a match is found, a new service is started up to
+// mange syncing the folder. If a event shows that the match is going away,
+// the running service is stopped.
 func (s *Spec) Watch() error {
 	if s.stopWatching != nil {
 		log.WithFields(s.Fields()).Debug("already watching")
@@ -77,7 +82,7 @@ func (s *Spec) Watch() error {
 
 	opts := metav1.ListOptions{}
 	opts.LabelSelector = s.Details.Selector
-	watcher, err := kubeClient.CoreV1().Pods(s.Details.Namespace).Watch(opts)
+	watcher, err := cluster.Client.CoreV1().Pods(s.Details.Namespace).Watch(opts)
 	if err != nil {
 		return err
 	}

@@ -14,7 +14,7 @@ import (
 
 // YamlString is a YAML representation of an interface.
 func YamlString(thing interface{}) string {
-	data, _ := yaml.Marshal(thing)
+	data, _ := yaml.Marshal(thing) //nolint: gas
 	return fmt.Sprintf(
 		"%s\n----------\n%s----------", reflect.TypeOf(thing), string(data))
 }

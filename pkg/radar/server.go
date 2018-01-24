@@ -25,10 +25,6 @@ func withDuration(duration time.Duration) (key string, value interface{}) {
 
 // NewServer initializes a new server instance with the given options.
 // Logging for the server is also initialized.
-// TODO: add readiness/liveliness endpoint (can use prometheus?)
-// TODO: add grpc_prometheus
-// TODO: add grpc_validator
-// TODO: add tracing (net/http/pprof, opentracing?), include in debug logging
 func NewServer(opts ...grpc.ServerOption) *grpc.Server {
 	logrusEntry := log.NewEntry(log.StandardLogger())
 	logOpts := []grpc_logrus.Option{

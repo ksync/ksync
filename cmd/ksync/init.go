@@ -6,24 +6,25 @@ import (
 
 	"github.com/vapor-ware/ksync/pkg/cli"
 	"github.com/vapor-ware/ksync/pkg/ksync"
+	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
 )
 
 type initCmd struct {
 	cli.BaseCmd
 }
 
-// TODO: client only flag
 func (i *initCmd) new() *cobra.Command {
-	// TODO: update the usage instructions
-	long := `
-    Prepare the cluster.`
+	long := `Prepare ksync.
+
+	Both the local host and remote cluster are initialized.`
 	example := ``
 
 	i.Init("ksync", &cobra.Command{
 		Use:     "init [flags]",
-		Short:   "Prepare the cluster.",
+		Short:   "Prepare ksync.",
 		Long:    long,
 		Example: example,
+		Args:    cobra.ExactArgs(0),
 		Run:     i.run,
 	})
 
@@ -38,66 +39,49 @@ func (i *initCmd) new() *cobra.Command {
 	}
 
 	flags.Bool(
-		"client",
+		"local",
 		true,
-		"Setup the client",
+		"Initialize the local environment.",
 	)
-	if err := i.BindFlag("client"); err != nil {
+	if err := i.BindFlag("local"); err != nil {
 		log.Fatal(err)
 	}
 
 	flags.Bool(
-		"server",
+		"remote",
 		true,
-		"Setup the server",
+		"Initialize the remote environment.",
 	)
-	if err := i.BindFlag("server"); err != nil {
-		log.Fatal(err)
-	}
-
-	flags.Bool(
-		"skip-checks",
-		false,
-		"Skip the environment validation checks.",
-	)
-	if err := i.BindFlag("skip-checks"); err != nil {
+	if err := i.BindFlag("remote"); err != nil {
 		log.Fatal(err)
 	}
 
 	return i.Cmd
 }
 
-func (i *initCmd) initServer() {
+func (i *initCmd) initRemote() {
 	upgrade := i.Viper.GetBool("upgrade")
-	if err := ksync.NewRadarInstance().Run(upgrade); err != nil {
+	if err := cluster.NewService().Run(upgrade); err != nil {
 		log.Fatalf("could not start radar: %v", err)
 	}
 }
 
-func (i *initCmd) initClient() {
-	if i.Viper.GetBool("skip-checks") {
-		return
-	}
-
-	if !ksync.HasJava() {
-		log.Fatal("java is required.")
-	}
-
-	if !ksync.HasMirror() {
-		if err := ksync.FetchMirror(); err != nil {
+func (i *initCmd) initLocal() {
+	sync := ksync.NewSyncthing()
+	if !sync.HasBinary() {
+		if err := sync.Fetch(); err != nil {
 			log.Fatal(err)
 		}
 	}
 }
 
-// TODO: add instructions for watchman and limits (and detect them)
 // TODO: need a better error with instructions on how to fix errors starting radar
 func (i *initCmd) run(cmd *cobra.Command, args []string) {
-	if i.Viper.GetBool("server") {
-		i.initServer()
+	if i.Viper.GetBool("local") {
+		i.initLocal()
 	}
 
-	if i.Viper.GetBool("client") {
-		i.initClient()
+	if i.Viper.GetBool("remote") {
+		i.initRemote()
 	}
 }

@@ -12,7 +12,7 @@ ksync speeds up developers who build applications for Kubernetes. It syncs files
 Using ksync is as simple as:
 
 1. `ksync init` to run the server component.
-1. `ksync create --pod=my-pod local_directory remote_directory` to configure a new place to sync files.
+1. `ksync create --pod=my-pod local_directory remote_directory` to configure a folder you'd like to sync between the cluster and your local system.
 1. `ksync watch` to monitor the kubernetes API and sync.
 1. Use your favorite editor, like [Atom][atom] or [Sublime Text][st3] to modify the application. It will auto-reload for you remotely, in seconds.
 
@@ -40,7 +40,7 @@ Once a newer `ksync` binary has been downloaded, the cluster portion can be upda
 ksync init --upgrade
 ```
 
-This will deploy the version of `radar` matching your `ksync` version to the target cluster. You can check the versions of both `ksync` and `radar` by running `ksync version`.
+This will deploy the cluster component matching your `ksync` version to the target cluster. You can check the versions of both `ksync` and `radar` by running `ksync version`.
 
 ```shell
 ksync version
@@ -56,7 +56,6 @@ ksync version
     - If you'd like something remote, [GKE][GKE] can create a cluster fast.
 
 - `kubectl` configured to talk to your cluster.
-- `java` on your local system.
 
 # Getting Started
 
@@ -78,7 +77,7 @@ ksync version
     ksync watch &
     ```
 
-1. Add the [demo app][demo-app] to your cluster. This is a simple python app made with flask. Because ksync simply moves files around, it would work for any kind of data you'd like to move between your local system and the cluster.
+1. Add the [demo app][demo-app] to your cluster. This is a simple python app made with flask. Because ksync moves files around, it would work for any kind of data you'd like to move between your local system and the cluster.
 
     ```bash
     kubectl apply -f https://vapor-ware.github.io/ksync/example/app/app.yaml
@@ -90,7 +89,7 @@ ksync version
     kubectl get po --selector=app=app
     ```
 
-1. Create a new spec to sync from a local directory to the remote cluster. This will immediately start up, and sync all the code from the container locally. Note that this is just a convenient way to get the code from the container. If you're working with a local copy already, only the most recently updated files will be transfered between the container and your local machine.
+1. Create a new spec that describes a folder to sync between a local directory and a directory inside a running container on the remote cluster. The local directory is empty and that is okay. Because ksync is bi-directional, it will move all the files from the running container locally. This is just a convenient way to get the code from the container and skip a couple steps. If you're working with a local copy already, only the most recently updated files will be transfered between the container and your local machine.
 
     ```bash
     mkdir -p $(pwd)/ksync
@@ -133,7 +132,7 @@ ksync version
     })
     ```
 
-1. Take a look at the status now, it should be sending the file to the remote container.
+1. Take a look at the status now. It should be reloading the remote container.
 
     ```bash
     ksync get
@@ -153,7 +152,7 @@ ksync version
     kubectl scale deployment/app --replicas=2
     ```
 
-- Startup the [visualization][frontend] so you can see updates in real time. Save some files and change the replica count of app to see the updates. TODO: screenshot
+- Startup the [visualization][frontend] so you can see updates in real time. Save some files and change the replica count of app to see the updates.
 
     ```bash
     kubectl apply -f https://vapor-ware.github.io/ksync/example/frontend/frontend.yaml

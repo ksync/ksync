@@ -1,5 +1,9 @@
 package ksync
 
+import (
+	"runtime"
+)
+
 // These values will be stamped at build time
 var (
 	// GitCommit is the commit hash of the commit used to build
@@ -14,8 +18,8 @@ var (
 	GoVersion string
 )
 
-// Version contains version information for the binary. It is set at build time.
-type Version struct {
+// BinVersion represents the version of this binary.
+type BinVersion struct {
 	Version   string
 	GoVersion string
 	GitCommit string
@@ -23,4 +27,17 @@ type Version struct {
 	BuildDate string
 	OS        string
 	Arch      string
+}
+
+// Version contains version information for the binary. It is set at build time.
+func Version() *BinVersion {
+	return &BinVersion{
+		Version:   VersionString,
+		GoVersion: GoVersion,
+		GitCommit: GitCommit,
+		GitTag:    GitTag,
+		BuildDate: BuildDate,
+		OS:        runtime.GOOS,
+		Arch:      runtime.GOARCH,
+	}
 }

@@ -17,29 +17,27 @@ const (
 	ServiceStopped ServiceStatus = "stopped"
 	// ServiceStarting is for when a service is starting.
 	ServiceStarting ServiceStatus = "starting"
-	// ServiceConnecting is for when a service is connecting.
-	ServiceConnecting ServiceStatus = "connecting"
-	// ServiceConnected is for when a service is connected.
-	ServiceConnected ServiceStatus = "connected"
 	// ServiceWatching is for when a service is watching.
 	ServiceWatching ServiceStatus = "watching"
-	// ServiceSending is for when a service is starting.
-	ServiceSending ServiceStatus = "sending"
-	// ServiceReceiving is for when a service is receiving.
-	ServiceReceiving ServiceStatus = "receiving"
+	// ServiceUpdating is for when a service is updating.
+	ServiceUpdating ServiceStatus = "updating"
+	// ServiceReloading is for when the container is restarting.
+	ServiceReloading ServiceStatus = "reloading"
 	// ServiceError is for when a service is experiencing an error.
 	ServiceError ServiceStatus = "error"
 )
 
-// Service reflects a sync that can be run in the background.
+// Service reflects a spec that will sync files between a local and remote
+// folder.
 type Service struct {
 	RemoteContainer *RemoteContainer
 	SpecDetails     *SpecDetails
 
-	mirror *Mirror
+	folder *Folder
 }
 
-// NewService constructs a Service to manage and run local syncs from.
+// NewService constructs a Service to sync files between a local and remote
+// folder.
 func NewService(cntr *RemoteContainer, details *SpecDetails) *Service {
 	return &Service{
 		RemoteContainer: cntr,
@@ -77,30 +75,26 @@ func (s *Service) Message() (*pb.Service, error) {
 
 // Status returns the current status of this service.
 func (s *Service) Status() ServiceStatus {
-	if s.mirror == nil {
+	if s.folder == nil {
 		return ServiceStopped
 	}
 
-	return s.mirror.Status
+	return s.folder.Status
 }
 
-// Start runs this service in the background.
+// Start runs this service.
 func (s *Service) Start() error {
-	if s.mirror != nil {
+	if s.folder != nil {
 		return fmt.Errorf("already running")
 	}
 
-	if err := s.RemoteContainer.RestartMirror(); err != nil {
-		return err
-	}
+	s.folder = NewFolder(s)
 
-	s.mirror = NewMirror(s)
-
-	return s.mirror.Run()
+	return s.folder.Run()
 }
 
 // Stop halts a service that has been running in the background.
 func (s *Service) Stop() error {
 	log.WithFields(s.Fields()).Debug("stopping service")
-	return s.mirror.Stop()
+	return s.folder.Stop()
 }
