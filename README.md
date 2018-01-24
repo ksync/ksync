@@ -1,8 +1,11 @@
-![logo](logos/ksync_logo_color.png)
+<img align="left" src="logos/ksync_logo_color.png">
 
-[![CircleCI](https://circleci.com/gh/vapor-ware/ksync.svg?style=svg&circle-token=429269824f09028301b6e65310bd0cea8031d292)](https://circleci.com/gh/vapor-ware/ksync)
+<img align="right" src="https://goreportcard.com/badge/github.com/vapor-ware/ksync">
+<img align="right" src="https://circleci.com/gh/vapor-ware/ksync.svg?style=svg&circle-token=429269824f09028301b6e65310bd0cea8031d292">
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/vapor-ware/ksync)](https://goreportcard.com/report/github.com/vapor-ware/ksync)
+<br clear="all" />
+
+------------
 
 ksync speeds up developers who build applications for Kubernetes. It syncs files between a local directory and arbitrary containers running remotely. You do not need to change your existing workflow to develop directly on a Kubernetes cluster.
 
