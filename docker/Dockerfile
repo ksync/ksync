@@ -1,22 +1,12 @@
-FROM openjdk:8-alpine
+FROM alpine
 MAINTAINER Thomas Rampelberg <thomasr@vapor.io>
 
 ENV DOCKER_OS=linux
 ENV DOCKER_ARCH=amd64
+ENV SYNCTHING_VERSION=0.14.43
 
-RUN mkdir -p /var/run/watchman \
-  && chmod a+w /var/run/watchman
-
-RUN apk add --no-cache --update \
-    bash \
-    libc6-compat \
-  && apk add --update \
-    --repository http://dl-3.alpinelinux.org/alpine/edge/testing/ \
-    --allow-untrusted \
-    watchman
-
-RUN mkdir -p mirror \
-  && wget -O /mirror/mirror-all.jar http://repo.joist.ws/mirror-all.jar
-COPY docker/mirror.sh /mirror/
+RUN wget -q https://github.com/syncthing/syncthing/releases/download/v${SYNCTHING_VERSION}/syncthing-linux-amd64-v${SYNCTHING_VERSION}.tar.gz \
+  && tar -xzf syncthing-linux-amd64-v${SYNCTHING_VERSION}.tar.gz syncthing-linux-amd64-v${SYNCTHING_VERSION}/syncthing \
+  && mv syncthing-linux-amd64-v${SYNCTHING_VERSION}/syncthing /bin/
 
 COPY bin/radar_${DOCKER_OS}_${DOCKER_ARCH} /radar
