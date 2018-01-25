@@ -100,7 +100,6 @@ func (s *Syncthing) Run() error {
 		"args": s.cmd.Args,
 	}).Debug("starting syncthing")
 
-	s.Daemonize()
 
 	return nil
 }
@@ -119,7 +118,7 @@ func (s *Syncthing) Daemonize() error {
 		LogFilePerm: 0640,
 		WorkDir:     "./",
 		Umask:       027,
-		Args: []string{"version"},
+		Args: []string{"watch"},
 	}
 
 	daemon, err := context.Reborn()

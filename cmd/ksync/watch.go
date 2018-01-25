@@ -42,6 +42,15 @@ func (w *watchCmd) new() *cobra.Command {
 		log.Fatal(err)
 	}
 
+	flags.BoolP(
+		"daemonize",
+		"d",
+		false,
+		"Run the watch command in the background.")
+	if err := w.BindFlag("daemonize"); err != nil {
+		log.Fatal(err)
+	}
+
 	return w.Cmd
 }
 
@@ -78,7 +87,13 @@ func (w *watchCmd) run(cmd *cobra.Command, args []string) {
 
 	w.local(list)
 
-	if err := ksync.NewSyncthing().Run(); err != nil {
+	daemonize := w.Viper.GetBool("daemonize")
+
+	if daemonize {
+		if err := ksync.NewSyncthing().Daemonize(); err != nil {
+			log.Fatal(err)
+		}
+	} else if err := ksync.NewSyncthing().Run(); err != nil {
 		fmt.Println("running this now", err)
 		log.Fatal(err)
 	}
