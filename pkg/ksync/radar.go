@@ -50,7 +50,7 @@ func (r *RadarInstance) Fields() log.Fields {
 func NewRadarInstance() *RadarInstance {
 	return &RadarInstance{
 		namespace:         "kube-system",
-		name:              "ksync-radar",
+		name:              "ksync",
 		syncthingAPI:      8384,
 		syncthingListener: 22000,
 		radarPort:         40321,
@@ -267,8 +267,18 @@ func (r *RadarInstance) RadarConnection(nodeName string) (*grpc.ClientConn, erro
 	return grpc.Dial(fmt.Sprintf("127.0.0.1:%d", localPort), r.opts()...)
 }
 
-// MirrorConnection creates a tunnel to the remote mirror instance running on
+// SyncthingConnection creates a tunnel to the remote syncthing instance running on
 // the specified node.
-func (r *RadarInstance) MirrorConnection(nodeName string) (int32, error) {
-	return r.connection(nodeName, r.syncthingAPI)
+func (r *RadarInstance) SyncthingConnection(nodeName string) (int32, int32, error) {
+	apiPort, err := r.connection(nodeName, r.syncthingAPI)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	listenerPort, err := r.connection(nodeName, r.syncthingListener)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	return apiPort, listenerPort, nil
 }

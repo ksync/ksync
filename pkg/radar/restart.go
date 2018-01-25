@@ -15,16 +15,16 @@ import (
 	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
 
-// RestartMirror restarts the mirror sidecar to this radar process. This is
+// RestartSyncthing restarts the syncthing sidecar to this radar process. This is
 // needed because:
 //     When a container is started, it inherits the mount table. The mounts
 //     are maintained internally. Any new mounts do not show up inside the
 //     container. The implication of this is that any new containers starting
-//     after mirror will not have their FS mounted inside mirror's container.
+//     after syncthing will not have their FS mounted inside syncthing's container.
 //     While the files are all available, the actual mount will not occur.
-//     As mirror clients will just reconnect after loosing connection with the
-//     server, we restart mirror to refresh the mounts on demand.
-func (r *radarServer) RestartMirror(
+//     As syncthing clients will just reconnect after loosing connection with the
+//     server, we restart syncthing to refresh the mounts on demand.
+func (r *radarServer) RestartSyncthing(
 	ctx context.Context, _ *empty.Empty) (*pb.Error, error) {
 
 	// TODO: this is awful, I can't figure out how to attach config to context.
@@ -36,7 +36,7 @@ func (r *radarServer) RestartMirror(
 	}
 
 	args := filters.NewArgs()
-	args.Add("label", "io.kubernetes.container.name=mirror")
+	args.Add("label", "io.kubernetes.container.name=syncthing")
 	args.Add("label", fmt.Sprintf("io.kubernetes.pod.name=%s", podName))
 
 	cntrs, err := client.ContainerList(
@@ -61,7 +61,7 @@ func (r *radarServer) RestartMirror(
 		"id":     cntr.ID,
 		"status": cntr.Status,
 		"state":  cntr.State,
-	}).Debug("found mirror container")
+	}).Debug("found syncthing container")
 
 	if err := client.ContainerRestart(
 		context.Background(), cntr.ID, nil); err != nil {
@@ -73,7 +73,7 @@ func (r *radarServer) RestartMirror(
 		"id":     cntr.ID,
 		"status": cntr.Status,
 		"state":  cntr.State,
-	}).Debug("restarted mirror container")
+	}).Debug("restarted syncthing container")
 
 	return &pb.Error{Msg: ""}, nil
 }

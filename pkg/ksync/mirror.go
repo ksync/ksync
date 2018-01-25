@@ -2,14 +2,14 @@ package ksync
 
 import (
 	"bufio"
-	"fmt"
+	// "fmt"
 	"os/exec"
 	"path/filepath"
 	"sync"
 	"time"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
+	// "github.com/spf13/viper"
 	"golang.org/x/net/context"
 	"k8s.io/apimachinery/pkg/util/runtime"
 
@@ -249,56 +249,56 @@ func (m *Mirror) initErrorHandler() {
 //   - state updates (disconnected, active, idle)
 // TODO: stop gracefully when the remote pod goes away.
 func (m *Mirror) Run() error {
-	m.clean = make(chan bool)
-	m.connectionRetries = 0
+	// m.clean = make(chan bool)
+	// m.connectionRetries = 0
 
-	path, err := m.path()
-	if err != nil {
-		return err
-	}
+	// path, err := m.path()
+	// if err != nil {
+	// 	return err
+	// }
 
-	m.Status = ServiceStarting
+	// m.Status = ServiceStarting
 
-	port, err := NewRadarInstance().MirrorConnection(m.RemoteContainer.NodeName)
-	if err != nil {
-		return err
-	}
+	// port, err := NewRadarInstance().MirrorConnection(m.RemoteContainer.NodeName)
+	// if err != nil {
+	// 	return err
+	// }
 
-	jarPath := filepath.Join(
-		filepath.Dir(viper.ConfigFileUsed()), "mirror-all.jar")
-	cmdArgs := []string{
-		"-Xmx2G",
-		"-XX:+HeapDumpOnOutOfMemoryError",
-		"-cp", jarPath,
-		"mirror.Mirror",
-		"client",
-		"-h", "localhost",
-		"-p", fmt.Sprintf("%d", port),
-		"-l", m.LocalPath,
-		"-r", path,
-	}
+	// jarPath := filepath.Join(
+	// 	filepath.Dir(viper.ConfigFileUsed()), "mirror-all.jar")
+	// cmdArgs := []string{
+	// 	"-Xmx2G",
+	// 	"-XX:+HeapDumpOnOutOfMemoryError",
+	// 	"-cp", jarPath,
+	// 	"mirror.Mirror",
+	// 	"client",
+	// 	"-h", "localhost",
+	// 	"-p", fmt.Sprintf("%d", port),
+	// 	"-l", m.LocalPath,
+	// 	"-r", path,
+	// }
 
-	m.cmd = exec.Command("java", cmdArgs...) // #nosec
-	m.initErrorHandler()
+	// m.cmd = exec.Command("java", cmdArgs...) // #nosec
+	// m.initErrorHandler()
 
-	if m.Reload {
-		if err := m.hotReload(); err != nil {
-			return err
-		}
-	}
+	// if m.Reload {
+	// 	if err := m.hotReload(); err != nil {
+	// 		return err
+	// 	}
+	// }
 
-	if err := m.initLogs(); err != nil {
-		return err
-	}
+	// if err := m.initLogs(); err != nil {
+	// 	return err
+	// }
 
-	if err := m.cmd.Start(); err != nil {
-		return err
-	}
+	// if err := m.cmd.Start(); err != nil {
+	// 	return err
+	// }
 
-	log.WithFields(log.Fields{
-		"cmd":  m.cmd.Path,
-		"args": m.cmd.Args,
-	}).Debug("starting mirror")
+	// log.WithFields(log.Fields{
+	// 	"cmd":  m.cmd.Path,
+	// 	"args": m.cmd.Args,
+	// }).Debug("starting mirror")
 
 	return nil
 }

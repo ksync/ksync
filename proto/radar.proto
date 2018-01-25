@@ -7,7 +7,7 @@ import "google/protobuf/empty.proto";
 
 service Radar {
   rpc GetBasePath(ContainerPath) returns (BasePath) {}
-  rpc RestartMirror(google.protobuf.Empty) returns (Error) {}
+  rpc RestartSyncthing(google.protobuf.Empty) returns (Error) {}
   rpc Restart(ContainerPath) returns (Error) {}
   rpc GetVersionInfo(google.protobuf.Empty) returns (VersionInfo) {}
 }

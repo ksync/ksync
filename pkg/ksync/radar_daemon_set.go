@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/spf13/viper"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/pkg/api/v1"
@@ -88,6 +89,7 @@ func (r *RadarInstance) daemonSet() *v1beta1.DaemonSet {
 							Command: []string{
 								"/syncthing/syncthing",
 								"-home", "/var/syncthing/config",
+								"-gui-apikey=", viper.GetString("apikey"),
 								"-verbose",
 							},
 							Ports: []v1.ContainerPort{

@@ -105,15 +105,15 @@ func (c *RemoteContainer) Radar() (pb.RadarClient, error) {
 	return pb.NewRadarClient(conn), nil
 }
 
-// RestartMirror restarts the remote mirror container responsible for this
-// container.
-func (c *RemoteContainer) RestartMirror() error {
+// Restart restarts the remote ksync syncthing container to refresh mounts
+// before transfering files to the target container.
+func (c *RemoteContainer) Restart() error {
 	client, err := c.Radar()
 	if err != nil {
 		return err
 	}
 
-	if _, err := client.RestartMirror(
+	if _, err := client.RestartSyncthing(
 		context.Background(), &empty.Empty{}); err != nil {
 		return debug.ErrorLocation(err)
 	}
