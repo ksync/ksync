@@ -112,13 +112,7 @@ func (s *Syncthing) Stop() error {
 
 func (s *Syncthing) Daemonize() error {
 	context := &daemon.Context{
-		PidFileName: "pid",
-		PidFilePerm: 0644,
-		LogFileName: "log",
-		LogFilePerm: 0640,
-		WorkDir:     "./",
-		Umask:       027,
-		Args: []string{"watch"},
+		Args: []string{"--log-level=warning","watch"},
 	}
 
 	daemon, err := context.Reborn()
@@ -129,10 +123,7 @@ func (s *Syncthing) Daemonize() error {
 		return nil
 	}
 
-	log.WithFields(log.Fields{
-		"cmd":  s.cmd.Path,
-		"args": s.cmd.Args,
-	}).Debug("daemonizing")
+	log.Debug("daemonizing")
 
 	defer context.Release()
 

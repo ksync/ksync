@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/fsnotify/fsnotify"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -43,11 +41,11 @@ func (w *watchCmd) new() *cobra.Command {
 	}
 
 	flags.BoolP(
-		"daemonize",
+		"daemon",
 		"d",
 		false,
 		"Run the watch command in the background.")
-	if err := w.BindFlag("daemonize"); err != nil {
+	if err := w.BindFlag("daemon"); err != nil {
 		log.Fatal(err)
 	}
 
@@ -87,19 +85,20 @@ func (w *watchCmd) run(cmd *cobra.Command, args []string) {
 
 	w.local(list)
 
-	daemonize := w.Viper.GetBool("daemonize")
+	daemonize := w.Viper.GetBool("daemon")
 
 	if daemonize {
 		if err := ksync.NewSyncthing().Daemonize(); err != nil {
 			log.Fatal(err)
 		}
 	} else if err := ksync.NewSyncthing().Run(); err != nil {
-		fmt.Println("running this now", err)
 		log.Fatal(err)
 	}
 
-	if err := server.Listen(
-		list, w.Viper.GetString("bind"), viper.GetInt("port")); err != nil {
-		log.Fatal(err)
+	if !daemonize {
+		if err := server.Listen(
+			list, w.Viper.GetString("bind"), viper.GetInt("port")); err != nil {
+			log.Fatal(err)
+		}
 	}
 }
