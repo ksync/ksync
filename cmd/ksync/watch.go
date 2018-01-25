@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/fsnotify/fsnotify"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -77,6 +79,7 @@ func (w *watchCmd) run(cmd *cobra.Command, args []string) {
 	w.local(list)
 
 	if err := ksync.NewSyncthing().Run(); err != nil {
+		fmt.Println("running this now", err)
 		log.Fatal(err)
 	}
 

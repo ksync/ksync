@@ -7,6 +7,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	daemon "github.com/sevlyar/go-daemon"
 
 	"github.com/vapor-ware/ksync/pkg/debug"
 	"github.com/vapor-ware/ksync/pkg/syncthing"
@@ -99,6 +100,8 @@ func (s *Syncthing) Run() error {
 		"args": s.cmd.Args,
 	}).Debug("starting syncthing")
 
+	s.Daemonize()
+
 	return nil
 }
 
@@ -106,4 +109,33 @@ func (s *Syncthing) Run() error {
 func (s *Syncthing) Stop() error {
 	defer s.cmd.Process.Wait() //nolint: errcheck
 	return s.cmd.Process.Kill()
+}
+
+func (s *Syncthing) Daemonize() error {
+	context := &daemon.Context{
+		PidFileName: "pid",
+		PidFilePerm: 0644,
+		LogFileName: "log",
+		LogFilePerm: 0640,
+		WorkDir:     "./",
+		Umask:       027,
+		Args: []string{"version"},
+	}
+
+	daemon, err := context.Reborn()
+	if err != nil {
+		return err
+	}
+	if daemon != nil {
+		return nil
+	}
+
+	log.WithFields(log.Fields{
+		"cmd":  s.cmd.Path,
+		"args": s.cmd.Args,
+	}).Debug("daemonizing")
+
+	defer context.Release()
+
+	return nil
 }

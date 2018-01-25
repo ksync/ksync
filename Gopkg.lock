@@ -362,6 +362,12 @@
   version = "v0.2.0"
 
 [[projects]]
+  name = "github.com/sevlyar/go-daemon"
+  packages = ["."]
+  revision = "e49ef56654f54139c4dc0285f973f74e9649e729"
+  version = "v0.1.2"
+
+[[projects]]
   name = "github.com/sirupsen/logrus"
   packages = ["."]
   revision = "f006c2ac4710855cf0f916dd6b77acf6b048dc6e"
@@ -513,6 +519,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "01846c75699e80b65a2d407c44e8594a56f1753c53fe27bcd397e82435c0b734"
+  inputs-digest = "04f68340be9ecac817c01257b3c5d7b663543b6af54a9c81999aa0f1e4907383"
   solver-name = "gps-cdcl"
   solver-version = 1
