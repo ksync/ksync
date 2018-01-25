@@ -36,7 +36,7 @@ type Service struct {
 	RemoteContainer *RemoteContainer
 	SpecDetails     *SpecDetails
 
-	mirror *Mirror
+	folder *Folder
 }
 
 // NewService constructs a Service to manage and run local syncs from.
@@ -77,30 +77,30 @@ func (s *Service) Message() (*pb.Service, error) {
 
 // Status returns the current status of this service.
 func (s *Service) Status() ServiceStatus {
-	if s.mirror == nil {
+	if s.folder == nil {
 		return ServiceStopped
 	}
 
-	return s.mirror.Status
+	return s.folder.Status
 }
 
 // Start runs this service in the background.
 func (s *Service) Start() error {
-	if s.mirror != nil {
+	if s.folder != nil {
 		return fmt.Errorf("already running")
 	}
 
-	if err := s.RemoteContainer.RestartMirror(); err != nil {
+	if err := s.RemoteContainer.Restart(); err != nil {
 		return err
 	}
 
-	s.mirror = NewMirror(s)
+	s.folder = NewFolder(s)
 
-	return s.mirror.Run()
+	return s.folder.Run()
 }
 
 // Stop halts a service that has been running in the background.
 func (s *Service) Stop() error {
 	log.WithFields(s.Fields()).Debug("stopping service")
-	return s.mirror.Stop()
+	return s.folder.Stop()
 }

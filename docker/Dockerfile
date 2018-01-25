@@ -6,10 +6,6 @@ ENV DOCKER_ARCH=amd64
 
 COPY docker/config.xml /var/syncthing/config/config.xml
 
-RUN echo 'syncthing:x:1000:1000::/var/syncthing:/sbin/nologin' >> /etc/passwd \
-    && echo 'syncthing:!::0:::::' >> /etc/shadow \
-    && chown -R syncthing /var/syncthing
-
 ENV release=
 
 RUN apk add --no-cache --virtual .deps \
@@ -32,7 +28,6 @@ RUN apk add --no-cache --virtual .deps \
     && rm -rf syncthing-linux-amd64-${release} sha256sum.txt.asc syncthing-linux-amd64-${release}.tar.gz \
     && apk del .deps
 
-USER syncthing
 ENV STNOUPGRADE=1
 
 COPY bin/radar_${DOCKER_OS}_${DOCKER_ARCH} /radar

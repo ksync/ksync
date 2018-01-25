@@ -2,6 +2,7 @@ package ksync
 
 import (
 	"bufio"
+	"fmt"
 	"os/exec"
 	"path/filepath"
 
@@ -10,19 +11,14 @@ import (
 	daemon "github.com/sevlyar/go-daemon"
 
 	"github.com/vapor-ware/ksync/pkg/debug"
-	"github.com/vapor-ware/ksync/pkg/syncthing"
 )
 
 type Syncthing struct {
-	Server *syncthing.Server
-
 	cmd *exec.Cmd
 }
 
 func NewSyncthing() *Syncthing {
-	return &Syncthing{
-		Server: &syncthing.Server{},
-	}
+	return &Syncthing{}
 }
 
 func (s *Syncthing) String() string {
@@ -85,7 +81,14 @@ func (s *Syncthing) Run() error {
 	path := filepath.Join(
 		filepath.Dir(viper.ConfigFileUsed()), "syncthing")
 
-	s.cmd = exec.Command(path)
+	cmdArgs := []string{
+		"-gui-address", fmt.Sprintf("localhost:%d", viper.GetInt("syncthing-port")),
+		"-gui-apikey", viper.GetString("apikey"),
+		"-home", filepath.Dir(viper.ConfigFileUsed()),
+		"-no-browser",
+	}
+
+	s.cmd = exec.Command(path, cmdArgs...)
 
 	if err := s.initLogs(); err != nil {
 		return err

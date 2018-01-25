@@ -95,6 +95,28 @@ func init() {
 
 		log.Fatal(err)
 	}
+
+	flags.String(
+		"apikey",
+		"ksync",
+		"api key used for authentication with syncthing")
+
+	if err := cli.BindFlag(
+		viper.GetViper(), flags.Lookup("apikey"), "ksync"); err != nil {
+
+		log.Fatal(err)
+	}
+
+	flags.Int(
+		"syncthing-port",
+		8384,
+		"port on which the syncthing server will listen")
+
+	if err := cli.BindFlag(
+		viper.GetViper(), flags.Lookup("syncthing-port"), "ksync"); err != nil {
+
+		log.Fatal(err)
+	}
 }
 
 // TODO: dependencies should verify that they're usable

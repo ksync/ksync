@@ -124,7 +124,7 @@
   name = "github.com/phayes/permbits"
 
 [[constraint]]
-  name = "github.com/parnurzeal/gorequest"
+  name = "github.com/syncthing/syncthing"
 
 [[constraint]]
   name = "github.com/syncthing/syncthing"
@@ -132,3 +132,6 @@
 [[constraint]]
   branch = "master"
   name = "github.com/sevlyar/go-daemon"
+
+[[constraint]]
+  name = "github.com/go-resty/resty"
