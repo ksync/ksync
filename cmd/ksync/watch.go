@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/fsnotify/fsnotify"
+	daemon "github.com/sevlyar/go-daemon"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -88,17 +89,25 @@ func (w *watchCmd) run(cmd *cobra.Command, args []string) {
 	daemonize := w.Viper.GetBool("daemon")
 
 	if daemonize {
-		if err := ksync.NewSyncthing().Daemonize(); err != nil {
+		context := &daemon.Context{}
+
+		daemon, err := context.Reborn()
+		if err != nil {
 			log.Fatal(err)
 		}
-	} else if err := ksync.NewSyncthing().Run(); err != nil {
+		if daemon != nil {
+			log.Fatal(err)
+		}
+
+		defer context.Release()
+	}
+
+	if err := ksync.NewSyncthing().Run(); err != nil {
 		log.Fatal(err)
 	}
 
-	if !daemonize {
-		if err := server.Listen(
-			list, w.Viper.GetString("bind"), viper.GetInt("port")); err != nil {
-			log.Fatal(err)
-		}
+	if err := server.Listen(
+		list, w.Viper.GetString("bind"), viper.GetInt("port")); err != nil {
+		log.Fatal(err)
 	}
 }

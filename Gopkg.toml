@@ -127,9 +127,6 @@
   name = "github.com/syncthing/syncthing"
 
 [[constraint]]
-  name = "github.com/syncthing/syncthing"
-
-[[constraint]]
   branch = "master"
   name = "github.com/sevlyar/go-daemon"
 
