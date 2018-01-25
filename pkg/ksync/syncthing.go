@@ -112,7 +112,13 @@ func (s *Syncthing) Stop() error {
 
 func (s *Syncthing) Daemonize() error {
 	context := &daemon.Context{
-		Args: []string{"--log-level=warning","watch"},
+		PidFileName: filepath.Join(filepath.Dir(viper.ConfigFileUsed()), "daemon.pid"),
+		PidFilePerm: 0644,
+		LogFileName: filepath.Join(filepath.Dir(viper.ConfigFileUsed()), "daemon.log"),
+		LogFilePerm: 0640,
+		WorkDir:     filepath.Dir(viper.ConfigFileUsed()),
+		// Umask:       027,
+		Args: []string{"","watch"},
 	}
 
 	daemon, err := context.Reborn()
