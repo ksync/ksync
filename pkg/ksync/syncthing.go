@@ -6,9 +6,9 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	daemon "github.com/sevlyar/go-daemon"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	daemon "github.com/sevlyar/go-daemon"
 
 	"github.com/vapor-ware/ksync/pkg/debug"
 )
@@ -77,12 +77,15 @@ func (s *Syncthing) initLogs() error {
 	return s.lineHandler(logger.Debug)
 }
 
+// TODO: clear out local config before leaving.
 func (s *Syncthing) Run() error {
 	path := filepath.Join(
 		filepath.Dir(viper.ConfigFileUsed()), "syncthing")
 
+	address := fmt.Sprintf("localhost:%d", viper.GetInt("syncthing-port"))
+
 	cmdArgs := []string{
-		"-gui-address", fmt.Sprintf("localhost:%d", viper.GetInt("syncthing-port")),
+		"-gui-address", address,
 		"-gui-apikey", viper.GetString("apikey"),
 		"-home", filepath.Dir(viper.ConfigFileUsed()),
 		"-no-browser",
@@ -103,7 +106,6 @@ func (s *Syncthing) Run() error {
 		"args": s.cmd.Args,
 	}).Debug("starting syncthing")
 
-
 	return nil
 }
 
@@ -121,7 +123,7 @@ func (s *Syncthing) Daemonize() error {
 		LogFilePerm: 0640,
 		WorkDir:     filepath.Dir(viper.ConfigFileUsed()),
 		// Umask:       027,
-		Args: []string{"","watch"},
+		Args: []string{"", "watch"},
 	}
 
 	daemon, err := context.Reborn()

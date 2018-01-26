@@ -17,16 +17,12 @@ const (
 	ServiceStopped ServiceStatus = "stopped"
 	// ServiceStarting is for when a service is starting.
 	ServiceStarting ServiceStatus = "starting"
-	// ServiceConnecting is for when a service is connecting.
-	ServiceConnecting ServiceStatus = "connecting"
-	// ServiceConnected is for when a service is connected.
-	ServiceConnected ServiceStatus = "connected"
 	// ServiceWatching is for when a service is watching.
 	ServiceWatching ServiceStatus = "watching"
-	// ServiceSending is for when a service is starting.
-	ServiceSending ServiceStatus = "sending"
-	// ServiceReceiving is for when a service is receiving.
-	ServiceReceiving ServiceStatus = "receiving"
+	// ServiceUpdating is for when a service is updating.
+	ServiceUpdating ServiceStatus = "updating"
+	// ServiceRestarting is for when the container is restarting.
+	ServiceReloading ServiceStatus = "reloading"
 	// ServiceError is for when a service is experiencing an error.
 	ServiceError ServiceStatus = "error"
 )

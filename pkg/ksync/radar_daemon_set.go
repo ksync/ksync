@@ -89,7 +89,7 @@ func (r *RadarInstance) daemonSet() *v1beta1.DaemonSet {
 							Command: []string{
 								"/syncthing/syncthing",
 								"-home", "/var/syncthing/config",
-								"-gui-apikey=", viper.GetString("apikey"),
+								"-gui-apikey", viper.GetString("apikey"),
 								"-verbose",
 							},
 							Ports: []v1.ContainerPort{

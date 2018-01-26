@@ -19,7 +19,7 @@ import (
 
 var (
 	maxConnectionRetries = 5
-	tooSoonReset         = 3 * time.Second
+	// tooSoonReset         = 3 * time.Second
 	// The assumption is that it'll not take more than 5 seconds to send a file,
 	// while this isn't actually true for large files .. it is good enough for
 	// now as we're unable to get real progress from mirror.
@@ -142,12 +142,12 @@ func (m *Mirror) lineHandler(logger func(...interface{})) error {
 	}
 
 	handler, err := NewLineStatus(map[ServiceStatus]string{
-		ServiceConnecting: "INFO  Increasing file limit",
-		ServiceConnected:  "INFO  Connected",
-		ServiceWatching:   "INFO  Tree populated",
-		ServiceSending:    "INFO  Sending",
-		ServiceReceiving:  "INFO  Remote update",
-		ServiceError:      "ERROR",
+		// ServiceConnecting: "INFO  Increasing file limit",
+		// ServiceConnected:  "INFO  Connected",
+		ServiceWatching: "INFO  Tree populated",
+		// ServiceSending:    "INFO  Sending",
+		// ServiceReceiving:  "INFO  Remote update",
+		ServiceError: "ERROR",
 	})
 
 	if err != nil {
@@ -165,14 +165,14 @@ func (m *Mirror) lineHandler(logger func(...interface{})) error {
 			case "":
 			default:
 				m.Status = status
-				fallthrough
-			case ServiceSending:
-				if m.Reload {
-					m.restartContainer <- true
-				}
-				m.resetStatus(ServiceWatching)
-			case ServiceReceiving:
-				m.resetStatus(ServiceWatching)
+				// fallthrough
+				// case ServiceSending:
+				// 	if m.Reload {
+				// 		m.restartContainer <- true
+				// 	}
+				// 	m.resetStatus(ServiceWatching)
+				// case ServiceReceiving:
+				// 	m.resetStatus(ServiceWatching)
 			}
 		}
 	}()
