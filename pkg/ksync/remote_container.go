@@ -4,10 +4,8 @@ import (
 	"fmt"
 
 	"github.com/fatih/structs"
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/mitchellh/mapstructure"
 	log "github.com/sirupsen/logrus"
-	"golang.org/x/net/context"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	apiv1 "k8s.io/client-go/pkg/api/v1"
@@ -89,34 +87,4 @@ func (c *RemoteContainer) Message() (*pb.RemoteContainer, error) {
 		return nil, debug.ErrorLocation(err)
 	}
 	return &result, nil
-}
-
-// Radar connects to the server component (radar) and returns a client.
-func (c *RemoteContainer) Radar() (pb.RadarClient, error) {
-	conn, err := NewRadarInstance().RadarConnection(c.NodeName)
-	if err != nil {
-		return nil, debug.ErrorLocation(err)
-	}
-	// TODO: what's a better way to handle c?
-	// defer conn.Close()
-
-	log.WithFields(c.Fields()).Debug("radar connected")
-
-	return pb.NewRadarClient(conn), nil
-}
-
-// Restart restarts the remote ksync syncthing container to refresh mounts
-// before transfering files to the target container.
-func (c *RemoteContainer) Restart() error {
-	client, err := c.Radar()
-	if err != nil {
-		return err
-	}
-
-	if _, err := client.RestartSyncthing(
-		context.Background(), &empty.Empty{}); err != nil {
-		return debug.ErrorLocation(err)
-	}
-
-	return nil
 }

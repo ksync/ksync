@@ -65,47 +65,47 @@ func (m *Mirror) Fields() log.Fields {
 }
 
 func (m *Mirror) hotReload() error {
-	m.restartContainer = make(chan bool)
-	conn, err := NewRadarInstance().RadarConnection(
-		m.RemoteContainer.NodeName)
-	if err != nil {
-		return err
-	}
+	// m.restartContainer = make(chan bool)
+	// conn, err := NewRadarInstance().RadarConnection(
+	// 	m.RemoteContainer.NodeName)
+	// if err != nil {
+	// 	return err
+	// }
 
-	client := pb.NewRadarClient(conn)
+	// client := pb.NewRadarClient(conn)
 
-	// TODO: this is pretty naive, there are definite edge cases here where the
-	// reload will happen but not actually get some files.
-	go func() {
-		defer conn.Close() // nolint: errcheck
+	// // TODO: this is pretty naive, there are definite edge cases here where the
+	// // reload will happen but not actually get some files.
+	// go func() {
+	// 	defer conn.Close() // nolint: errcheck
 
-		tooSoon := false
-		for {
-			select {
-			case <-m.restartContainer:
-				if tooSoon {
-					continue
-				}
-				tooSoon = true
+	// 	tooSoon := false
+	// 	for {
+	// 		select {
+	// 		case <-m.restartContainer:
+	// 			if tooSoon {
+	// 				continue
+	// 			}
+	// 			tooSoon = true
 
-				log.WithFields(m.RemoteContainer.Fields()).Debug("issuing reload")
+	// 			log.WithFields(m.RemoteContainer.Fields()).Debug("issuing reload")
 
-				if _, err := client.Restart(
-					context.Background(), &pb.ContainerPath{
-						ContainerId: m.RemoteContainer.ID,
-					}); err != nil {
-					log.WithFields(m.RemoteContainer.Fields()).Error(err)
-					continue
-				}
+	// 			if _, err := client.Restart(
+	// 				context.Background(), &pb.ContainerPath{
+	// 					ContainerId: m.RemoteContainer.ID,
+	// 				}); err != nil {
+	// 				log.WithFields(m.RemoteContainer.Fields()).Error(err)
+	// 				continue
+	// 			}
 
-				log.WithFields(m.RemoteContainer.Fields()).Debug("reloaded")
-			case <-time.After(tooSoonReset):
-				tooSoon = false
-			case <-m.clean:
-				return
-			}
-		}
-	}()
+	// 			log.WithFields(m.RemoteContainer.Fields()).Debug("reloaded")
+	// 		case <-time.After(tooSoonReset):
+	// 			tooSoon = false
+	// 		case <-m.clean:
+	// 			return
+	// 		}
+	// 	}
+	// }()
 
 	return nil
 }

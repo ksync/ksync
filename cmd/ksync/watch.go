@@ -110,6 +110,7 @@ func (w *watchCmd) run(cmd *cobra.Command, args []string) {
 		}
 	}
 
+	// TODO: clear out the config on startup, we'll replace it all anyways.
 	if err := ksync.NewSyncthing().Run(); err != nil {
 		log.Fatal(err)
 	}

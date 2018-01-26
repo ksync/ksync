@@ -1,4 +1,4 @@
-package ksync
+package cluster
 
 import (
 	"fmt"
@@ -36,17 +36,17 @@ var syncthingConfig = `
 </configuration>
 `
 
-func (r *RadarInstance) daemonSet() *v1beta1.DaemonSet {
+func (s *Service) daemonSet() *v1beta1.DaemonSet {
 	return &v1beta1.DaemonSet{
 		ObjectMeta: metav1.ObjectMeta{
-			Namespace: r.namespace,
-			Name:      r.name,
-			Labels:    r.labels,
+			Namespace: s.Namespace,
+			Name:      s.name,
+			Labels:    s.labels,
 		},
 		Spec: v1beta1.DaemonSetSpec{
 			Template: v1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
-					Labels: r.labels,
+					Labels: s.labels,
 					Annotations: map[string]string{
 						// TODO: this should only be set on --upgrade --force
 						"forceUpdate": fmt.Sprint(time.Now().Unix()),
@@ -56,9 +56,9 @@ func (r *RadarInstance) daemonSet() *v1beta1.DaemonSet {
 				Spec: v1.PodSpec{
 					Containers: []v1.Container{
 						{
-							Name: r.name,
+							Name: s.name,
 							// TODO: configurable
-							Image:           RadarImageName,
+							Image:           ImageName,
 							ImagePullPolicy: "Always",
 							Command:         []string{"/radar", "--log-level=debug", "serve"},
 							Env: []v1.EnvVar{
@@ -72,7 +72,7 @@ func (r *RadarInstance) daemonSet() *v1beta1.DaemonSet {
 								},
 							},
 							Ports: []v1.ContainerPort{
-								{ContainerPort: r.radarPort, Name: "grpc"},
+								{ContainerPort: s.RadarPort, Name: "grpc"},
 							},
 							// TODO: resources
 							VolumeMounts: []v1.VolumeMount{
@@ -84,7 +84,7 @@ func (r *RadarInstance) daemonSet() *v1beta1.DaemonSet {
 						},
 						{
 							Name:            "syncthing",
-							Image:           RadarImageName,
+							Image:           ImageName,
 							ImagePullPolicy: "Always",
 							Command: []string{
 								"/syncthing/syncthing",
@@ -93,8 +93,8 @@ func (r *RadarInstance) daemonSet() *v1beta1.DaemonSet {
 								"-verbose",
 							},
 							Ports: []v1.ContainerPort{
-								{ContainerPort: r.syncthingAPI, Name: "rest"},
-								{ContainerPort: r.syncthingListener, Name: "sync"},
+								{ContainerPort: s.SyncthingAPI, Name: "rest"},
+								{ContainerPort: s.SyncthingListener, Name: "sync"},
 							},
 							// TODO: resources
 							VolumeMounts: []v1.VolumeMount{
@@ -114,7 +114,7 @@ func (r *RadarInstance) daemonSet() *v1beta1.DaemonSet {
 							LivenessProbe: &v1.Probe{
 								Handler: v1.Handler{
 									TCPSocket: &v1.TCPSocketAction{
-										Port: intstr.FromInt(int(r.syncthingAPI)),
+										Port: intstr.FromInt(int(s.SyncthingAPI)),
 									},
 								},
 								InitialDelaySeconds: 10,
@@ -122,7 +122,7 @@ func (r *RadarInstance) daemonSet() *v1beta1.DaemonSet {
 							ReadinessProbe: &v1.Probe{
 								Handler: v1.Handler{
 									TCPSocket: &v1.TCPSocketAction{
-										Port: intstr.FromInt(int(r.syncthingAPI)),
+										Port: intstr.FromInt(int(s.SyncthingAPI)),
 									},
 								},
 								InitialDelaySeconds: 10,

@@ -6,16 +6,20 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/golang/protobuf/ptypes/empty"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
+	"k8s.io/apimachinery/pkg/util/runtime"
+
 	"github.com/syncthing/syncthing/lib/config"
 	"github.com/syncthing/syncthing/lib/events"
 	"github.com/syncthing/syncthing/lib/fs"
 	"github.com/syncthing/syncthing/lib/protocol"
-	"golang.org/x/net/context"
-	"k8s.io/apimachinery/pkg/util/runtime"
 
 	"github.com/vapor-ware/ksync/pkg/debug"
+	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
 	pb "github.com/vapor-ware/ksync/pkg/proto"
 	"github.com/vapor-ware/ksync/pkg/syncthing"
 )
@@ -37,6 +41,10 @@ type Folder struct {
 	remoteServer   *syncthing.Server
 	remoteDeviceID protocol.DeviceID
 
+	connection  *cluster.Connection
+	radarConn   *grpc.ClientConn
+	radarClient pb.RadarClient
+
 	restartContainer chan bool
 	stop             chan bool
 }
@@ -51,6 +59,9 @@ func NewFolder(service *Service) *Folder {
 
 		id: fmt.Sprintf("%s-%s",
 			service.SpecDetails.Name, service.RemoteContainer.PodName),
+
+		connection: cluster.NewConnection(service.RemoteContainer.NodeName),
+
 		stop: make(chan bool),
 	}
 }
@@ -80,12 +91,7 @@ func (f *Folder) Fields() log.Fields {
 }
 
 func (f *Folder) path() (string, error) {
-	client, err := f.RemoteContainer.Radar()
-	if err != nil {
-		return "", err
-	}
-
-	path, err := client.GetBasePath(
+	path, err := f.radarClient.GetBasePath(
 		context.Background(), &pb.ContainerPath{
 			ContainerId: f.RemoteContainer.ID,
 		})
@@ -94,6 +100,27 @@ func (f *Folder) path() (string, error) {
 	}
 
 	return filepath.Join(path.Full, f.RemotePath), nil
+}
+
+func (f *Folder) initRadarClient() error {
+	conn, err := f.connection.Radar()
+	if err != nil {
+		return err
+	}
+
+	f.radarConn = conn
+	f.radarClient = pb.NewRadarClient(conn)
+
+	return nil
+}
+
+func (f *Folder) refreshSyncthing() error {
+	if _, err := f.radarClient.RestartSyncthing(
+		context.Background(), &empty.Empty{}); err != nil {
+		return debug.ErrorLocation(err)
+	}
+
+	return nil
 }
 
 func (f *Folder) initServers(apiPort int32) error {
@@ -122,19 +149,10 @@ func (f *Folder) initServers(apiPort int32) error {
 
 func (f *Folder) hotReload() error {
 	f.restartContainer = make(chan bool)
-	conn, err := NewRadarInstance().RadarConnection(
-		f.RemoteContainer.NodeName)
-	if err != nil {
-		return err
-	}
-
-	client := pb.NewRadarClient(conn)
 
 	// TODO: this is pretty naive, there are definite edge cases here where the
 	// reload will happen but not actually get some files.
 	go func() {
-		defer conn.Close() // nolint: errcheck
-
 		tooSoon := false
 		for {
 			select {
@@ -147,7 +165,7 @@ func (f *Folder) hotReload() error {
 				log.WithFields(f.RemoteContainer.Fields()).Info("issuing reload")
 				f.Status = ServiceReloading
 
-				if _, err := client.Restart(
+				if _, err := f.radarClient.Restart(
 					context.Background(), &pb.ContainerPath{
 						ContainerId: f.RemoteContainer.ID,
 					}); err != nil {
@@ -195,6 +213,7 @@ func (f *Folder) watchEvents() error {
 				}
 			}
 		}
+		log.WithFields(f.Fields()).Debug("cleaning up event handler")
 	}()
 
 	return nil
@@ -251,8 +270,15 @@ func (f *Folder) setFolders() error {
 func (f *Folder) Run() error {
 	f.Status = ServiceStarting
 
-	apiPort, listenerPort, err := NewRadarInstance().SyncthingConnection(
-		f.RemoteContainer.NodeName)
+	if err := f.initRadarClient(); err != nil {
+		return err
+	}
+
+	if err := f.refreshSyncthing(); err != nil {
+		return err
+	}
+
+	apiPort, listenerPort, err := f.connection.Syncthing()
 	if err != nil {
 		return err
 	}
@@ -287,7 +313,30 @@ func (f *Folder) Run() error {
 	return f.localServer.Update()
 }
 
-// TODO: clear out remote config before leaving.
+// TODO: stop the tunnel
 func (f *Folder) Stop() error {
+	f.localServer.Stop()
+	f.remoteServer.Stop()
+
+	close(f.stop)
+	<-f.stop
+
+	// Leave the devices, there might be other syncs with those nodes. It
+	// shouldn't be a huge deal because the tunnel will be down unless active.
+	f.localServer.RemoveFolder(f.id)
+	f.remoteServer.RemoveFolder(f.id)
+
+	if err := f.localServer.Update(); err != nil {
+		return err
+	}
+
+	if err := f.remoteServer.Update(); err != nil {
+		return err
+	}
+
+	f.radarConn.Close()
+	f.connection.Stop()
+
+	log.WithFields(f.Fields()).Debug("stopped folder")
 	return nil
 }

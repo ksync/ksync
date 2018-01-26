@@ -13,6 +13,7 @@ import (
 
 	"github.com/vapor-ware/ksync/pkg/cli"
 	"github.com/vapor-ware/ksync/pkg/ksync"
+	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
 	pb "github.com/vapor-ware/ksync/pkg/proto"
 	"github.com/vapor-ware/ksync/pkg/radar"
 )
@@ -119,8 +120,8 @@ func fixVersionTime(version string) string {
 
 // TODO: temporary
 func radarVersion() (*pb.VersionInfo, error) {
-	radar := ksync.NewRadarInstance()
-	nodes, err := radar.NodeNames()
+	service := cluster.NewService()
+	nodes, err := service.NodeNames()
 	if err != nil {
 		return nil, nil
 	}
@@ -129,15 +130,15 @@ func radarVersion() (*pb.VersionInfo, error) {
 		return nil, nil
 	}
 
-	if _, healthErr := radar.IsHealthy(nodes[0]); err != nil {
+	if _, healthErr := service.IsHealthy(nodes[0]); err != nil {
 		return nil, healthErr
 	}
 
-	connection, err := radar.RadarConnection(nodes[0])
+	conn, err := cluster.NewConnection(nodes[0]).Radar()
 	if err != nil {
 		return nil, err
 	}
 
-	return pb.NewRadarClient(connection).GetVersionInfo(
+	return pb.NewRadarClient(conn).GetVersionInfo(
 		context.Background(), &empty.Empty{})
 }

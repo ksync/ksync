@@ -6,6 +6,7 @@ import (
 
 	"github.com/vapor-ware/ksync/pkg/cli"
 	"github.com/vapor-ware/ksync/pkg/ksync"
+	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
 )
 
 type initCmd struct {
@@ -69,7 +70,7 @@ func (i *initCmd) new() *cobra.Command {
 
 func (i *initCmd) initServer() {
 	upgrade := i.Viper.GetBool("upgrade")
-	if err := ksync.NewRadarInstance().Run(upgrade); err != nil {
+	if err := cluster.NewService().Run(upgrade); err != nil {
 		log.Fatalf("could not start radar: %v", err)
 	}
 }

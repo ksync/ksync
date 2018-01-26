@@ -79,14 +79,14 @@ func (s *Syncthing) initLogs() error {
 // TODO: clear out local config before leaving.
 func (s *Syncthing) Run() error {
 	path := filepath.Join(
-		filepath.Dir(viper.ConfigFileUsed()), "syncthing")
+		filepath.Dir(viper.ConfigFileUsed()), "bin", "syncthing")
 
 	address := fmt.Sprintf("localhost:%d", viper.GetInt("syncthing-port"))
 
 	cmdArgs := []string{
 		"-gui-address", address,
 		"-gui-apikey", viper.GetString("apikey"),
-		"-home", filepath.Dir(viper.ConfigFileUsed()),
+		"-home", filepath.Join(filepath.Dir(viper.ConfigFileUsed()), "syncthing"),
 		"-no-browser",
 	}
 

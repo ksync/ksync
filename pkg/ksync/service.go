@@ -80,14 +80,10 @@ func (s *Service) Status() ServiceStatus {
 	return s.folder.Status
 }
 
-// Start runs this service in the background.
+// Start runs this service.
 func (s *Service) Start() error {
 	if s.folder != nil {
 		return fmt.Errorf("already running")
-	}
-
-	if err := s.RemoteContainer.Restart(); err != nil {
-		return err
 	}
 
 	s.folder = NewFolder(s)

@@ -9,6 +9,7 @@ import (
 
 	"github.com/vapor-ware/ksync/pkg/cli"
 	"github.com/vapor-ware/ksync/pkg/ksync"
+	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
 )
 
 var (
@@ -126,11 +127,11 @@ func initPersistent(cmd *cobra.Command, args []string) {
 
 	initKubeClient()
 
-	ksync.SetImage(viper.GetString("image"))
+	cluster.SetImage(viper.GetString("image"))
 }
 
 func initKubeClient() {
-	err := ksync.InitKubeClient(viper.GetString("context"))
+	err := cluster.InitKubeClient(viper.GetString("context"))
 	if err != nil {
 		log.Fatalf("Error creating kubernetes client: %v", err)
 	}

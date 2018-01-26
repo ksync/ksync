@@ -1,4 +1,4 @@
-package ksync
+package cluster
 
 import (
 	"os"

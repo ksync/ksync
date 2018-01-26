@@ -32,6 +32,7 @@ func (s *Server) Events(types ...string) (
 			select {
 			case <-s.stop:
 				log.WithFields(s.Fields()).Debug("halting events polling")
+				close(out)
 				return
 			default:
 				params["since"] = strconv.Itoa(since)

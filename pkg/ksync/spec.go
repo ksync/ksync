@@ -8,6 +8,7 @@ import (
 	"k8s.io/client-go/pkg/api/v1"
 
 	"github.com/vapor-ware/ksync/pkg/debug"
+	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
 	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
 
@@ -77,7 +78,7 @@ func (s *Spec) Watch() error {
 
 	opts := metav1.ListOptions{}
 	opts.LabelSelector = s.Details.Selector
-	watcher, err := kubeClient.CoreV1().Pods(s.Details.Namespace).Watch(opts)
+	watcher, err := cluster.Client.CoreV1().Pods(s.Details.Namespace).Watch(opts)
 	if err != nil {
 		return err
 	}
