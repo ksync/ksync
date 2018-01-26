@@ -104,6 +104,7 @@ func (w *watchCmd) run(cmd *cobra.Command, args []string) {
 		defer context.Release()
 
 		if !daemon.WasReborn() {
+			log.Info("sending watch to the background. Use clean to stop it.")
 			// "Golang is dumb, this just terminates the program" -@pyronicide
 			return
 		}
