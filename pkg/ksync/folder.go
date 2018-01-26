@@ -11,6 +11,7 @@ import (
 	"github.com/syncthing/syncthing/lib/config"
 	"github.com/syncthing/syncthing/lib/events"
 	"github.com/syncthing/syncthing/lib/fs"
+	"github.com/syncthing/syncthing/lib/protocol"
 	"golang.org/x/net/context"
 	"k8s.io/apimachinery/pkg/util/runtime"
 
@@ -31,11 +32,13 @@ type Folder struct {
 
 	id string
 
-	local  *syncthing.Server
-	remote *syncthing.Server
+	localServer    *syncthing.Server
+	localDeviceID  protocol.DeviceID
+	remoteServer   *syncthing.Server
+	remoteDeviceID protocol.DeviceID
 
 	restartContainer chan bool
-	clean            chan bool
+	stop             chan bool
 }
 
 func NewFolder(service *Service) *Folder {
@@ -48,6 +51,7 @@ func NewFolder(service *Service) *Folder {
 
 		id: fmt.Sprintf("%s-%s",
 			service.SpecDetails.Name, service.RemoteContainer.PodName),
+		stop: make(chan bool),
 	}
 }
 
@@ -93,23 +97,25 @@ func (f *Folder) path() (string, error) {
 }
 
 func (f *Folder) initServers(apiPort int32) error {
-	local, err := syncthing.NewServer(
+	localServer, err := syncthing.NewServer(
 		fmt.Sprintf("localhost:%d", viper.GetInt("syncthing-port")),
 		viper.GetString("apikey"))
 	if err != nil {
 		return err
 	}
 
-	f.local = local
+	f.localServer = localServer
+	f.localDeviceID = f.localServer.ID
 
-	remote, err := syncthing.NewServer(
+	remoteServer, err := syncthing.NewServer(
 		fmt.Sprintf("localhost:%d", apiPort),
 		viper.GetString("apikey"))
 	if err != nil {
 		return err
 	}
 
-	f.remote = remote
+	f.remoteServer = remoteServer
+	f.remoteDeviceID = f.remoteServer.ID
 
 	return nil
 }
@@ -138,7 +144,7 @@ func (f *Folder) hotReload() error {
 				}
 				tooSoon = true
 
-				log.WithFields(f.RemoteContainer.Fields()).Debug("issuing reload")
+				log.WithFields(f.RemoteContainer.Fields()).Info("issuing reload")
 				f.Status = ServiceReloading
 
 				if _, err := client.Restart(
@@ -149,11 +155,11 @@ func (f *Folder) hotReload() error {
 					continue
 				}
 
-				log.WithFields(f.RemoteContainer.Fields()).Debug("reloaded")
+				log.WithFields(f.RemoteContainer.Fields()).Info("reloaded")
 				f.Status = ServiceWatching
 			case <-time.After(tooSoonReset):
 				tooSoon = false
-			case <-f.clean:
+			case <-f.stop:
 				return
 			}
 		}
@@ -163,7 +169,7 @@ func (f *Folder) hotReload() error {
 }
 
 func (f *Folder) watchEvents() error {
-	stream, err := f.local.Events()
+	stream, err := f.localServer.Events()
 	if err != nil {
 		return err
 	}
@@ -178,8 +184,10 @@ func (f *Folder) watchEvents() error {
 
 			switch ev.Type {
 			case events.FolderSummary:
+				log.WithFields(f.RemoteContainer.Fields()).Info("updating")
 				f.Status = ServiceUpdating
 			case events.FolderCompletion:
+				log.WithFields(f.RemoteContainer.Fields()).Info("update complete")
 				f.Status = ServiceWatching
 
 				if f.Reload {
@@ -197,19 +205,20 @@ func (f *Folder) setDevices(listenerPort int32) error {
 	if err != nil {
 		return err
 	}
-	localDevice := config.NewDeviceConfiguration(f.local.ID, host)
+
+	localDevice := config.NewDeviceConfiguration(f.localServer.ID, host)
 
 	remoteDevice := config.NewDeviceConfiguration(
-		f.remote.ID, f.RemoteContainer.PodName)
+		f.remoteServer.ID, f.RemoteContainer.PodName)
 	remoteDevice.Addresses = []string{
 		fmt.Sprintf("tcp://127.0.0.1:%d", listenerPort),
 	}
 
-	if err := f.remote.SetDevice(&localDevice); err != nil {
+	if err := f.remoteServer.SetDevice(&localDevice); err != nil {
 		return err
 	}
 
-	if err := f.local.SetDevice(&remoteDevice); err != nil {
+	if err := f.localServer.SetDevice(&remoteDevice); err != nil {
 		return err
 	}
 
@@ -218,7 +227,7 @@ func (f *Folder) setDevices(listenerPort int32) error {
 
 func (f *Folder) setFolders() error {
 	localFolder := config.NewFolderConfiguration(
-		f.remote.ID, f.id, f.id, fs.FilesystemTypeBasic, f.LocalPath)
+		f.remoteServer.ID, f.id, f.id, fs.FilesystemTypeBasic, f.LocalPath)
 
 	remotePath, err := f.path()
 	if err != nil {
@@ -226,13 +235,13 @@ func (f *Folder) setFolders() error {
 	}
 
 	remoteFolder := config.NewFolderConfiguration(
-		f.local.ID, f.id, f.id, fs.FilesystemTypeBasic, remotePath)
+		f.localServer.ID, f.id, f.id, fs.FilesystemTypeBasic, remotePath)
 
-	if err := f.local.SetFolder(&localFolder); err != nil {
+	if err := f.localServer.SetFolder(&localFolder); err != nil {
 		return err
 	}
 
-	if err := f.remote.SetFolder(&remoteFolder); err != nil {
+	if err := f.remoteServer.SetFolder(&remoteFolder); err != nil {
 		return err
 	}
 
@@ -271,11 +280,11 @@ func (f *Folder) Run() error {
 		return err
 	}
 
-	if err := f.remote.Update(); err != nil {
+	if err := f.remoteServer.Update(); err != nil {
 		return err
 	}
 
-	return f.local.Update()
+	return f.localServer.Update()
 }
 
 // TODO: clear out remote config before leaving.

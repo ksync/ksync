@@ -5,28 +5,35 @@ import (
 	"time"
 
 	"github.com/go-resty/resty"
-	// log "github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/syncthing/syncthing/lib/config"
 	"github.com/syncthing/syncthing/lib/protocol"
+
+	"github.com/vapor-ware/ksync/pkg/debug"
 )
 
 var connectRetries = 10
 
 type Server struct {
-	Config *config.Configuration
+	Config *config.Configuration `structs:"-"`
 	ID     protocol.DeviceID
+	URL    string
 
 	client *resty.Client
+	stop   chan bool
 }
 
 func NewServer(host string, apikey string) (*Server, error) {
-	server := &Server{}
+	server := &Server{
+		URL:    fmt.Sprintf("http://%s/rest/", host),
+		client: resty.New(),
+		stop:   make(chan bool),
+	}
 
-	server.client = resty.New()
 	server.client.
 		SetRetryCount(connectRetries).
 		SetRetryWaitTime(1*time.Second).
-		SetHostURL(fmt.Sprintf("http://%s/rest/", host)).
+		SetHostURL(server.URL).
 		SetHeader("X-API-KEY", apikey)
 
 	// TODO: return a friendly error if refresh isn't successful (likely
@@ -36,6 +43,15 @@ func NewServer(host string, apikey string) (*Server, error) {
 	}
 
 	return server, nil
+}
+
+func (s *Server) String() string {
+	return debug.YamlString(s)
+}
+
+// Fields returns a set of structured fields for logging.
+func (s *Server) Fields() log.Fields {
+	return debug.StructFields(s)
 }
 
 func (s *Server) Refresh() error {
@@ -74,4 +90,10 @@ func (s *Server) Restart() error {
 	}
 
 	return nil
+}
+
+func (s *Server) Stop() {
+	close(s.stop)
+	<-s.stop
+	log.WithFields(s.Fields()).Debug("stopping")
 }

@@ -29,20 +29,26 @@ func (s *Server) Events(types ...string) (
 
 	go func() {
 		for {
-			params["since"] = strconv.Itoa(since)
-			resp, err := s.client.NewRequest().
-				SetQueryParams(params).
-				SetResult([]events.Event{}).
-				Get("events")
+			select {
+			case <-s.stop:
+				log.WithFields(s.Fields()).Debug("halting events polling")
+				return
+			default:
+				params["since"] = strconv.Itoa(since)
+				resp, err := s.client.NewRequest().
+					SetQueryParams(params).
+					SetResult([]events.Event{}).
+					Get("events")
 
-			if err != nil {
-				log.Warn(err)
-				continue
-			}
+				if err != nil {
+					log.Warn(err)
+					continue
+				}
 
-			for _, event := range *resp.Result().(*[]events.Event) {
-				since = event.SubscriptionID
-				out <- &event
+				for _, event := range *resp.Result().(*[]events.Event) {
+					since = event.SubscriptionID
+					out <- &event
+				}
 			}
 		}
 	}()
