@@ -6,7 +6,6 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	daemon "github.com/sevlyar/go-daemon"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
@@ -113,30 +112,4 @@ func (s *Syncthing) Run() error {
 func (s *Syncthing) Stop() error {
 	defer s.cmd.Process.Wait() //nolint: errcheck
 	return s.cmd.Process.Kill()
-}
-
-func (s *Syncthing) Daemonize() error {
-	context := &daemon.Context{
-		PidFileName: filepath.Join(filepath.Dir(viper.ConfigFileUsed()), "daemon.pid"),
-		PidFilePerm: 0644,
-		LogFileName: filepath.Join(filepath.Dir(viper.ConfigFileUsed()), "daemon.log"),
-		LogFilePerm: 0640,
-		WorkDir:     filepath.Dir(viper.ConfigFileUsed()),
-		// Umask:       027,
-		Args: []string{"", "watch"},
-	}
-
-	daemon, err := context.Reborn()
-	if err != nil {
-		return err
-	}
-	if daemon != nil {
-		return nil
-	}
-
-	log.Debug("daemonizing")
-
-	defer context.Release()
-
-	return nil
 }

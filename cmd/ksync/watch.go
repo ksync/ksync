@@ -90,16 +90,14 @@ func (w *watchCmd) run(cmd *cobra.Command, args []string) {
 	w.local(list)
 
 	if w.Viper.GetBool("daemon") {
+		rootDir := filepath.Dir(viper.ConfigFileUsed())
 		context := &daemon.Context{
-			PidFileName: filepath.Join(filepath.Dir(viper.ConfigFileUsed()), "daemon.pid"),
-			LogFileName: filepath.Join(filepath.Dir(viper.ConfigFileUsed()), "daemon.log"),
-			WorkDir:     filepath.Dir(viper.ConfigFileUsed()),
-			// The blank space is there due to https://github.com/sevlyar/go-daemon/issues/33
-			Args: []string{" ","watch", "--daemon"},
+			PidFileName: filepath.Join(rootDir, "daemon.pid"),
+			LogFileName: filepath.Join(rootDir, "daemon.log"),
+			WorkDir:     rootDir,
 		}
 
-		_, err := context.Reborn()
-		if err != nil {
+		if _, err := context.Reborn(); err != nil {
 			log.Fatal(err)
 		}
 
