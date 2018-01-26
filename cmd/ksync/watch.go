@@ -1,6 +1,8 @@
 package main
 
 import (
+	"path/filepath"
+	
 	"github.com/fsnotify/fsnotify"
 	daemon "github.com/sevlyar/go-daemon"
 	log "github.com/sirupsen/logrus"
@@ -89,13 +91,21 @@ func (w *watchCmd) run(cmd *cobra.Command, args []string) {
 	daemonize := w.Viper.GetBool("daemon")
 
 	if daemonize {
-		context := &daemon.Context{}
+		context := &daemon.Context{
+			PidFileName: filepath.Join(filepath.Dir(viper.ConfigFileUsed()), "daemon.pid"),
+			PidFilePerm: 0644,
+			LogFileName: filepath.Join(filepath.Dir(viper.ConfigFileUsed()), "daemon.log"),
+			LogFilePerm: 0640,
+			WorkDir:     filepath.Dir(viper.ConfigFileUsed()),
+			// Umask:       027,
+			Args: []string{"","watch"},
+		}
 
 		daemon, err := context.Reborn()
 		if err != nil {
 			log.Fatal(err)
 		}
-		if daemon != nil {
+		if daemon == nil {
 			log.Fatal(err)
 		}
 
