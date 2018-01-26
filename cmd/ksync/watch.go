@@ -81,6 +81,7 @@ func (w *watchCmd) local(list *ksync.SpecList) {
 	})
 }
 
+// TODO: This needs cleanup
 // TODO: should the listen be random?
 // TODO: does this need TLS?
 func (w *watchCmd) run(cmd *cobra.Command, args []string) {
@@ -88,36 +89,34 @@ func (w *watchCmd) run(cmd *cobra.Command, args []string) {
 
 	w.local(list)
 
-	daemonize := w.Viper.GetBool("daemon")
-
-	if daemonize {
+	if w.Viper.GetBool("daemon") {
 		context := &daemon.Context{
 			PidFileName: filepath.Join(filepath.Dir(viper.ConfigFileUsed()), "daemon.pid"),
-			PidFilePerm: 0644,
 			LogFileName: filepath.Join(filepath.Dir(viper.ConfigFileUsed()), "daemon.log"),
-			LogFilePerm: 0640,
 			WorkDir:     filepath.Dir(viper.ConfigFileUsed()),
-			// Umask:       027,
-			Args: []string{"","watch"},
+			// The blank space is there due to https://github.com/sevlyar/go-daemon/issues/33
+			Args: []string{" ","watch", "--daemon"},
 		}
 
-		daemon, err := context.Reborn()
+		_, err := context.Reborn()
 		if err != nil {
-			log.Fatal(err)
-		}
-		if daemon == nil {
 			log.Fatal(err)
 		}
 
 		defer context.Release()
-	} else {
-		if err := ksync.NewSyncthing().Run(); err != nil {
-			log.Fatal(err)
-		}
 
-		if err := server.Listen(
-			list, w.Viper.GetString("bind"), viper.GetInt("port")); err != nil {
-			log.Fatal(err)
+		if !daemon.WasReborn() {
+			// "Golang is dumb, this just terminates the program" -@pyronicide
+			return
 		}
+	}
+
+	if err := ksync.NewSyncthing().Run(); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := server.Listen(
+		list, w.Viper.GetString("bind"), viper.GetInt("port")); err != nil {
+		log.Fatal(err)
 	}
 }
