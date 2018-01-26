@@ -2,7 +2,7 @@ package main
 
 import (
 	"path/filepath"
-	
+
 	"github.com/fsnotify/fsnotify"
 	daemon "github.com/sevlyar/go-daemon"
 	log "github.com/sirupsen/logrus"
@@ -110,14 +110,14 @@ func (w *watchCmd) run(cmd *cobra.Command, args []string) {
 		}
 
 		defer context.Release()
-	}
+	} else {
+		if err := ksync.NewSyncthing().Run(); err != nil {
+			log.Fatal(err)
+		}
 
-	if err := ksync.NewSyncthing().Run(); err != nil {
-		log.Fatal(err)
-	}
-
-	if err := server.Listen(
-		list, w.Viper.GetString("bind"), viper.GetInt("port")); err != nil {
-		log.Fatal(err)
+		if err := server.Listen(
+			list, w.Viper.GetString("bind"), viper.GetInt("port")); err != nil {
+			log.Fatal(err)
+		}
 	}
 }
