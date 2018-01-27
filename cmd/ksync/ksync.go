@@ -26,6 +26,7 @@ var (
 
 func main() {
 	rootCmd.AddCommand(
+		(&cleanCmd{}).new(),
 		(&createCmd{}).new(),
 		(&deleteCmd{}).new(),
 		(&getCmd{}).new(),

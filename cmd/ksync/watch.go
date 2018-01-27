@@ -14,6 +14,16 @@ import (
 	"github.com/vapor-ware/ksync/pkg/ksync/server"
 )
 
+var (
+	rootDir = filepath.Dir(viper.ConfigFileUsed())
+	// TODO: Allow multiple simultaneous daemons? This hardcodes a single shared context
+	defaultDaemonContext = &daemon.Context{
+		PidFileName: filepath.Join(rootDir, "daemon.pid"),
+		LogFileName: filepath.Join(rootDir, "daemon.log"),
+		WorkDir:     rootDir,
+	}
+)
+
 type watchCmd struct {
 	cli.BaseCmd
 }
@@ -90,12 +100,11 @@ func (w *watchCmd) run(cmd *cobra.Command, args []string) {
 	w.local(list)
 
 	if w.Viper.GetBool("daemon") {
-		rootDir := filepath.Dir(viper.ConfigFileUsed())
+		rootDir = filepath.Dir(viper.ConfigFileUsed())
 		context := &daemon.Context{
 			PidFileName: filepath.Join(rootDir, "daemon.pid"),
 			LogFileName: filepath.Join(rootDir, "daemon.log"),
-			WorkDir:     rootDir,
-		}
+			WorkDir:     rootDir}
 
 		if _, err := context.Reborn(); err != nil {
 			log.Fatal(err)
