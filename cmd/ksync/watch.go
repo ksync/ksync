@@ -19,12 +19,12 @@ type watchCmd struct {
 }
 
 func (w *watchCmd) new() *cobra.Command {
-	long := `Watch configured syncs and start them when required.`
+	long := `Watch configured specs and start syncing files when required.`
 	example := ``
 
 	w.Init("ksync", &cobra.Command{
 		Use:     "watch",
-		Short:   "Watch configured syncs and start them when required.",
+		Short:   "Watch configured specs and start syncing files when required.",
 		Long:    long,
 		Example: example,
 		Run:     w.run,
@@ -34,7 +34,7 @@ func (w *watchCmd) new() *cobra.Command {
 	flags.String(
 		"bind",
 		"127.0.0.1",
-		"interface to which the server will bind")
+		"interface to bind to")
 
 	if err := w.BindFlag("bind"); err != nil {
 		log.Fatal(err)
@@ -44,7 +44,7 @@ func (w *watchCmd) new() *cobra.Command {
 		"daemon",
 		"d",
 		false,
-		"Run the watch command in the background.")
+		"run in the background")
 	if err := w.BindFlag("daemon"); err != nil {
 		log.Fatal(err)
 	}
@@ -78,9 +78,6 @@ func (w *watchCmd) local(list *ksync.SpecList) {
 	})
 }
 
-// TODO: This needs cleanup
-// TODO: should the listen be random?
-// TODO: does this need TLS?
 func (w *watchCmd) run(cmd *cobra.Command, args []string) {
 	list := &ksync.SpecList{}
 
@@ -100,13 +97,11 @@ func (w *watchCmd) run(cmd *cobra.Command, args []string) {
 		defer context.Release() //nolint: errcheck
 
 		if !daemon.WasReborn() {
-			log.Info("sending watch to the background. Use clean to stop it.")
-			// "Golang is dumb, this just terminates the program" -@pyronicide
+			log.Info("Sending watch to the background. Use clean to stop it.")
 			return
 		}
 	}
 
-	// TODO: clear out the config on startup, we'll replace it all anyways.
 	if err := ksync.NewSyncthing().Run(); err != nil {
 		log.Fatal(err)
 	}
