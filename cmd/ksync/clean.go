@@ -38,7 +38,7 @@ WARNING: USING THE "NUKE" OPTION WILL REMOVE YOUR CONFIG. USE WITH CAUTION.
 	flags.BoolP(
 		"local",
 		"l",
-		false,
+		true,
 		"Remove local components (daemons, servers, etc.)")
 	if err := c.BindFlag("local"); err != nil {
 		log.Fatal(err)
@@ -47,7 +47,7 @@ WARNING: USING THE "NUKE" OPTION WILL REMOVE YOUR CONFIG. USE WITH CAUTION.
 	flags.BoolP(
 		"remote",
 		"r",
-		false,
+		true,
 		"Remove remote components (daemon-sets, pods, etc.)")
 	if err := c.BindFlag("remote"); err != nil {
 		log.Fatal(err)
@@ -95,7 +95,7 @@ func (c *cleanCmd) cleanRemote() {
 	service := cluster.NewService()
 
 	// Check that the daemonset is running remotely
-	isInstalled, err :=service.IsInstalled()
+	isInstalled, err := service.IsInstalled()
 	if err != nil {
 		log.Fatal(err)
 	} else if !isInstalled {
@@ -114,16 +114,12 @@ func (c *cleanCmd) run(cmd *cobra.Command, args []string) {
 	if c.Viper.GetBool("local") {
 		c.cleanLocal()
 	}
+
 	if c.Viper.GetBool("remote") {
 		c.cleanRemote()
 	}
+
 	if c.Viper.GetBool("nuke") {
-		c.cleanLocal()
-		c.cleanRemote()
 		c.fromOrbit()
-	}
-	if !c.Viper.GetBool("local") && !c.Viper.GetBool("remote") {
-		c.cleanLocal()
-		c.cleanRemote()
 	}
 }
