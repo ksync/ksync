@@ -17,7 +17,10 @@ type cleanCmd struct {
 }
 
 func (c *cleanCmd) new() *cobra.Command {
-	long := `Remove installed components.`
+	long := `Remove installed components.
+
+WARNING: USING THE "NUKE" OPTION WILL REMOVE YOUR CONFIG. USE WITH CAUTION.
+	`
 	example := ``
 
 	c.Init("ksync", &cobra.Command{
@@ -51,7 +54,7 @@ func (c *cleanCmd) new() *cobra.Command {
 	flags.Bool(
 		"nuke",
 		false,
-		"Remove everything including configs, db, and downloaded helper binaries. WARNING: THIS WILL REMOVE YOUR CONFIG. USE WITH CAUTION.")
+		"Remove everything including configs, db, and downloaded helper binaries. CAUTION!")
 	if err := c.BindFlag("nuke"); err != nil {
 		log.Fatal(err)
 	}
