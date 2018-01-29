@@ -80,12 +80,9 @@ func (i *initCmd) initClient() {
 		return
 	}
 
-	if !ksync.HasJava() {
-		log.Fatal("java is required.")
-	}
-
-	if !ksync.HasMirror() {
-		if err := ksync.FetchMirror(); err != nil {
+	sync := ksync.NewSyncthing()
+	if !sync.HasBinary() {
+		if err := sync.Fetch(); err != nil {
 			log.Fatal(err)
 		}
 	}

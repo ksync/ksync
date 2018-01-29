@@ -38,7 +38,7 @@ func getKubeConfig(context string) (*rest.Config, string, error) {
 	return config, clientLoader.ConfigAccess().GetDefaultFilename(), nil
 }
 
-// InitKubeClient creates a new k8s client for use in talking to the k8s api server.
+// InitKubeClient creates a new k8s client for use in talking to the api server.
 func InitKubeClient(context string) error {
 	log.WithFields(log.Fields{
 		"context": context,

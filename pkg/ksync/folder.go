@@ -16,7 +16,6 @@ import (
 	"github.com/syncthing/syncthing/lib/config"
 	"github.com/syncthing/syncthing/lib/events"
 	"github.com/syncthing/syncthing/lib/fs"
-	"github.com/syncthing/syncthing/lib/protocol"
 
 	"github.com/vapor-ware/ksync/pkg/debug"
 	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
@@ -36,10 +35,8 @@ type Folder struct {
 
 	id string
 
-	localServer    *syncthing.Server
-	localDeviceID  protocol.DeviceID
-	remoteServer   *syncthing.Server
-	remoteDeviceID protocol.DeviceID
+	localServer  *syncthing.Server
+	remoteServer *syncthing.Server
 
 	connection  *cluster.Connection
 	radarConn   *grpc.ClientConn
@@ -132,7 +129,6 @@ func (f *Folder) initServers(apiPort int32) error {
 	}
 
 	f.localServer = localServer
-	f.localDeviceID = f.localServer.ID
 
 	remoteServer, err := syncthing.NewServer(
 		fmt.Sprintf("localhost:%d", apiPort),
@@ -142,7 +138,6 @@ func (f *Folder) initServers(apiPort int32) error {
 	}
 
 	f.remoteServer = remoteServer
-	f.remoteDeviceID = f.remoteServer.ID
 
 	return nil
 }

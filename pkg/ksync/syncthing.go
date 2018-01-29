@@ -76,8 +76,36 @@ func (s *Syncthing) initLogs() error {
 	return s.lineHandler(logger.Debug)
 }
 
+func (s *Syncthing) HasBinary() bool {
+	return true
+}
+
+func (s *Syncthing) Fetch() error {
+	return nil
+}
+
+func (s *Syncthing) HasConfig() bool {
+	return true
+}
+
+func (s *Syncthing) resetState() error {
+	return nil
+}
+
 // TODO: clear out local config before leaving.
 func (s *Syncthing) Run() error {
+	if !s.HasBinary() {
+		return fmt.Errorf("binary missing, run init to download")
+	}
+
+	if !s.HasConfig() {
+		return fmt.Errorf("config missing, run init to setup")
+	}
+
+	if err := s.resetState(); err != nil {
+		return err
+	}
+
 	path := filepath.Join(
 		filepath.Dir(viper.ConfigFileUsed()), "bin", "syncthing")
 
