@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"path/filepath"
 	"syscall"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/vapor-ware/ksync/pkg/cli"
+	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
 )
 
 type cleanCmd struct {
@@ -82,10 +84,26 @@ func (c *cleanCmd) cleanLocal() {
 		syscall.SIGTERM,
 		nil)
 	daemon.SendCommands(child)
+
+	// Clean up after the process since it seems incapable of doing that itself
+	if err := os.Remove(context.PidFileName); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func (c *cleanCmd) cleanRemote() {
+	service := cluster.NewService()
 
+	// Check that the daemonset is running remotely
+	isInstalled, err :=service.IsInstalled()
+	if err != nil {
+		log.Fatal(err)
+	} else if !isInstalled {
+		log.Fatalln("Remote components are not installed")
+	}
+	if err := service.Remove(); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func (c *cleanCmd) fromOrbit() {
@@ -103,7 +121,8 @@ func (c *cleanCmd) run(cmd *cobra.Command, args []string) {
 		c.cleanLocal()
 		c.cleanRemote()
 		c.fromOrbit()
-	} else {
+	}
+	if !c.Viper.GetBool("local") && !c.Viper.GetBool("remote") {
 		c.cleanLocal()
 		c.cleanRemote()
 	}

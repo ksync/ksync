@@ -201,3 +201,17 @@ func (s *Service) Run(upgrade bool) error {
 
 	return nil
 }
+
+func (s *Service) Remove() error {
+	daemonSets := Client.DaemonSets(s.Namespace)
+
+	if err := daemonSets.Delete(s.name, &metav1.DeleteOptions{}); err != nil {
+		return err
+	}
+
+	log.WithFields(debug.MergeFields(s.Fields(), log.Fields{
+		"Name": s.name,
+	})).Debug("Removed DaemonSet")
+
+	return nil
+}
