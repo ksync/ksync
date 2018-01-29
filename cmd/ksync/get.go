@@ -17,7 +17,6 @@ import (
 
 	"github.com/vapor-ware/ksync/pkg/cli"
 	pb "github.com/vapor-ware/ksync/pkg/proto"
-	// "github.com/vapor-ware/ksync/pkg/ksync"
 )
 
 type getCmd struct {
@@ -25,12 +24,14 @@ type getCmd struct {
 }
 
 func (g *getCmd) new() *cobra.Command {
-	long := `Get all configured syncs and their status.`
+	long := `Get all specs.
+
+	Based off what specs have been created, returns the current status of each spec.`
 	example := ``
 
 	g.Init("ksync", &cobra.Command{
 		Use:     "get",
-		Short:   "Get all configured syncs and their status.",
+		Short:   "Get all specs.",
 		Long:    long,
 		Example: example,
 		Run:     g.run,
@@ -90,7 +91,6 @@ func (g *getCmd) out(specs *pb.SpecList) {
 	table.Render()
 }
 
-// TODO: TLS?
 func (g *getCmd) run(cmd *cobra.Command, args []string) {
 	conn, err := grpc.Dial(
 		fmt.Sprintf("127.0.0.1:%d", viper.GetInt("port")),

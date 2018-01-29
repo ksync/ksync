@@ -1,5 +1,5 @@
 
-BINARY_VERSION  ?= "corrupted-version"
+BINARY_VERSION  ?= corrupted-version
 GIT_COMMIT      ?= $(shell git rev-parse --short HEAD)
 
 DATE            := $(shell (which gdate > /dev/null && echo "gdate") || echo "date")
@@ -83,7 +83,7 @@ update-radar: docker-binary-radar docker-build docker-push update-radar-image
 
 .PHONY: update-radar-image
 update-radar-image:
-	bin/ksync* --log-level=debug --image=${IMAGE} init --upgrade
+	bin/ksync* --log-level=debug --image=${IMAGE} init --upgrade --local=false
 
 .PHONY: docker-binary
 docker-binary: BINDIR = $(CURDIR)/bin

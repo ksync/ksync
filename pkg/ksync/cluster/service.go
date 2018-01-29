@@ -3,12 +3,15 @@ package cluster
 import (
 	"fmt"
 
+	"github.com/golang/protobuf/ptypes/empty"
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/net/context"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/pkg/api/v1"
 
 	"github.com/vapor-ware/ksync/pkg/debug"
+	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
 
 var (
@@ -200,6 +203,37 @@ func (s *Service) Run(upgrade bool) error {
 	})).Debug("started DaemonSet")
 
 	return nil
+}
+
+func (s *Service) nodeVersion(nodeName string) (*pb.VersionInfo, error) {
+	conn, err := NewConnection(nodeName).Radar()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+
+	return pb.NewRadarClient(conn).GetVersionInfo(
+		context.Background(), &empty.Empty{})
+}
+
+func (s *Service) Version() (*pb.VersionInfo, error) {
+	nodes, err := s.NodeNames()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, node := range nodes {
+		state, healthErr := s.IsHealthy(node)
+		if healthErr != nil {
+			return nil, healthErr
+		}
+
+		if state {
+			return s.nodeVersion(node)
+		}
+	}
+
+	return nil, fmt.Errorf("no healthy nodes found")
 }
 
 func (s *Service) Remove() error {

@@ -13,7 +13,6 @@ import (
 )
 
 var (
-	// TODO: update usage with flags
 	globalUsage = `Inspect and sync files from remote containers.`
 
 	rootCmd = &cobra.Command{
@@ -56,7 +55,7 @@ func init() {
 		"namespace",
 		"n",
 		"default",
-		"namespace to use.")
+		"namespace to use")
 	if err := cli.BindFlag(
 		viper.GetViper(), flags.Lookup("namespace"), "ksync"); err != nil {
 
@@ -76,7 +75,7 @@ func init() {
 	flags.String(
 		"image",
 		fmt.Sprintf("vaporio/ksync:git-%s", ksync.GitCommit),
-		"the image to use for radar.")
+		"the image to use on the cluster")
 	if err := flags.MarkHidden("image"); err != nil {
 		log.Fatal(err)
 	}
@@ -90,7 +89,7 @@ func init() {
 	flags.Int(
 		"port",
 		40322,
-		"port on which the server will listen")
+		"port on watch listens on locally")
 
 	if err := cli.BindFlag(
 		viper.GetViper(), flags.Lookup("port"), "ksync"); err != nil {
@@ -102,6 +101,9 @@ func init() {
 		"apikey",
 		"ksync",
 		"api key used for authentication with syncthing")
+	if err := flags.MarkHidden("apikey"); err != nil {
+		log.Fatal(err)
+	}
 
 	if err := cli.BindFlag(
 		viper.GetViper(), flags.Lookup("apikey"), "ksync"); err != nil {
@@ -113,6 +115,9 @@ func init() {
 		"syncthing-port",
 		8384,
 		"port on which the syncthing server will listen")
+	if err := flags.MarkHidden("syncthing-port"); err != nil {
+		log.Fatal(err)
+	}
 
 	if err := cli.BindFlag(
 		viper.GetViper(), flags.Lookup("syncthing-port"), "ksync"); err != nil {
@@ -121,8 +126,6 @@ func init() {
 	}
 }
 
-// TODO: dependencies should verify that they're usable
-// (and return errors otherwise).
 func initPersistent(cmd *cobra.Command, args []string) {
 	cli.InitLogging()
 
@@ -132,8 +135,9 @@ func initPersistent(cmd *cobra.Command, args []string) {
 }
 
 func initKubeClient() {
-	err := cluster.InitKubeClient(viper.GetString("context"))
-	if err != nil {
-		log.Fatalf("Error creating kubernetes client: %v", err)
+	if err := cluster.InitKubeClient(viper.GetString("context")); err != nil {
+		log.WithFields(log.Fields{
+			"context": viper.GetString("context"),
+		}).Fatalf("Error creating kubernetes client: %v", err)
 	}
 }

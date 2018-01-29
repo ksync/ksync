@@ -2,20 +2,15 @@ package main
 
 import (
 	"os"
-	"runtime"
 	"text/template"
 	"time"
 
-	"github.com/golang/protobuf/ptypes/empty"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"golang.org/x/net/context"
 
 	"github.com/vapor-ware/ksync/pkg/cli"
 	"github.com/vapor-ware/ksync/pkg/ksync"
 	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
-	pb "github.com/vapor-ware/ksync/pkg/proto"
-	"github.com/vapor-ware/ksync/pkg/radar"
 )
 
 type versionCmd struct {
@@ -23,12 +18,12 @@ type versionCmd struct {
 }
 
 func (v *versionCmd) new() *cobra.Command {
-	long := `Print version information.`
+	long := `View the versions of both the local binary and remote service.`
 	example := ``
 
 	v.Init("ksync", &cobra.Command{
 		Use:     "version",
-		Short:   "Print version information.",
+		Short:   "View the versions of both the local binary and remote service.",
 		Long:    long,
 		Example: example,
 		Run:     v.run,
@@ -37,108 +32,62 @@ func (v *versionCmd) new() *cobra.Command {
 	return v.Cmd
 }
 
-var ksyncVersionTemplate = `{{define "ksync"}}ksync:
-	Version:    {{.Client.Version}}
-	Go Version: {{.Client.GoVersion}}
-	Git Commit: {{.Client.GitCommit}}
-	Git Tag:    {{if ne .Client.GitTag ""}}{{.Client.GitTag}}{{end}}
-	Built:      {{.Client.BuildDate}}
-	OS/Arch:    {{.Client.OS}}/{{.Client.Arch}}{{println}}{{end}}`
+var versionTemplate = `{{define "local"}}ksync:
+	Version:    {{.Version}}
+	Go Version: {{.GoVersion}}
+	Git Commit: {{.GitCommit}}
+	Git Tag:    {{if ne .GitTag ""}}{{.GitTag}}{{end}}
+	Built:      {{date .BuildDate}}
+	OS/Arch:    {{.OS}}/{{.Arch}}
+{{end}}
 
-var radarVersionTemplate = `{{define "radar"}}radar:
-	Version:    {{.Server.Version}}
-	Go Version: {{.Server.GoVersion}}
-	Git Commit: {{.Server.GitCommit}}
-	Git Tag:    {{if ne .Server.GitTag ""}}{{.Server.GitTag}}{{end}}
-	Built:      {{.Server.BuildDate}}
-	Healthy:    {{.Server.Healthy}}{{println}}{{end}}`
+{{define "service"}}service:
+	Version:    {{.Version}}
+	Go Version: {{.GoVersion}}
+	Git Commit: {{.GitCommit}}
+	Git Tag:    {{if ne .GitTag ""}}{{.GitTag}}{{end}}
+	Built:      {{ date .BuildDate}}
+{{end}}`
 
-type versionInfo struct {
-	Client *ksync.Version
-	Server *radar.Version
-}
-
-func (v *versionCmd) run(cmd *cobra.Command, args []string) { // nolint: gocyclo
-	template, err := template.New("ksync").Parse(ksyncVersionTemplate)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	template, err = template.New("radar").Parse(radarVersionTemplate)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	version := versionInfo{
-		Client: &ksync.Version{
-			Version:   ksync.VersionString,
-			GoVersion: ksync.GoVersion,
-			GitCommit: ksync.GitCommit,
-			GitTag:    ksync.GitTag,
-			BuildDate: fixVersionTime(ksync.BuildDate),
-			OS:        runtime.GOOS,
-			Arch:      runtime.GOARCH,
-		},
-	}
-
-	err = template.ExecuteTemplate(os.Stdout, "ksync", version)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	radarVersion, err := radarVersion()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if radarVersion == nil {
-		return
-	}
-
-	version.Server = &radar.Version{
-		Version:   radarVersion.Version,
-		GoVersion: radarVersion.GoVersion,
-		GitCommit: radarVersion.GitCommit,
-		GitTag:    radarVersion.GitTag,
-		BuildDate: fixVersionTime(radarVersion.BuildDate),
-		Healthy:   true,
-	}
-
-	if err := template.ExecuteTemplate(os.Stdout, "radar", version); err != nil {
-		log.Fatal(err)
-	}
-}
-
-func fixVersionTime(version string) string {
-	timeRadar, err := time.Parse(time.RFC3339, version)
+func parseDate(version string) string {
+	t, err := time.Parse(time.RFC3339, version)
 	if err != nil {
 		return ""
 	}
 
-	return timeRadar.Format(time.UnixDate)
+	return t.Format(time.UnixDate)
 }
 
-// TODO: temporary
-func radarVersion() (*pb.VersionInfo, error) {
+func (v *versionCmd) run(cmd *cobra.Command, args []string) {
+	tmpl, err := template.New("local").Funcs(template.FuncMap{
+		"date": parseDate,
+	}).Parse(versionTemplate)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := tmpl.ExecuteTemplate(
+		os.Stdout, "local", ksync.Version()); err != nil {
+		log.Fatal(err)
+	}
+
 	service := cluster.NewService()
-	nodes, err := service.NodeNames()
+	state, err := service.IsInstalled()
 	if err != nil {
-		return nil, nil
+		log.Fatal(err)
 	}
 
-	if len(nodes) == 0 {
-		return nil, nil
+	if !state {
+		log.Print("Remote service is not running. Run init to start it.")
 	}
 
-	if _, healthErr := service.IsHealthy(nodes[0]); err != nil {
-		return nil, healthErr
-	}
-
-	conn, err := cluster.NewConnection(nodes[0]).Radar()
+	radarVersion, err := service.Version()
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
 
-	return pb.NewRadarClient(conn).GetVersionInfo(
-		context.Background(), &empty.Empty{})
+	if err := tmpl.ExecuteTemplate(
+		os.Stdout, "service", radarVersion); err != nil {
+		log.Fatal(err)
+	}
 }
