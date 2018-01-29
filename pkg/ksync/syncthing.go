@@ -127,7 +127,7 @@ func (s *Syncthing) Run() error {
 		"-no-browser",
 	}
 
-	s.cmd = exec.Command(path, cmdArgs...)
+	s.cmd = exec.Command(path, cmdArgs...) //nolint: gas
 
 	if err := s.initLogs(); err != nil {
 		return err

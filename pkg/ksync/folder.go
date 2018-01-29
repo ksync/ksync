@@ -262,7 +262,7 @@ func (f *Folder) setFolders() error {
 	return nil
 }
 
-func (f *Folder) Run() error {
+func (f *Folder) Run() error { //nolint: gocyclo
 	f.Status = ServiceStarting
 
 	if err := f.initRadarClient(); err != nil {

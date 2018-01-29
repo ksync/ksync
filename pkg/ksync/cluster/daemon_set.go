@@ -34,7 +34,7 @@ var syncthingConfig = `
         <defaultFolderPath></defaultFolderPath>
     </options>
 </configuration>
-`
+` //nolint: deadcode
 
 func (s *Service) daemonSet() *v1beta1.DaemonSet {
 	return &v1beta1.DaemonSet{

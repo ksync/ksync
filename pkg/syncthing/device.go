@@ -26,7 +26,7 @@ func (s *Server) SetDevice(device *config.DeviceConfiguration) error {
 	return nil
 }
 
-func (s *Server) RemoveDevice(id protocol.DeviceID) error {
+func (s *Server) RemoveDevice(id protocol.DeviceID) error { //nolint: interfacer
 	for i, device := range s.Config.Devices {
 		if device.DeviceID == id {
 			s.Config.Devices[i] = s.Config.Devices[len(s.Config.Devices)-1]

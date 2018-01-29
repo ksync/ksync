@@ -23,15 +23,15 @@ func matchRelease(filename string) bool {
 		strings.Contains(filename, runtime.GOARCH)
 }
 
-func saveBinary(tarReader *tar.Reader, path string) error {
+func saveBinary(tarReader *tar.Reader, path string) error { //nolint: interfacer
 	dir := filepath.Dir(path)
 	if _, statErr := os.Stat(dir); os.IsNotExist(statErr) {
-		if mkdirErr := os.Mkdir(dir, 0755); mkdirErr != nil {
+		if mkdirErr := os.Mkdir(dir, 0755); mkdirErr != nil { //nolint: gas
 			return mkdirErr
 		}
 	}
 
-	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0777)
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0777) //nolint: gas
 	if err != nil {
 		return err
 	}
@@ -83,5 +83,5 @@ func Fetch(path string) error {
 
 	// If the file isn't found, there will be an io.EOF error thrown. This
 	// should never be reached.
-	return nil
+	return nil //nolint: vet
 }

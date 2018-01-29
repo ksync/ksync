@@ -21,7 +21,7 @@ const (
 	ServiceWatching ServiceStatus = "watching"
 	// ServiceUpdating is for when a service is updating.
 	ServiceUpdating ServiceStatus = "updating"
-	// ServiceRestarting is for when the container is restarting.
+	// ServiceReloading is for when the container is restarting.
 	ServiceReloading ServiceStatus = "reloading"
 	// ServiceError is for when a service is experiencing an error.
 	ServiceError ServiceStatus = "error"
