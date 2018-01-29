@@ -3,13 +3,16 @@ package ksync
 import (
 	"bufio"
 	"fmt"
+	"os"
 	"os/exec"
 	"path/filepath"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
+	"github.com/vapor-ware/ksync/pkg/cli"
 	"github.com/vapor-ware/ksync/pkg/debug"
+	"github.com/vapor-ware/ksync/pkg/syncthing"
 )
 
 type Syncthing struct {
@@ -76,30 +79,36 @@ func (s *Syncthing) initLogs() error {
 	return s.lineHandler(logger.Debug)
 }
 
+func (s *Syncthing) binPath() string {
+	return filepath.Join(cli.ConfigPath(), "bin", "syncthing")
+}
+
 func (s *Syncthing) HasBinary() bool {
+	if _, err := os.Stat(s.binPath()); err != nil {
+		return false
+	}
+
 	return true
 }
 
+// TODO: Not sure this should be here at all. Just kinda convenient since
+// binPath() is.
 func (s *Syncthing) Fetch() error {
-	return nil
-}
-
-func (s *Syncthing) HasConfig() bool {
-	return true
+	return syncthing.Fetch(s.binPath())
 }
 
 func (s *Syncthing) resetState() error {
-	return nil
-}
-
-// TODO: clear out local config before leaving.
-func (s *Syncthing) Run() error {
-	if !s.HasBinary() {
-		return fmt.Errorf("binary missing, run init to download")
+	base := filepath.Join(cli.ConfigPath(), "syncthing")
+	if err := os.RemoveAll(base); err != nil {
+		return err
 	}
 
-	if !s.HasConfig() {
-		return fmt.Errorf("config missing, run init to setup")
+	return syncthing.ResetConfig(filepath.Join(base, "config.xml"))
+}
+
+func (s *Syncthing) Run() error {
+	if !s.HasBinary() {
+		return fmt.Errorf("missing pre-requisites, run init to fix")
 	}
 
 	if err := s.resetState(); err != nil {
