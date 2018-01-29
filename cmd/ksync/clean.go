@@ -83,7 +83,8 @@ func (c *cleanCmd) cleanLocal() {
 			daemon.BoolFlag(func(b bool) *bool { return &b }(true)),
 			syscall.SIGTERM,
 			nil)
-		daemon.SendCommands(child)
+		// Skip error checking on this because this library is horrendous
+		daemon.SendCommands(child) //nolint: errcheck
 
 		// Clean up after the process since it seems incapable of doing that itself
 		if err := os.Remove(context.PidFileName); err != nil {
@@ -118,7 +119,9 @@ func (c *cleanCmd) fromOrbit() {
 		"path":  viper.ConfigFileUsed(),
 		"files": files,
 	}).Info("Nuking all files from from orbit. It's the only way.")
-	os.RemoveAll(filepath.Dir(viper.ConfigFileUsed()))
+	if err := os.RemoveAll(filepath.Dir(viper.ConfigFileUsed())); err != nil {
+		log.Fatal(err)
+	}
 	log.Info("Nuke drop complete")
 }
 
