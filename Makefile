@@ -83,7 +83,7 @@ update-radar: docker-binary-radar docker-build docker-push update-radar-image
 
 .PHONY: update-radar-image
 update-radar-image:
-	bin/ksync* --log-level=debug --image=${IMAGE} init --upgrade --skip-checks
+	bin/ksync* --log-level=debug --image=${IMAGE} init --upgrade
 
 .PHONY: docker-binary
 docker-binary: BINDIR = $(CURDIR)/bin
