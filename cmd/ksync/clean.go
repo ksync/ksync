@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"syscall"
@@ -38,7 +39,7 @@ WARNING: USING THE "NUKE" OPTION WILL REMOVE YOUR CONFIG. USE WITH CAUTION.
 	flags.BoolP(
 		"local",
 		"l",
-		true,
+		false,
 		"Remove local components (daemons, servers, etc.)")
 	if err := c.BindFlag("local"); err != nil {
 		log.Fatal(err)
@@ -47,7 +48,7 @@ WARNING: USING THE "NUKE" OPTION WILL REMOVE YOUR CONFIG. USE WITH CAUTION.
 	flags.BoolP(
 		"remote",
 		"r",
-		true,
+		false,
 		"Remove remote components (daemon-sets, pods, etc.)")
 	if err := c.BindFlag("remote"); err != nil {
 		log.Fatal(err)
@@ -74,20 +75,20 @@ func (c *cleanCmd) cleanLocal() {
 	child, err := context.Search()
 	if err != nil {
 		log.Infoln("No daemonized process found. Nothing to clean locally.")
-		log.Fatalln(err)
-	}
+		log.Warningln(err)
+	} else {
+		// This is the dumbest thing in the world. We have to send signals using flags,
+		// so create a new bool flag that is always true and passes SIGTERM.
+		daemon.AddCommand(
+			daemon.BoolFlag(func(b bool) *bool { return &b }(true)),
+			syscall.SIGTERM,
+			nil)
+		daemon.SendCommands(child)
 
-	// This is the dumbest thing in the world. We have to send signals using flags,
-	// so create a new bool flag that is always true and passes SIGTERM.
-	daemon.AddCommand(
-		daemon.BoolFlag(func(b bool) *bool { return &b }(true)),
-		syscall.SIGTERM,
-		nil)
-	daemon.SendCommands(child)
-
-	// Clean up after the process since it seems incapable of doing that itself
-	if err := os.Remove(context.PidFileName); err != nil {
-		log.Fatal(err)
+		// Clean up after the process since it seems incapable of doing that itself
+		if err := os.Remove(context.PidFileName); err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
@@ -107,7 +108,18 @@ func (c *cleanCmd) cleanRemote() {
 }
 
 func (c *cleanCmd) fromOrbit() {
+	log.Debug("Removing local processes")
+	c.cleanLocal()
+	log.Debug("Removing remote processes")
+	c.cleanRemote()
 
+	files, _ := ioutil.ReadDir(viper.ConfigFileUsed())
+	log.WithFields(log.Fields{
+		"path":  viper.ConfigFileUsed(),
+		"files": files,
+	}).Info("Nuking all files from from orbit. It's the only way.")
+	os.RemoveAll(filepath.Dir(viper.ConfigFileUsed()))
+	log.Info("Nuke drop complete")
 }
 
 func (c *cleanCmd) run(cmd *cobra.Command, args []string) {
@@ -121,5 +133,10 @@ func (c *cleanCmd) run(cmd *cobra.Command, args []string) {
 
 	if c.Viper.GetBool("nuke") {
 		c.fromOrbit()
+	}
+
+	if !c.Viper.GetBool("local") && !c.Viper.GetBool("remote") {
+		c.cleanLocal()
+		c.cleanRemote()
 	}
 }
