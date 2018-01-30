@@ -15,30 +15,26 @@ func init() {
 }
 
 func TestNewRadarInstance(t *testing.T) {
-	radar := NewRadarInstance()
+	service := NewService()
 
-	require.NotPanics(t, func() { NewRadarInstance() })
-	assert.NotEmpty(t, radar)
+	require.NotPanics(t, func() { NewService() })
+	assert.NotEmpty(t, service)
 }
 
-func TestRadarRun(t *testing.T) {
-	radar := NewRadarInstance()
-	require.NotPanics(t, func() { NewRadarInstance() })
+func TestServiceRun(t *testing.T) {
+	service := NewService()
+	require.NotPanics(t, func() { NewService() })
 
 	// Normal run without upgrade
-	err := radar.Run(false)
+	err := service.Run(false)
 
 	assert.NoError(t, err)
-	assert.NotEmpty(t, radar)
+	assert.NotEmpty(t, service)
 
 	// Run with upgrade
 	// TODO: Use a new `radar` object here?
-	err = radar.Run(true)
+	err = service.Run(true)
 
 	assert.NoError(t, err)
-	assert.NotEmpty(t, radar)
-}
-
-func TestRadarConnection(t *testing.T) {
-	// TODO: Have to figure out how to test this without a connection
+	assert.NotEmpty(t, service)
 }

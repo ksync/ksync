@@ -5,12 +5,14 @@ import (
 	"testing"
 	// "github.com/stretchr/testify/assert"
 	// "github.com/stretchr/testify/require"
+
+	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
 )
 
 func init() {
-	InitKubeClient("") // nolint: errcheck
+	cluster.InitKubeClient("") // nolint: errcheck
 }
 
-func TestRadar(t *testing.T) {
+func TestRemoteContainer(t *testing.T) {
 	// TODO: need tests
 }

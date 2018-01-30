@@ -12,7 +12,7 @@ func TestRestartMirror(t *testing.T) {
 	radarserver := &radarServer{}
 	cntx := context.Background()
 
-	_, err := radarserver.RestartMirror(cntx, nil)
+	_, err := radarserver.RestartSyncthing(cntx, nil)
 
 	assert.Error(t, err)
 }
