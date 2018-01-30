@@ -11,6 +11,7 @@ import (
 	v1beta1 "k8s.io/client-go/pkg/apis/extensions/v1beta1"
 )
 
+// nolint: deadcode
 var syncthingConfig = `
 <configuration version="26">
     <gui enabled="true" tls="false" debugging="false">
@@ -34,7 +35,7 @@ var syncthingConfig = `
         <defaultFolderPath></defaultFolderPath>
     </options>
 </configuration>
-` //nolint: deadcode
+`
 
 func (s *Service) daemonSet() *v1beta1.DaemonSet {
 	return &v1beta1.DaemonSet{
