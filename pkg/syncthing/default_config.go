@@ -39,7 +39,7 @@ var defaultConfig = `
 func ResetConfig(path string) error {
 	dir := filepath.Dir(path)
 	if _, statErr := os.Stat(dir); os.IsNotExist(statErr) {
-		if mkdirErr := os.Mkdir(dir, 0755); mkdirErr != nil {
+		if mkdirErr := os.Mkdir(dir, 0700); mkdirErr != nil {
 			return mkdirErr
 		}
 	}

@@ -26,12 +26,12 @@ func matchRelease(filename string) bool {
 func saveBinary(tarReader *tar.Reader, path string) error { //nolint interfacer
 	dir := filepath.Dir(path)
 	if _, statErr := os.Stat(dir); os.IsNotExist(statErr) {
-		if mkdirErr := os.Mkdir(dir, 0755); mkdirErr != nil {
+		if mkdirErr := os.Mkdir(dir, 0700); mkdirErr != nil {
 			return mkdirErr
 		}
 	}
 
-	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0777)
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0500)
 	if err != nil {
 		return err
 	}

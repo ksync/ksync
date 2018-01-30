@@ -96,7 +96,8 @@ func (s *SpecList) Update() error {
 	return nil
 }
 
-// Watch will start watching every item in the list.
+// Watch is a convenience function to have all the configured specs start
+// watching.
 func (s *SpecList) Watch() error {
 	for _, spec := range s.Items {
 		if err := spec.Watch(); err != nil {
@@ -108,7 +109,7 @@ func (s *SpecList) Watch() error {
 }
 
 // Create checks an individual input spec for likeness and duplicates
-// then adds the spec into a SpecList
+// then adds the spec into the SpecList
 func (s *SpecList) Create(details *SpecDetails, force bool) error {
 	if !force {
 		if s.Has(details.Name) {
@@ -125,7 +126,7 @@ func (s *SpecList) Create(details *SpecDetails, force bool) error {
 	return nil
 }
 
-// Delete removes a given spec from a SpecList
+// Delete removes a given spec from the SpecList
 func (s *SpecList) Delete(name string) error {
 	if !s.Has(name) {
 		return fmt.Errorf("does not exist")
@@ -136,9 +137,6 @@ func (s *SpecList) Delete(name string) error {
 }
 
 // Save serializes the current SpecList's items to the config file.
-// TODO: tests:
-//   missing config file
-//   shorter config file (removing an entry)
 func (s *SpecList) Save() error {
 	cfgPath := viper.ConfigFileUsed()
 	if cfgPath == "" {
@@ -173,7 +171,6 @@ func (s *SpecList) Save() error {
 }
 
 // HasLike checks a given spec for deep equivalence against another spec
-// TODO: is this the best way to do this?
 func (s *SpecList) HasLike(target *SpecDetails) bool {
 	targetEq := target.Equivalence()
 	for _, spec := range s.Items {

@@ -79,8 +79,8 @@ func (r *radarServer) RestartSyncthing(
 }
 
 // Restart restarts a local container. This is an effective "hot reload" because
-// docker restarts:
-//   - keep the overlayfs in place (we're still putting files into it)
+// docker restarts and keeps the overlayfs in place (we're still putting files
+// into it)
 func (r *radarServer) Restart(
 	ctx context.Context, cntr *pb.ContainerPath) (*pb.Error, error) {
 

@@ -46,8 +46,6 @@ func InitKubeClient(context string) error {
 		"context": context,
 	}).Debug("initializing kubernetes client")
 	config, _, err := getKubeConfig(context)
-
-	// TODO: better error
 	if err != nil {
 		return err
 	}

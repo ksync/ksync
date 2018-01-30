@@ -27,7 +27,8 @@ const (
 	ServiceError ServiceStatus = "error"
 )
 
-// Service reflects a sync that can be run in the background.
+// Service reflects a spec that will sync files between a local and remote
+// folder.
 type Service struct {
 	RemoteContainer *RemoteContainer
 	SpecDetails     *SpecDetails
@@ -35,7 +36,8 @@ type Service struct {
 	folder *Folder
 }
 
-// NewService constructs a Service to manage and run local syncs from.
+// NewService constructs a Service to sync files between a local and remote
+// folder.
 func NewService(cntr *RemoteContainer, details *SpecDetails) *Service {
 	return &Service{
 		RemoteContainer: cntr,

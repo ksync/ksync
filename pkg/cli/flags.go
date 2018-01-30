@@ -11,7 +11,6 @@ import (
 
 // BindFlag moves cobra flags into viper for exclusive use there.
 func BindFlag(v *viper.Viper, flag *pflag.Flag, root string) error {
-
 	if err := v.BindPFlag(flag.Name, flag); err != nil {
 		return err
 	}
