@@ -29,7 +29,7 @@ TEST_KUBECTL="/home/circleci/google-cloud-sdk/bin/kubectl"
 TEST_NAMESPACE="default"
 TEST_RADAR_NAMESPACE="kube-system"
 
-timeout -k 2m 2m ${TEST_KUBECTL} run --rm -it wait-for-ksync \
+timeout -k 2m 2m ${TEST_KUBECTL} run --rm wait-for-ksync-$(shuf -i1-1000 -n1) \
   --restart Never \
   --image=groundnuty/k8s-wait-for \
   --requests='cpu=10m' \
