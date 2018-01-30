@@ -20,9 +20,7 @@ cd ${CIRCLE_WORKING_DIRECTORY}/cmd/radar
 go install -v
 
 # Deploy radar to the cluster
-ksync init --client=false
-# TODO: Make this wait for the deployment to actually be healthy
-sleep 10
+ksync init --local=false
 
 # Get absolute path for kubectl in case it isn't in our shell
 TEST_KUBECTL="/home/circleci/google-cloud-sdk/bin/kubectl"
@@ -30,6 +28,12 @@ TEST_KUBECTL="/home/circleci/google-cloud-sdk/bin/kubectl"
 # Set a namespace to use
 TEST_NAMESPACE="default"
 TEST_RADAR_NAMESPACE="kube-system"
+
+${TEST_KUBECTL} run --rm -it $$(printf "wait-for-%.3s" $(call uuid)) \
+  --restart Never \
+  --image=groundnuty/k8s-wait-for \
+  --requests='cpu=10m' \
+  -- pod -lapp=ksync --all-namespaces
 
 # Fetch the names of the pods launched
 PODS=($(${TEST_KUBECTL} get pods --namespace ${TEST_NAMESPACE} --selector app=test -o json | jq --raw-output '.items[].metadata.name'))
