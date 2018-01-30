@@ -3,7 +3,7 @@ jobs:
   build:
     resource_class: large
     docker:
-      - image: circleci/golang:latest
+      - image: circleci/golang:1.9.2
         environment:
           DEBUG: true
 
