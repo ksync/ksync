@@ -11,32 +11,6 @@ import (
 	v1beta1 "k8s.io/client-go/pkg/apis/extensions/v1beta1"
 )
 
-// nolint: deadcode
-var syncthingConfig = `
-<configuration version="26">
-    <gui enabled="true" tls="false" debugging="false">
-        <address>0.0.0.0:8384</address>
-        <apikey>ksync</apikey>
-        <theme>default</theme>
-    </gui>
-    <options>
-        <globalAnnounceEnabled>false</globalAnnounceEnabled>
-        <localAnnounceEnabled>false</localAnnounceEnabled>
-        <reconnectionIntervalS>1</reconnectionIntervalS>
-        <relaysEnabled>false</relaysEnabled>
-        <startBrowser>false</startBrowser>
-        <natEnabled>false</natEnabled>
-        <urAccepted>-1</urAccepted>
-        <urPostInsecurely>false</urPostInsecurely>
-        <urInitialDelayS>1800</urInitialDelayS>
-        <restartOnWakeup>true</restartOnWakeup>
-        <autoUpgradeIntervalH>0</autoUpgradeIntervalH>
-        <stunKeepaliveSeconds>0</stunKeepaliveSeconds>
-        <defaultFolderPath></defaultFolderPath>
-    </options>
-</configuration>
-`
-
 func (s *Service) daemonSet() *v1beta1.DaemonSet {
 	return &v1beta1.DaemonSet{
 		ObjectMeta: metav1.ObjectMeta{
