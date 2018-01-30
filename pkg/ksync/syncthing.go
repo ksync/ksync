@@ -15,10 +15,12 @@ import (
 	"github.com/vapor-ware/ksync/pkg/syncthing"
 )
 
+// Syncthing represents the local syncthing process.
 type Syncthing struct {
 	cmd *exec.Cmd
 }
 
+// NewSyncthing constructs a new Syncthing.
 func NewSyncthing() *Syncthing {
 	return &Syncthing{}
 }
@@ -32,57 +34,47 @@ func (s *Syncthing) Fields() log.Fields {
 	return debug.StructFields(s)
 }
 
-func (s *Syncthing) errHandler(logger func(...interface{})) error {
-	stderr, err := s.cmd.StderrPipe()
-	if err != nil {
-		return err
-	}
+// Propogate stdout/stderr into the ksync logs for debugging.
+func (s *Syncthing) outputHandler() error {
+	logger := log.WithFields(log.Fields{
+		"name": "syncthing",
+	})
 
-	scanner := bufio.NewScanner(stderr)
-
-	go func() {
-		for scanner.Scan() {
-			logger(scanner.Text())
-		}
-	}()
-
-	return nil
-}
-
-func (s *Syncthing) lineHandler(logger func(...interface{})) error {
 	stdout, err := s.cmd.StdoutPipe()
 	if err != nil {
 		return err
 	}
 
-	scanner := bufio.NewScanner(stdout)
+	outScanner := bufio.NewScanner(stdout)
+
+	stderr, err := s.cmd.StderrPipe()
+	if err != nil {
+		return err
+	}
+
+	errScanner := bufio.NewScanner(stderr)
 
 	go func() {
-		for scanner.Scan() {
-			line := scanner.Text()
-			logger(line)
+		for outScanner.Scan() {
+			logger.Debug(outScanner.Text())
+		}
+	}()
+
+	go func() {
+		for errScanner.Scan() {
+			logger.Warn(errScanner.Text())
 		}
 	}()
 
 	return nil
-}
-
-func (s *Syncthing) initLogs() error {
-	logger := log.WithFields(log.Fields{
-		"name": "syncthing",
-	})
-
-	if err := s.errHandler(logger.Warn); err != nil {
-		return err
-	}
-
-	return s.lineHandler(logger.Debug)
 }
 
 func (s *Syncthing) binPath() string {
 	return filepath.Join(cli.ConfigPath(), "bin", "syncthing")
 }
 
+// HasBinary checks whether the syncthing binary exists in the correct location
+// or not.
 func (s *Syncthing) HasBinary() bool {
 	if _, err := os.Stat(s.binPath()); err != nil {
 		return false
@@ -91,12 +83,14 @@ func (s *Syncthing) HasBinary() bool {
 	return true
 }
 
-// TODO: Not sure this should be here at all. Just kinda convenient since
-// binPath() is.
+// Fetch the latest syncthing binary to Syncthing.binPath().
 func (s *Syncthing) Fetch() error {
 	return syncthing.Fetch(s.binPath())
 }
 
+// To make sure no odd devices or folders are being synced after edge cases
+// (such as the process being kill'd), the config and db are blown away before
+// each run.
 func (s *Syncthing) resetState() error {
 	base := filepath.Join(cli.ConfigPath(), "syncthing")
 	if err := os.RemoveAll(base); err != nil {
@@ -106,6 +100,7 @@ func (s *Syncthing) resetState() error {
 	return syncthing.ResetConfig(filepath.Join(base, "config.xml"))
 }
 
+// Run starts up a local syncthing process to serve files from.
 func (s *Syncthing) Run() error {
 	if !s.HasBinary() {
 		return fmt.Errorf("missing pre-requisites, run init to fix")
@@ -115,21 +110,20 @@ func (s *Syncthing) Run() error {
 		return err
 	}
 
-	path := filepath.Join(
-		filepath.Dir(viper.ConfigFileUsed()), "bin", "syncthing")
+	path := filepath.Join(cli.ConfigPath(), "bin", "syncthing")
 
 	address := fmt.Sprintf("localhost:%d", viper.GetInt("syncthing-port"))
 
 	cmdArgs := []string{
 		"-gui-address", address,
 		"-gui-apikey", viper.GetString("apikey"),
-		"-home", filepath.Join(filepath.Dir(viper.ConfigFileUsed()), "syncthing"),
+		"-home", filepath.Join(cli.ConfigPath(), "syncthing"),
 		"-no-browser",
 	}
 
 	s.cmd = exec.Command(path, cmdArgs...) //nolint: gas
 
-	if err := s.initLogs(); err != nil {
+	if err := s.outputHandler(); err != nil {
 		return err
 	}
 

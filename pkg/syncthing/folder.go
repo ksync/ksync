@@ -4,6 +4,8 @@ import (
 	"github.com/syncthing/syncthing/lib/config"
 )
 
+// GetFolder takes the folder id (not the path) and returns it from the current
+// configuration.
 func (s *Server) GetFolder(id string) *config.FolderConfiguration {
 	for _, folder := range s.Config.Folders {
 		if folder.ID == id {
@@ -14,6 +16,9 @@ func (s *Server) GetFolder(id string) *config.FolderConfiguration {
 	return nil
 }
 
+// SetFolder takes a fully configured folder and adds it to the local
+// configuration. Server.Update() will then save this. Note that if the
+// folder already exists, it is simply overwritten.
 func (s *Server) SetFolder(folder *config.FolderConfiguration) error {
 	folder.FSWatcherEnabled = true
 	folder.FSWatcherDelayS = 1
@@ -25,6 +30,8 @@ func (s *Server) SetFolder(folder *config.FolderConfiguration) error {
 	return nil
 }
 
+// RemoveFolder takes a folder id (not the path) and removes it from the
+// local configuration. Server.Update() will then save this.
 func (s *Server) RemoveFolder(id string) {
 	for i, folder := range s.Config.Folders {
 		if folder.ID == id {

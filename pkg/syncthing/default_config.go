@@ -33,10 +33,13 @@ var defaultConfig = `
 </configuration>
 `
 
+// ResetConfig looks at the *local* config and resets it to the preferred
+// default. It does not require a running server as the configuration file
+// is simply overwritten.
 func ResetConfig(path string) error {
 	dir := filepath.Dir(path)
 	if _, statErr := os.Stat(dir); os.IsNotExist(statErr) {
-		if mkdirErr := os.Mkdir(dir, 0755); mkdirErr != nil { //nolint: gas
+		if mkdirErr := os.Mkdir(dir, 0755); mkdirErr != nil {
 			return mkdirErr
 		}
 	}

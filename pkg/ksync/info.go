@@ -18,8 +18,8 @@ var (
 	GoVersion string
 )
 
-// Version contains version information for the binary. It is set at build time.
-type version struct {
+// BinVersion represents the version of this binary.
+type BinVersion struct {
 	Version   string
 	GoVersion string
 	GitCommit string
@@ -29,8 +29,9 @@ type version struct {
 	Arch      string
 }
 
-func Version() *version {
-	return &version{
+// Version contains version information for the binary. It is set at build time.
+func Version() *BinVersion {
+	return &BinVersion{
 		Version:   VersionString,
 		GoVersion: GoVersion,
 		GitCommit: GitCommit,

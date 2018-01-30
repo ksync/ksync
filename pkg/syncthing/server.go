@@ -14,6 +14,8 @@ import (
 
 var connectRetries = 10
 
+// Server represents a syncthing REST server. It is used to fetch and modify
+// configuration as well as restart the syncthing process.
 type Server struct {
 	Config *config.Configuration `structs:"-"`
 	ID     protocol.DeviceID
@@ -23,6 +25,7 @@ type Server struct {
 	stop   chan bool
 }
 
+// NewServer constructs a Server with the provided host and apikey.
 func NewServer(host string, apikey string) (*Server, error) {
 	server := &Server{
 		URL:    fmt.Sprintf("http://%s/rest/", host),
@@ -54,6 +57,8 @@ func (s *Server) Fields() log.Fields {
 	return debug.StructFields(s)
 }
 
+// Refresh pulls the latest configuration from the configured server and
+// updates Server.Config with that value.
 func (s *Server) Refresh() error {
 	resp, err := s.client.NewRequest().
 		SetResult(&config.Configuration{}).
@@ -73,6 +78,8 @@ func (s *Server) Refresh() error {
 	return nil
 }
 
+// Update takes the current config, sets the server's config to that and
+// restarts the process so that it is live.
 func (s *Server) Update() error {
 	if _, err := s.client.NewRequest().
 		SetBody(s.Config).
@@ -83,6 +90,8 @@ func (s *Server) Update() error {
 	return s.Restart()
 }
 
+// Restart rolls the remote server. Because of how syncthing runs, this just
+// happens in the background with only minimal interruption.
 func (s *Server) Restart() error {
 	if _, err := s.client.NewRequest().
 		Post("system/restart"); err != nil {
@@ -92,6 +101,8 @@ func (s *Server) Restart() error {
 	return nil
 }
 
+// Stop is used to clean up everything that this server is doing in the
+// background.
 func (s *Server) Stop() {
 	close(s.stop)
 	<-s.stop

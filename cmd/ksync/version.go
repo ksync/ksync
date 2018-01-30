@@ -59,11 +59,11 @@ func parseDate(version string) string {
 }
 
 func (v *versionCmd) run(cmd *cobra.Command, args []string) {
-	tmpl, err := template.New("local").Funcs(template.FuncMap{
+	tmpl, tmplErr := template.New("local").Funcs(template.FuncMap{
 		"date": parseDate,
 	}).Parse(versionTemplate)
-	if err != nil {
-		log.Fatal(err)
+	if tmplErr != nil {
+		log.Fatal(tmplErr)
 	}
 
 	if err := tmpl.ExecuteTemplate(

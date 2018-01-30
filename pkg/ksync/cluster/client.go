@@ -11,7 +11,8 @@ import (
 )
 
 var (
-	// TODO: is this singleton a good idea?
+	// Client is used to communicate with the cluster's api server. Make sure to
+	// run InitKubeClient() first.
 	Client  *kubernetes.Clientset
 	kubeCfg *rest.Config
 )
@@ -38,7 +39,8 @@ func getKubeConfig(context string) (*rest.Config, string, error) {
 	return config, clientLoader.ConfigAccess().GetDefaultFilename(), nil
 }
 
-// InitKubeClient creates a new k8s client for use in talking to the api server.
+// InitKubeClient creates a new k8s client for use in talking to the cluster's
+// api server.
 func InitKubeClient(context string) error {
 	log.WithFields(log.Fields{
 		"context": context,

@@ -7,9 +7,10 @@ import (
 	"github.com/syncthing/syncthing/lib/events"
 )
 
-// TODO: figure out how to use events.EventType instead of string here.
-func (s *Server) Events(types ...string) (
-	<-chan *events.Event, error) {
+// Events returns a stream of events being issued from the syncthing server. It
+// is not filtered and is up to the listener to choose which events they're
+// interested in. Remember to call Server.Stop() to stop listening for events.
+func (s *Server) Events() (<-chan *events.Event, error) {
 	out := make(chan *events.Event)
 
 	// TODO: this will replay all the events for new shares (potentially a ton
@@ -19,13 +20,6 @@ func (s *Server) Events(types ...string) (
 	params := map[string]string{
 		"since": strconv.Itoa(since),
 	}
-
-	// TODO: there appears to be a bug in syncthing that does not accept
-	// types separated by escaped commas. resty does the right thing, and this
-	// ends up breaking the filtering.
-	// if len(types) > 0 {
-	// 	params["events"] = strings.Join(types, ",")
-	// }
 
 	go func() {
 		for {

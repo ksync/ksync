@@ -15,6 +15,8 @@ var (
 	maxReadyRetries = uint64(10)
 )
 
+// Connection creates and manages the tunnels and gRPC connection between the
+// local host a ksync pod running on the remote cluster
 type Connection struct {
 	NodeName string
 
@@ -22,6 +24,8 @@ type Connection struct {
 	tunnels []*Tunnel
 }
 
+// NewConnection is the constructor for Connection. You specify the node you'd
+// like to establish a connection to here.
 func NewConnection(nodeName string) *Connection {
 	return &Connection{
 		NodeName: nodeName,
@@ -39,8 +43,6 @@ func (c *Connection) Fields() log.Fields {
 	return debug.StructFields(c)
 }
 
-// TODO: add TLS
-// TODO: add grpc_retry?
 func (c *Connection) opts() []grpc.DialOption {
 	return []grpc.DialOption{
 		grpc.WithTimeout(5 * time.Second),
@@ -89,8 +91,8 @@ func (c *Connection) connection(port int32) (int32, error) {
 	return tun.LocalPort, nil
 }
 
-// Radar creates a new gRPC connection to a radar instance running on
-// the specified node.
+// Radar creates a new tunnel and gRPC connection to the radar container
+// running in the ksync pod specified by Container.NodeName
 func (c *Connection) Radar() (*grpc.ClientConn, error) {
 	localPort, err := c.connection(c.service.RadarPort)
 	if err != nil {
@@ -100,8 +102,8 @@ func (c *Connection) Radar() (*grpc.ClientConn, error) {
 	return grpc.Dial(fmt.Sprintf("127.0.0.1:%d", localPort), c.opts()...)
 }
 
-// SyncthingConnection creates a tunnel to the remote syncthing instance running on
-// the specified node.
+// Syncthing creates a tunnel for both the API and sync ports to the
+// syncthing container running in the ksync pod specified by Container.NodeName
 func (c *Connection) Syncthing() (int32, int32, error) {
 	apiPort, err := c.connection(c.service.SyncthingAPI)
 	if err != nil {
@@ -116,6 +118,8 @@ func (c *Connection) Syncthing() (int32, int32, error) {
 	return apiPort, listenerPort, nil
 }
 
+// Stop cleans all the established tunnels up. It should be called when this
+// connection is no longer needed.
 func (c *Connection) Stop() error {
 	for _, tun := range c.tunnels {
 		tun.Close()

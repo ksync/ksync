@@ -5,6 +5,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
 	"github.com/vapor-ware/ksync/pkg/cli"
@@ -39,18 +40,7 @@ func main() {
 	}
 }
 
-func init() {
-	cobra.OnInitialize(func() {
-		if err := cli.InitConfig("ksync"); err != nil {
-			log.Fatal(err)
-		}
-	})
-
-	if err := cli.DefaultFlags(rootCmd, "ksync"); err != nil {
-		log.Fatal(err)
-	}
-
-	flags := rootCmd.PersistentFlags()
+func localFlags(flags *pflag.FlagSet) {
 	flags.StringP(
 		"namespace",
 		"n",
@@ -72,6 +62,19 @@ func init() {
 		log.Fatal(err)
 	}
 
+	flags.Int(
+		"port",
+		40322,
+		"port on watch listens on locally")
+
+	if err := cli.BindFlag(
+		viper.GetViper(), flags.Lookup("port"), "ksync"); err != nil {
+
+		log.Fatal(err)
+	}
+}
+
+func remoteFlags(flags *pflag.FlagSet) {
 	flags.String(
 		"image",
 		fmt.Sprintf("vaporio/ksync:git-%s", ksync.GitCommit),
@@ -82,17 +85,6 @@ func init() {
 
 	if err := cli.BindFlag(
 		viper.GetViper(), flags.Lookup("image"), "ksync"); err != nil {
-
-		log.Fatal(err)
-	}
-
-	flags.Int(
-		"port",
-		40322,
-		"port on watch listens on locally")
-
-	if err := cli.BindFlag(
-		viper.GetViper(), flags.Lookup("port"), "ksync"); err != nil {
 
 		log.Fatal(err)
 	}
@@ -124,6 +116,22 @@ func init() {
 
 		log.Fatal(err)
 	}
+}
+
+func init() {
+	cobra.OnInitialize(func() {
+		if err := cli.InitConfig("ksync"); err != nil {
+			log.Fatal(err)
+		}
+	})
+
+	if err := cli.DefaultFlags(rootCmd, "ksync"); err != nil {
+		log.Fatal(err)
+	}
+
+	flags := rootCmd.PersistentFlags()
+	localFlags(flags)
+	remoteFlags(flags)
 }
 
 func initPersistent(cmd *cobra.Command, args []string) {

@@ -23,15 +23,15 @@ func matchRelease(filename string) bool {
 		strings.Contains(filename, runtime.GOARCH)
 }
 
-func saveBinary(tarReader *tar.Reader, path string) error { //nolint: interfacer
+func saveBinary(tarReader *tar.Reader, path string) error { //nolint interfacer
 	dir := filepath.Dir(path)
 	if _, statErr := os.Stat(dir); os.IsNotExist(statErr) {
-		if mkdirErr := os.Mkdir(dir, 0755); mkdirErr != nil { //nolint: gas
+		if mkdirErr := os.Mkdir(dir, 0755); mkdirErr != nil {
 			return mkdirErr
 		}
 	}
 
-	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0777) //nolint: gas
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0777)
 	if err != nil {
 		return err
 	}
@@ -46,6 +46,7 @@ func saveBinary(tarReader *tar.Reader, path string) error { //nolint: interfacer
 	return nil
 }
 
+// Fetch pulls down the latest syncthing binary to the provided path.
 func Fetch(path string) error {
 	f := &fetcher.Github{
 		User:  "syncthing",
@@ -80,8 +81,4 @@ func Fetch(path string) error {
 			return saveBinary(tarReader, path)
 		}
 	}
-
-	// If the file isn't found, there will be an io.EOF error thrown. This
-	// should never be reached.
-	return nil //nolint: vet
 }

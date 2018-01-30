@@ -44,8 +44,7 @@ func (s *Service) Fields() log.Fields {
 	return debug.StructFields(s)
 }
 
-// NewRadarInstance constructs a RadarInstance to track the remote status.
-// TODO: make namespace, name?, service account configurable
+// NewService constructs a Service to track the ksync daemonset on the cluster.
 func NewService() *Service {
 	return &Service{
 		Namespace: "kube-system",
@@ -62,8 +61,8 @@ func NewService() *Service {
 }
 
 // IsInstalled makes sure the cluster service has been installed.
-// TODO: add version checking here.
 func (s *Service) IsInstalled() (bool, error) {
+	// TODO: add version checking here.
 	if _, err := Client.DaemonSets(s.Namespace).Get(
 		s.name, metav1.GetOptions{}); err != nil {
 		if !errors.IsNotFound(err) {
@@ -76,6 +75,8 @@ func (s *Service) IsInstalled() (bool, error) {
 	return true, nil
 }
 
+// PodName takes the name of a node and returns the name of the ksync pod
+// running on that node.
 func (s *Service) PodName(nodeName string) (string, error) {
 	// TODO: error handling for nodes that don't exist.
 	pods, err := Client.CoreV1().Pods(s.Namespace).List(
@@ -158,7 +159,7 @@ func (s *Service) IsHealthy(nodeName string) (bool, error) {
 	return true, nil
 }
 
-// NodeNames returns a list of all the nodes the cluster service is running on.
+// NodeNames returns a list of all the nodes the ksync pod is running on.
 func (s *Service) NodeNames() ([]string, error) {
 	result := []string{}
 
@@ -180,9 +181,7 @@ func (s *Service) NodeNames() ([]string, error) {
 	return result, nil
 }
 
-// Run starts (or upgrades) the cluster service.
-// TODO: spin up on demand
-// TODO: wait for ready
+// Run starts (or upgrades) the ksync daemonset on the remote cluster.
 func (s *Service) Run(upgrade bool) error {
 	daemonSets := Client.DaemonSets(s.Namespace)
 
@@ -216,6 +215,9 @@ func (s *Service) nodeVersion(nodeName string) (*pb.VersionInfo, error) {
 		context.Background(), &empty.Empty{})
 }
 
+// Version fetches the binary version from radar running in the remote cluster.
+// It picks the first node that is healthy. If no nodes are healthy, an error
+// is thrown.
 func (s *Service) Version() (*pb.VersionInfo, error) {
 	nodes, err := s.NodeNames()
 	if err != nil {
@@ -236,6 +238,8 @@ func (s *Service) Version() (*pb.VersionInfo, error) {
 	return nil, fmt.Errorf("no healthy nodes found")
 }
 
+// Remove provides cleanup for the ksync daemonset on the cluster. Only run this
+// when you want to clean everything up.
 func (s *Service) Remove() error {
 	daemonSets := Client.DaemonSets(s.Namespace)
 

@@ -3,7 +3,6 @@ package main
 import (
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"syscall"
 
 	daemon "github.com/sevlyar/go-daemon"
@@ -66,30 +65,29 @@ WARNING: USING THE "NUKE" OPTION WILL REMOVE YOUR CONFIG. USE WITH CAUTION.
 }
 
 func (c *cleanCmd) cleanLocal() {
-	rootDir := filepath.Dir(viper.ConfigFileUsed())
-	context := &daemon.Context{
-		PidFileName: filepath.Join(rootDir, "daemon.pid"),
-		LogFileName: filepath.Join(rootDir, "daemon.log"),
-		WorkDir:     rootDir}
-
+	context := getDaemonContext()
 	child, err := context.Search()
 	if err != nil {
 		log.Infoln("No daemonized process found. Nothing to clean locally.")
 		log.Warningln(err)
-	} else {
-		// This is the dumbest thing in the world. We have to send signals using flags,
-		// so create a new bool flag that is always true and passes SIGTERM.
-		daemon.AddCommand(
-			daemon.BoolFlag(func(b bool) *bool { return &b }(true)),
-			syscall.SIGTERM,
-			nil)
-		// Skip error checking on this because this library is horrendous
-		daemon.SendCommands(child) //nolint: errcheck
+		return
+	}
 
-		// Clean up after the process since it seems incapable of doing that itself
-		if err := os.Remove(context.PidFileName); err != nil {
-			log.Fatal(err)
-		}
+	// This is the dumbest thing in the world. We have to send signals using flags,
+	// so create a new bool flag that is always true and passes SIGTERM.
+	daemon.AddCommand(
+		daemon.BoolFlag(func(b bool) *bool { return &b }(true)),
+		syscall.SIGTERM,
+		nil)
+
+	// Skip error checking on this because this library is horrendous
+	if err := daemon.SendCommands(child); err != nil {
+		log.Fatal(err)
+	}
+
+	// Clean up after the process since it seems incapable of doing that itself
+	if err := os.Remove(context.PidFileName); err != nil {
+		log.Fatal(err)
 	}
 }
 
@@ -97,12 +95,13 @@ func (c *cleanCmd) cleanRemote() {
 	service := cluster.NewService()
 
 	// Check that the daemonset is running remotely
-	isInstalled, err := service.IsInstalled()
-	if err != nil {
+	if isInstalled, err := service.IsInstalled(); err != nil {
 		log.Fatal(err)
 	} else if !isInstalled {
-		log.Fatalln("Remote components are not installed")
+		log.Infoln("Remote components are not installed")
+		return
 	}
+
 	if err := service.Remove(); err != nil {
 		log.Fatal(err)
 	}
@@ -119,7 +118,7 @@ func (c *cleanCmd) fromOrbit() {
 		"path":  viper.ConfigFileUsed(),
 		"files": files,
 	}).Info("Nuking all files from from orbit. It's the only way.")
-	if err := os.RemoveAll(filepath.Dir(viper.ConfigFileUsed())); err != nil {
+	if err := os.RemoveAll(cli.ConfigPath()); err != nil {
 		log.Fatal(err)
 	}
 	log.Info("Nuke drop complete")

@@ -25,6 +25,8 @@ import (
 
 var tooSoonReset = 3 * time.Second
 
+// Folder is what controls the syncing between a local folder and a specific
+// container running in the remote cluster.
 type Folder struct {
 	SpecName        string
 	RemoteContainer *RemoteContainer
@@ -46,6 +48,7 @@ type Folder struct {
 	stop             chan bool
 }
 
+// NewFolder constructs a Folder based off the provided Service.
 func NewFolder(service *Service) *Folder {
 	return &Folder{
 		SpecName:        service.SpecDetails.Name,
@@ -87,6 +90,7 @@ func (f *Folder) Fields() log.Fields {
 	return debug.StructFields(f)
 }
 
+// Get the remote folder's path from radar.
 func (f *Folder) path() (string, error) {
 	path, err := f.radarClient.GetBasePath(
 		context.Background(), &pb.ContainerPath{
@@ -111,6 +115,12 @@ func (f *Folder) initRadarClient() error {
 	return nil
 }
 
+// Mounts are propogated for /var/lib/docker when a container is started. If
+// the container in question was started after the syncthing container, the
+// mount will not be present. This restarts just the syncthing container on the
+// remote node to refresh the mount table. It will potentially interrupt any
+// other folders operating on that host, but syncthing will quickly reconnect
+// and startup again.
 func (f *Folder) refreshSyncthing() error {
 	if _, err := f.radarClient.RestartSyncthing(
 		context.Background(), &empty.Empty{}); err != nil {
@@ -120,6 +130,8 @@ func (f *Folder) refreshSyncthing() error {
 	return nil
 }
 
+// Sets up syncthing.Server for both the local and remote server to allow for
+// updating their configuration mutually.
 func (f *Folder) initServers(apiPort int32) error {
 	localServer, err := syncthing.NewServer(
 		fmt.Sprintf("localhost:%d", viper.GetInt("syncthing-port")),
@@ -142,6 +154,8 @@ func (f *Folder) initServers(apiPort int32) error {
 	return nil
 }
 
+// Kick the remote container when a folder has successfully completed updating.
+// This is monitored from the local syncthing server.
 func (f *Folder) hotReload() error {
 	f.restartContainer = make(chan bool)
 
@@ -181,6 +195,8 @@ func (f *Folder) hotReload() error {
 	return nil
 }
 
+// Pay attention to the events coming off the local syncthing server to update
+// state and reload the remote container if required.
 func (f *Folder) watchEvents() error {
 	stream, err := f.localServer.Events()
 	if err != nil {
@@ -214,6 +230,10 @@ func (f *Folder) watchEvents() error {
 	return nil
 }
 
+// Update both the local and remote syncthing servers with devices allowing
+// them to mutually connect (via. the local tunnel). None of the discovery
+// or hole punching options in syncthing are used. The configuration forces
+// connections *only* over the local tunnel.
 func (f *Folder) setDevices(listenerPort int32) error {
 	host, err := os.Hostname()
 	if err != nil {
@@ -239,6 +259,9 @@ func (f *Folder) setDevices(listenerPort int32) error {
 	return nil
 }
 
+// Update both the local and remote folder configuration for syncthing. Once
+// this is updated, the syncing will actually start (assuming the devices can
+// connect via. the local tunnel).
 func (f *Folder) setFolders() error {
 	localFolder := config.NewFolderConfiguration(
 		f.remoteServer.ID, f.id, f.id, fs.FilesystemTypeBasic, f.LocalPath)
@@ -262,7 +285,26 @@ func (f *Folder) setFolders() error {
 	return nil
 }
 
-func (f *Folder) Run() error { //nolint: gocyclo
+func (f *Folder) beginSync(listenerPort int32) error {
+	if err := f.setDevices(listenerPort); err != nil {
+		return err
+	}
+
+	if err := f.setFolders(); err != nil {
+		return err
+	}
+
+	if err := f.remoteServer.Update(); err != nil {
+		return err
+	}
+
+	return f.localServer.Update()
+}
+
+// Run starts syncing the folder between the local host and the remote
+// container. It is expected that syncthing is already running locally (
+// normally started by Syncthing).
+func (f *Folder) Run() error {
 	f.Status = ServiceStarting
 
 	if err := f.initRadarClient(); err != nil {
@@ -293,22 +335,13 @@ func (f *Folder) Run() error { //nolint: gocyclo
 		return err
 	}
 
-	if err := f.setDevices(listenerPort); err != nil {
-		return err
-	}
-
-	if err := f.setFolders(); err != nil {
-		return err
-	}
-
-	if err := f.remoteServer.Update(); err != nil {
-		return err
-	}
-
-	return f.localServer.Update()
+	return f.beginSync(listenerPort)
 }
 
-// TODO: stop the tunnel
+// Stop cleans up everything running in the background. It removes the
+// folder configuration from syncthing on the local/remote servers and
+// destroys the tunnels to those servers (for this folder, as connections
+// are per-folder).
 func (f *Folder) Stop() error {
 	f.localServer.Stop()
 	f.remoteServer.Stop()
