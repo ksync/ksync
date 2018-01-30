@@ -70,12 +70,6 @@ jobs:
             testdata/ci/setup.sh
 
       - run:
-          name: "Cleanup wait-for"
-          when: always
-          command: |
-            /home/circleci/google-cloud-sdk/bin/kubectl delete po -lapp=wait-for
-
-      - run:
           name: "Lint"
           command: |
             make lint

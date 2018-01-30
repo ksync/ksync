@@ -14,13 +14,13 @@ NC='\033[0m'
 # Install the binaries
 # TODO: This would seem to be a nonsequitor as we have to compile and launch
 # the binaries _before_ running tests. Need to figure out a better way to do this.
-cd ${CIRCLE_WORKING_DIRECTORY}/cmd/ksync
-go install -v
-cd ${CIRCLE_WORKING_DIRECTORY}/cmd/radar
-go install -v
+# cd ${CIRCLE_WORKING_DIRECTORY}/cmd/ksync
+# go install -v
+# cd ${CIRCLE_WORKING_DIRECTORY}/cmd/radar
+# go install -v
 
 # Deploy radar to the cluster
-ksync init --local=false
+bin/ksync_linux_amd64 init --local=false
 
 # Get absolute path for kubectl in case it isn't in our shell
 TEST_KUBECTL="/home/circleci/google-cloud-sdk/bin/kubectl"
@@ -29,11 +29,10 @@ TEST_KUBECTL="/home/circleci/google-cloud-sdk/bin/kubectl"
 TEST_NAMESPACE="default"
 TEST_RADAR_NAMESPACE="kube-system"
 
-timeout -k 2m 2m ${TEST_KUBECTL} run --rm -it wait-for-ksync-$(shuf -i1-1000 -n1) \
+${TEST_KUBECTL} run --rm -it wait-for-ksync-$(shuf -i1-1000 -n1) \
   --restart Never \
   --image=groundnuty/k8s-wait-for \
   --requests='cpu=10m' \
-  --labels=app=wait-for \
   -- pod -lapp=ksync --all-namespaces
 
 # Fetch the names of the pods launched
