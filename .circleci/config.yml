@@ -43,6 +43,11 @@ jobs:
             go get -v github.com/mitchellh/gox
 
       - run:
+          name: "Building docker binary"
+          command: |
+            make build-ci OPTS='-osarch="linux/amd64"'
+
+      - run:
           name: "Building Radar Docker Container"
           command: |
             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
