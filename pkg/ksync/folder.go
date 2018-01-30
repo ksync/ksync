@@ -80,8 +80,6 @@ func (f *Folder) initErrorHandler() {
 			"node": f.RemoteContainer.NodeName,
 			"pod":  f.RemoteContainer.PodName,
 		}).Debug("lost connection to remote")
-
-		return
 	})
 }
 
@@ -362,8 +360,13 @@ func (f *Folder) Stop() error {
 		return err
 	}
 
-	f.radarConn.Close()
-	f.connection.Stop()
+	if err := f.radarConn.Close(); err != nil {
+		return err
+	}
+
+	if err := f.connection.Stop(); err != nil {
+		return err
+	}
 
 	log.WithFields(f.Fields()).Debug("stopped folder")
 	return nil

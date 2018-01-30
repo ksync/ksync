@@ -93,8 +93,7 @@ func (s *Server) Update() error {
 // Restart rolls the remote server. Because of how syncthing runs, this just
 // happens in the background with only minimal interruption.
 func (s *Server) Restart() error {
-	if _, err := s.client.NewRequest().
-		Post("system/restart"); err != nil {
+	if _, err := s.client.NewRequest().Post("system/restart"); err != nil { // nolint: megacheck
 		return err
 	}
 

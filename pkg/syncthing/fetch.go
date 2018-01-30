@@ -35,7 +35,7 @@ func saveBinary(tarReader *tar.Reader, path string) error { //nolint interfacer
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer f.Close() // nolint: errcheck
 
 	if _, err := io.Copy(f, tarReader); err != nil {
 		return err

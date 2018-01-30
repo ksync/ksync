@@ -209,7 +209,7 @@ func (s *Service) nodeVersion(nodeName string) (*pb.VersionInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer conn.Close()
+	defer conn.Close() // nolint: errcheck
 
 	return pb.NewRadarClient(conn).GetVersionInfo(
 		context.Background(), &empty.Empty{})
