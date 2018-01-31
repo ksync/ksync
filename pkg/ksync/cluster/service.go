@@ -164,7 +164,7 @@ func (s *Service) NodeNames() ([]string, error) {
 	result := []string{}
 
 	opts := metav1.ListOptions{}
-	opts.LabelSelector = "app=radar"
+	opts.LabelSelector = "app=ksync"
 	pods, err := Client.CoreV1().Pods(s.Namespace).List(opts)
 	if err != nil {
 		return nil, err
