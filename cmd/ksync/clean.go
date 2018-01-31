@@ -5,7 +5,7 @@ import (
 	"os"
 	"syscall"
 
-	daemon "github.com/sevlyar/go-daemon"
+	daemon "github.com/timfallmk/go-daemon"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

@@ -3,7 +3,7 @@ package main
 import (
 	"path/filepath"
 
-	daemon "github.com/sevlyar/go-daemon"
+	daemon "github.com/timfallmk/go-daemon"
 
 	"github.com/vapor-ware/ksync/pkg/cli"
 )

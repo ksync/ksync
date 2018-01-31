@@ -110,7 +110,7 @@
 
 [[constraint]]
   branch = "master"
-  name = "github.com/sevlyar/go-daemon"
+  name = "github.com/timfallmk/go-daemon"
 
 [[constraint]]
   name = "github.com/go-resty/resty"

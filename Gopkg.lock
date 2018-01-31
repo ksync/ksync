@@ -350,12 +350,6 @@
   version = "v0.2.0"
 
 [[projects]]
-  name = "github.com/sevlyar/go-daemon"
-  packages = ["."]
-  revision = "e49ef56654f54139c4dc0285f973f74e9649e729"
-  version = "v0.1.2"
-
-[[projects]]
   name = "github.com/sirupsen/logrus"
   packages = ["."]
   revision = "f006c2ac4710855cf0f916dd6b77acf6b048dc6e"
@@ -408,6 +402,12 @@
   packages = ["lib/config","lib/dialer","lib/events","lib/fs","lib/logger","lib/osutil","lib/protocol","lib/rand","lib/sha256","lib/signature","lib/sync","lib/upgrade","lib/util"]
   revision = "a9f0659f2f4bf910f82b652fd27a864074ec7ab8"
   version = "v0.14.43"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/timfallmk/go-daemon"
+  packages = ["."]
+  revision = "3ddf6a4eef256bd07352f96221afee09c6d183ef"
 
 [[projects]]
   branch = "master"
@@ -507,6 +507,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "3d3742eeacc1b3e9905af32b93646ba0086ccc2c58e12d39a75124bb4ba3fa77"
+  inputs-digest = "08ca33662824da8423e003fa576fc3bfee869f1662cc166f9400397b142ed9bc"
   solver-name = "gps-cdcl"
   solver-version = 1
