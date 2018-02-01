@@ -164,6 +164,8 @@ ksync version
     python -mwebbrowser http://localhost:8081
     ```
 
+![visualizer](docs/visualizer.png)
+
 # Tested Configurations
 
 ## Cluster
