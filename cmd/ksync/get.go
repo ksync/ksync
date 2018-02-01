@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/golang/protobuf/ptypes/empty"
@@ -65,9 +66,14 @@ func (g *getCmd) out(specs *pb.SpecList) {
 			status = ""
 		}
 
-		local, err := filepath.Rel(cwd, spec.Details.LocalPath)
+		relPath, err := filepath.Rel(cwd, spec.Details.LocalPath)
 		if err != nil {
 			log.Fatal(err)
+		}
+
+		local := relPath
+		if strings.Count(local, "/") > strings.Count(spec.Details.LocalPath, "/") {
+			local = spec.Details.LocalPath
 		}
 
 		table.Append([]string{
@@ -95,12 +101,18 @@ func (g *getCmd) run(cmd *cobra.Command, args []string) {
 	conn, err := grpc.Dial(
 		fmt.Sprintf("127.0.0.1:%d", viper.GetInt("port")),
 		[]grpc.DialOption{
-			grpc.WithTimeout(5 * time.Second),
+			// This is connecting locally and it is very unlikely watch is overloaded,
+			// set the timeout *super* short to make it easier on the users when they
+			// forgot to start watch.
+			grpc.WithTimeout(100 * time.Millisecond),
 			grpc.WithBlock(),
 			grpc.WithInsecure(),
 		}...)
 	if err != nil {
-		log.Fatal(err)
+		// The assumption is that the only real error here is because watch isn't
+		// running
+		log.Debug(err)
+		log.Fatal("Having problems querying status. Are you running watch?")
 	}
 	defer conn.Close() // nolint: errcheck
 
