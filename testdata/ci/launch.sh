@@ -11,14 +11,6 @@ BLUE='\033[0;34m'
 YELLOW='\033[0;33m'
 NC='\033[0m'
 
-# Install the binaries
-# TODO: This would seem to be a nonsequitor as we have to compile and launch
-# the binaries _before_ running tests. Need to figure out a better way to do this.
-# cd ${CIRCLE_WORKING_DIRECTORY}/cmd/ksync
-# go install -v
-# cd ${CIRCLE_WORKING_DIRECTORY}/cmd/radar
-# go install -v
-
 # Deploy radar to the cluster
 bin/ksync_linux_amd64 init --local=false
 
