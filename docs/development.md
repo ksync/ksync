@@ -8,6 +8,13 @@ go install cmd/*
 
 **Note**: If you compile the binaries yourself the output of `ksync version` may not be correct. Only the binaries on the [releases](https://github.com/vapor-ware/ksync/releases) page are stamped with this information.
 
+The makefile has some convenient helpers:
+
+- `watch` - Watches the directory for changes, rebuilds the binary and starts `ksync watch`. This requires `ag` and `entr`.
+- `docker-binary docker-build docker-push` - Build and refresh the cluster docker pieces.
+- `lint` - Run the linter.
+- `radar-logs` - Streams the logs from the cluster locally to help with debugging. Requires `stern`.
+
 ## Dependencies
 
 - [protoc][protoc]
@@ -27,10 +34,6 @@ go get -u github.com/golang/protobuf/protoc-gen-go
 ```bash
 go install -u github.com/golang/dep/cmd/dep
 ```
-
-# Troubleshooting
-
-- ntp issues
 
 [protoc]: https://github.com/golang/protobuf/
 [protoc-gen-go]: https://github.com/golang/protobuf/
