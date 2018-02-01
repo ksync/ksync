@@ -9,6 +9,8 @@
 
 ksync speeds up developers who build applications for Kubernetes. It syncs files between a local directory and arbitrary containers running remotely. You do not need to change your existing workflow to develop directly on a Kubernetes cluster.
 
+If you've been wanting to do something like `docker run -v /foo:/bar` with Kubernetes, ksync is for you!
+
 Using ksync is as simple as:
 
 1. `ksync init` to run the server component.
@@ -206,7 +208,6 @@ ksync version
 More detailed documentation can be found in the [docs](docs) directory.
 
 - [Architecture](docs/architecture.md)
-- [Commands](docs/commands.md)
 - [Development](docs/development.md)
 - [Releasing](docs/releasing.md)
 
