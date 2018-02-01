@@ -65,6 +65,22 @@ build-cmd:
 build-proto:
 	protoc proto/*.proto --go_out=plugins=grpc:pkg
 
+binaries: binary-darwin binary-linux
+
+binary-%:
+	time GOOS=$* GOARCH=$(GOARCH) CGO_ENABLED=0 \
+		$(GO) build $(GOFLAGS) \
+			-tags '$(TAGS)' \
+			-ldflags '$(LDFLAGS)' \
+			-o $(BINDIR)/ksync_$*_$(GOARCH) \
+			github.com/vapor-ware/ksync/cmd/ksync
+	time GOOS=$* GOARCH=$(GOARCH) CGO_ENABLED=0 \
+		$(GO) build $(GOFLAGS) \
+			-tags '$(TAGS)' \
+			-ldflags '$(LDFLAGS)' \
+			-o $(BINDIR)/radar_$*_$(GOARCH) \
+			github.com/vapor-ware/ksync/cmd/radar
+
 .PHONY: watch
 watch:
 	ag -l --ignore "pkg/proto" | entr -dr /bin/sh -c "$(MAKE) build && $(CMD)"

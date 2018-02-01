@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/fsnotify/fsnotify"
+	daemon "github.com/timfallmk/go-daemon"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -34,6 +35,15 @@ func (w *watchCmd) new() *cobra.Command {
 		"interface to bind to")
 
 	if err := w.BindFlag("bind"); err != nil {
+		log.Fatal(err)
+	}
+
+	flags.BoolP(
+		"daemon",
+		"d",
+		false,
+		"run in the background")
+	if err := w.BindFlag("daemon"); err != nil {
 		log.Fatal(err)
 	}
 
@@ -70,6 +80,21 @@ func (w *watchCmd) run(cmd *cobra.Command, args []string) {
 	list := &ksync.SpecList{}
 
 	w.local(list)
+
+	if w.Viper.GetBool("daemon") {
+		context := getDaemonContext()
+
+		if _, err := context.Reborn(); err != nil {
+			log.Fatal(err)
+		}
+
+		defer context.Release() //nolint: errcheck
+
+		if !daemon.WasReborn() {
+			log.Info("Sending watch to the background. Use clean to stop it.")
+			return
+		}
+	}
 
 	if err := ksync.NewSyncthing().Run(); err != nil {
 		log.Fatal(err)

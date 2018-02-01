@@ -109,4 +109,8 @@
   name = "github.com/syncthing/syncthing"
 
 [[constraint]]
+  branch = "master"
+  name = "github.com/timfallmk/go-daemon"
+
+[[constraint]]
   name = "github.com/go-resty/resty"

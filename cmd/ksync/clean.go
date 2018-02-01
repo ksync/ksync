@@ -3,7 +3,9 @@ package main
 import (
 	"io/ioutil"
 	"os"
+	"syscall"
 
+	daemon "github.com/timfallmk/go-daemon"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -63,9 +65,29 @@ WARNING: USING THE "NUKE" OPTION WILL REMOVE YOUR CONFIG. USE WITH CAUTION.
 }
 
 func (c *cleanCmd) cleanLocal() {
-	if true {
+	context := getDaemonContext()
+	child, err := context.Search()
+	if err != nil {
 		log.Infoln("No daemonized process found. Nothing to clean locally.")
+		log.Warningln(err)
 		return
+	}
+
+	// This is the dumbest thing in the world. We have to send signals using flags,
+	// so create a new bool flag that is always true and passes SIGTERM.
+	daemon.AddCommand(
+		daemon.BoolFlag(func(b bool) *bool { return &b }(true)),
+		syscall.SIGTERM,
+		nil)
+
+	// Skip error checking on this because this library is horrendous
+	if err := daemon.SendCommands(child); err != nil {
+		log.Fatal(err)
+	}
+
+	// Clean up after the process since it seems incapable of doing that itself
+	if err := os.Remove(context.PidFileName); err != nil {
+		log.Fatal(err)
 	}
 }
 

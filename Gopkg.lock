@@ -405,6 +405,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/timfallmk/go-daemon"
+  packages = ["."]
+  revision = "8a9a6b8c70506379801e562b097ba442d17104ff"
+
+[[projects]]
+  branch = "master"
   name = "github.com/timfallmk/overseer"
   packages = ["."]
   revision = "3f6a00445e03d0f00215ea454d3940ff9f91abc4"
@@ -501,6 +507,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "3d3742eeacc1b3e9905af32b93646ba0086ccc2c58e12d39a75124bb4ba3fa77"
+  inputs-digest = "08ca33662824da8423e003fa576fc3bfee869f1662cc166f9400397b142ed9bc"
   solver-name = "gps-cdcl"
   solver-version = 1
