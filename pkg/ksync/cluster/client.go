@@ -1,4 +1,4 @@
-package ksync
+package cluster
 
 import (
 	"fmt"
@@ -11,11 +11,10 @@ import (
 )
 
 var (
-	// TODO: is this singleton a good idea?
-	kubeClient *kubernetes.Clientset
-	kubeCfg    *rest.Config
-	// KubeCfgPath is the path to the currently used kubectl config
-	KubeCfgPath string
+	// Client is used to communicate with the cluster's api server. Make sure to
+	// run InitKubeClient() first.
+	Client  *kubernetes.Clientset
+	kubeCfg *rest.Config
 )
 
 func getKubeConfig(context string) (*rest.Config, string, error) {
@@ -40,14 +39,13 @@ func getKubeConfig(context string) (*rest.Config, string, error) {
 	return config, clientLoader.ConfigAccess().GetDefaultFilename(), nil
 }
 
-// InitKubeClient creates a new k8s client for use in talking to the k8s api server.
+// InitKubeClient creates a new k8s client for use in talking to the cluster's
+// api server.
 func InitKubeClient(context string) error {
 	log.WithFields(log.Fields{
 		"context": context,
 	}).Debug("initializing kubernetes client")
-	config, cfgPath, err := getKubeConfig(context)
-
-	// TODO: better error
+	config, _, err := getKubeConfig(context)
 	if err != nil {
 		return err
 	}
@@ -62,9 +60,8 @@ func InitKubeClient(context string) error {
 		return err
 	}
 
-	kubeClient = client
+	Client = client
 	kubeCfg = config
-	KubeCfgPath = cfgPath
 
 	return nil
 }

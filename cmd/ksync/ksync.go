@@ -5,14 +5,15 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
 	"github.com/vapor-ware/ksync/pkg/cli"
 	"github.com/vapor-ware/ksync/pkg/ksync"
+	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
 )
 
 var (
-	// TODO: update usage with flags
 	globalUsage = `Inspect and sync files from remote containers.`
 
 	rootCmd = &cobra.Command{
@@ -25,6 +26,7 @@ var (
 
 func main() {
 	rootCmd.AddCommand(
+		(&cleanCmd{}).new(),
 		(&createCmd{}).new(),
 		(&deleteCmd{}).new(),
 		(&getCmd{}).new(),
@@ -38,23 +40,12 @@ func main() {
 	}
 }
 
-func init() {
-	cobra.OnInitialize(func() {
-		if err := cli.InitConfig("ksync"); err != nil {
-			log.Fatal(err)
-		}
-	})
-
-	if err := cli.DefaultFlags(rootCmd, "ksync"); err != nil {
-		log.Fatal(err)
-	}
-
-	flags := rootCmd.PersistentFlags()
+func localFlags(flags *pflag.FlagSet) {
 	flags.StringP(
 		"namespace",
 		"n",
 		"default",
-		"namespace to use.")
+		"namespace to use")
 	if err := cli.BindFlag(
 		viper.GetViper(), flags.Lookup("namespace"), "ksync"); err != nil {
 
@@ -71,10 +62,23 @@ func init() {
 		log.Fatal(err)
 	}
 
+	flags.Int(
+		"port",
+		40322,
+		"port on watch listens on locally")
+
+	if err := cli.BindFlag(
+		viper.GetViper(), flags.Lookup("port"), "ksync"); err != nil {
+
+		log.Fatal(err)
+	}
+}
+
+func remoteFlags(flags *pflag.FlagSet) {
 	flags.String(
 		"image",
 		fmt.Sprintf("vaporio/ksync:git-%s", ksync.GitCommit),
-		"the image to use for radar.")
+		"the image to use on the cluster")
 	if err := flags.MarkHidden("image"); err != nil {
 		log.Fatal(err)
 	}
@@ -85,31 +89,63 @@ func init() {
 		log.Fatal(err)
 	}
 
-	flags.Int(
-		"port",
-		40322,
-		"port on which the server will listen")
+	flags.String(
+		"apikey",
+		"ksync",
+		"api key used for authentication with syncthing")
+	if err := flags.MarkHidden("apikey"); err != nil {
+		log.Fatal(err)
+	}
 
 	if err := cli.BindFlag(
-		viper.GetViper(), flags.Lookup("port"), "ksync"); err != nil {
+		viper.GetViper(), flags.Lookup("apikey"), "ksync"); err != nil {
+
+		log.Fatal(err)
+	}
+
+	flags.Int(
+		"syncthing-port",
+		8384,
+		"port on which the syncthing server will listen")
+	if err := flags.MarkHidden("syncthing-port"); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := cli.BindFlag(
+		viper.GetViper(), flags.Lookup("syncthing-port"), "ksync"); err != nil {
 
 		log.Fatal(err)
 	}
 }
 
-// TODO: dependencies should verify that they're usable
-// (and return errors otherwise).
+func init() {
+	cobra.OnInitialize(func() {
+		if err := cli.InitConfig("ksync"); err != nil {
+			log.Fatal(err)
+		}
+	})
+
+	if err := cli.DefaultFlags(rootCmd, "ksync"); err != nil {
+		log.Fatal(err)
+	}
+
+	flags := rootCmd.PersistentFlags()
+	localFlags(flags)
+	remoteFlags(flags)
+}
+
 func initPersistent(cmd *cobra.Command, args []string) {
 	cli.InitLogging()
 
 	initKubeClient()
 
-	ksync.SetImage(viper.GetString("image"))
+	cluster.SetImage(viper.GetString("image"))
 }
 
 func initKubeClient() {
-	err := ksync.InitKubeClient(viper.GetString("context"))
-	if err != nil {
-		log.Fatalf("Error creating kubernetes client: %v", err)
+	if err := cluster.InitKubeClient(viper.GetString("context")); err != nil {
+		log.WithFields(log.Fields{
+			"context": viper.GetString("context"),
+		}).Fatalf("Error creating kubernetes client: %v", err)
 	}
 }

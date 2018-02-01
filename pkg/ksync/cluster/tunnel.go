@@ -1,4 +1,4 @@
-package ksync
+package cluster
 
 import (
 	"bytes"
@@ -39,7 +39,7 @@ func (t *Tunnel) Fields() log.Fields {
 func NewTunnel(
 	namespace string,
 	podName string,
-	remotePort int32) (*Tunnel, error) {
+	remotePort int32) *Tunnel {
 
 	return &Tunnel{
 		RemotePort: remotePort,
@@ -48,18 +48,19 @@ func NewTunnel(
 		stopChan:   make(chan struct{}, 1),
 		readyChan:  make(chan struct{}, 1),
 		Out:        new(bytes.Buffer),
-	}, nil
+	}
 }
 
 // Close closes an existing tunnel
 func (t *Tunnel) Close() {
 	close(t.stopChan)
-	close(t.readyChan)
+	<-t.stopChan
+	log.WithFields(t.Fields()).Debug("tunnel closed")
 }
 
 // Start starts a given tunnel connection
 func (t *Tunnel) Start() error {
-	req := kubeClient.CoreV1().RESTClient().Post().
+	req := Client.CoreV1().RESTClient().Post().
 		Resource("pods").
 		Namespace(t.Namespace).
 		Name(t.PodName).
@@ -76,7 +77,7 @@ func (t *Tunnel) Start() error {
 	}
 	t.LocalPort = local
 
-	log.WithFields(MergeFields(t.Fields(), log.Fields{
+	log.WithFields(debug.MergeFields(t.Fields(), log.Fields{
 		"url": req.URL(),
 	})).Debug("starting tunnel")
 

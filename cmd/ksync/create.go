@@ -21,19 +21,18 @@ type createCmd struct {
 }
 
 func (cmd *createCmd) new() *cobra.Command {
-	long := `
-    create a new sync between a local and remote directory.`
+	long := `Create a new spec to sync files between a local and remote directory
+  for specific containers running on the cluster.`
 	example := ``
 
 	cmd.Init("ksync", &cobra.Command{
 		Use:     "create [flags] [local path] [remote path]",
-		Short:   "create a new sync between a local and remote directory.",
+		Short:   "Create a new spec",
 		Long:    long,
 		Example: example,
 		Aliases: []string{"c"},
 		Args:    cobra.ExactArgs(2),
 		Run:     cmd.run,
-		// TODO: BashCompletionFunction
 	})
 
 	if err := cmd.DefaultFlags(); err != nil {
@@ -46,7 +45,7 @@ func (cmd *createCmd) new() *cobra.Command {
 	flags.String(
 		"name",
 		petname.Generate(2, "-"),
-		"Friendly name to describe this sync.")
+		"Friendly name to describe this spec.")
 	if err := cmd.BindFlag("name"); err != nil {
 		log.Fatal(err)
 	}
@@ -70,7 +69,6 @@ func (cmd *createCmd) new() *cobra.Command {
 	return cmd.Cmd
 }
 
-// TODO: check for existence of the watcher, warn if it isn't running.
 func (cmd *createCmd) run(_ *cobra.Command, args []string) {
 	syncPath := input.GetSyncPath(args)
 

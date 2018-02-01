@@ -5,6 +5,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 
+	"github.com/vapor-ware/ksync/pkg/debug"
 	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
 
@@ -22,30 +23,18 @@ var (
 	GoVersion string
 )
 
-// Version contains version information for the binary. It is set at build time.
-type Version struct {
-	Version   string
-	GoVersion string
-	GitCommit string
-	GitTag    string
-	BuildDate string
-	Healthy   bool
-}
+func (r *radarServer) GetVersionInfo(
+	ctx context.Context, _ *empty.Empty) (*pb.VersionInfo, error) {
 
-func (r *radarServer) GetVersionInfo(ctx context.Context, _ *empty.Empty) (*pb.VersionInfo, error) {
-	log.WithFields(log.Fields{
-		"Version":   VersionString,
-		"GoVersion": GoVersion,
-		"GitCommit": GitCommit,
-		"GitTag":    GitTag,
-		"BuildDate": BuildDate,
-	}).Debug("getting version info")
-
-	return &pb.VersionInfo{
+	version := &pb.VersionInfo{
 		Version:   VersionString,
 		GoVersion: GoVersion,
 		GitCommit: GitCommit,
 		GitTag:    GitTag,
 		BuildDate: BuildDate,
-	}, nil
+	}
+
+	log.WithFields(debug.StructFields(version)).Debug("getting version info")
+
+	return version, nil
 }

@@ -38,10 +38,22 @@
   version = "v1.12.30"
 
 [[projects]]
-  name = "github.com/cavaliercoder/grab"
+  name = "github.com/bkaradzic/go-lz4"
   packages = ["."]
-  revision = "e2cf8055a943781c5f6424590b0495cd59f616f0"
-  version = "v2.0.0"
+  revision = "74ddf82598bc4745b965729e9c6a463bedd33049"
+  version = "v1.0.0"
+
+[[projects]]
+  name = "github.com/calmh/du"
+  packages = ["."]
+  revision = "dd9dc2043353249b2910b29dcfd6f6d4e64f39be"
+  version = "v1.0.1"
+
+[[projects]]
+  name = "github.com/calmh/xdr"
+  packages = ["."]
+  revision = "f9b9f8f7aa27725f5cabb699bd9099ca7ce09143"
+  version = "v2.0.1"
 
 [[projects]]
   name = "github.com/cenkalti/backoff"
@@ -177,8 +189,14 @@
   revision = "cf0bdb963811675a4d7e74901cefc7411a1df939"
 
 [[projects]]
+  name = "github.com/go-resty/resty"
+  packages = ["."]
+  revision = "9ac9c42358f7c3c69ac9f8610e8790d7c338e85d"
+  version = "v1.0"
+
+[[projects]]
   name = "github.com/gogo/protobuf"
-  packages = ["proto","sortkeys"]
+  packages = ["gogoproto","proto","protoc-gen-gogo/descriptor","sortkeys"]
   revision = "342cbe0a04158f6dcb03ca0079991a51a4248c02"
   version = "v0.5"
 
@@ -273,6 +291,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/minio/sha256-simd"
+  packages = ["."]
+  revision = "ad98a36ba0da87206e3378c556abbfeaeaa98668"
+
+[[projects]]
+  branch = "master"
   name = "github.com/mitchellh/go-homedir"
   packages = ["."]
   revision = "b8bc1bf767474819792c23f32d8286a45736f1c6"
@@ -297,6 +321,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/petermattis/goid"
+  packages = ["."]
+  revision = "176e84a949d354dcef722e602b312b1a75bacddc"
+
+[[projects]]
+  branch = "master"
   name = "github.com/phayes/permbits"
   packages = ["."]
   revision = "529f712b661aa1075f21a3d7380f3a998556c1a2"
@@ -312,6 +342,12 @@
   packages = ["difflib"]
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
   version = "v1.0.0"
+
+[[projects]]
+  name = "github.com/sasha-s/go-deadlock"
+  packages = ["."]
+  revision = "03d40e5dbd5488667a13b3c2600b2f7c2886f02f"
+  version = "v0.2.0"
 
 [[projects]]
   name = "github.com/sirupsen/logrus"
@@ -362,6 +398,12 @@
   revision = "2aa2c176b9dab406a6970f6a55f513e8a8c8b18f"
 
 [[projects]]
+  name = "github.com/syncthing/syncthing"
+  packages = ["lib/config","lib/dialer","lib/events","lib/fs","lib/logger","lib/osutil","lib/protocol","lib/rand","lib/sha256","lib/signature","lib/sync","lib/upgrade","lib/util"]
+  revision = "a9f0659f2f4bf910f82b652fd27a864074ec7ab8"
+  version = "v0.14.43"
+
+[[projects]]
   branch = "master"
   name = "github.com/timfallmk/overseer"
   packages = ["."]
@@ -374,6 +416,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/zillode/notify"
+  packages = ["."]
+  revision = "8fff849a2026ce7a59f67ed9747dd9c7adc8bd0b"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
   revision = "9f005a07e0d31d45e6656d241bb5c0f2efd4bc94"
@@ -381,7 +429,7 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
-  packages = ["context","context/ctxhttp","http2","http2/hpack","idna","internal/timeseries","lex/httplex","proxy","trace"]
+  packages = ["bpf","context","context/ctxhttp","http2","http2/hpack","idna","internal/iana","internal/socket","internal/timeseries","ipv4","ipv6","lex/httplex","proxy","publicsuffix","trace"]
   revision = "a337091b0525af65de94df2eb7e98bd9962dcbe2"
 
 [[projects]]
@@ -453,6 +501,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "0d1034359f209ace033e630f97ab914a1479597a69bd2be84cb4ed9bcb869b3c"
+  inputs-digest = "3d3742eeacc1b3e9905af32b93646ba0086ccc2c58e12d39a75124bb4ba3fa77"
   solver-name = "gps-cdcl"
   solver-version = 1

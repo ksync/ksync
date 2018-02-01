@@ -25,9 +25,6 @@ func withDuration(duration time.Duration) (key string, value interface{}) {
 
 // Listen starts the ksync server locally.
 func Listen(list *ksync.SpecList, bind string, port int) error {
-	// TODO: add grpc_prometheus
-	// TODO: add grpc_validator
-	// TODO: add tracing (net/http/pprof, opentracing?), include in debug logging
 	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", bind, port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)

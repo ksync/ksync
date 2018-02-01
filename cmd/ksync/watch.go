@@ -16,15 +16,12 @@ type watchCmd struct {
 }
 
 func (w *watchCmd) new() *cobra.Command {
-	long := `Watch configured syncs and start them when required.
-
-	Note: this is run automatically for you by 'ksync init'. It expects to be run
-	from inside a container.`
+	long := `Watch configured specs and start syncing files when required.`
 	example := ``
 
 	w.Init("ksync", &cobra.Command{
 		Use:     "watch",
-		Short:   "Watch configured syncs and start them when required.",
+		Short:   "Watch configured specs and start syncing files when required.",
 		Long:    long,
 		Example: example,
 		Run:     w.run,
@@ -34,7 +31,7 @@ func (w *watchCmd) new() *cobra.Command {
 	flags.String(
 		"bind",
 		"127.0.0.1",
-		"interface to which the server will bind")
+		"interface to bind to")
 
 	if err := w.BindFlag("bind"); err != nil {
 		log.Fatal(err)
@@ -69,15 +66,15 @@ func (w *watchCmd) local(list *ksync.SpecList) {
 	})
 }
 
-// TODO: should the listen be random?
-// TODO: does this need TLS?
 func (w *watchCmd) run(cmd *cobra.Command, args []string) {
-	if !ksync.HasMirror() {
-		log.Fatal("missing required files. run `ksync init` again.")
-	}
 	list := &ksync.SpecList{}
 
 	w.local(list)
+
+	if err := ksync.NewSyncthing().Run(); err != nil {
+		log.Fatal(err)
+	}
+
 	if err := server.Listen(
 		list, w.Viper.GetString("bind"), viper.GetInt("port")); err != nil {
 		log.Fatal(err)
