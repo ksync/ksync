@@ -16,6 +16,11 @@ var (
 )
 
 func DoesSyncthingExist() error {
+	// There is a timing error when using spinners to output things. If a function
+	// completes immediately, you end up with duplicate content. This makes sure
+	// that it won't complete immediately.
+	time.Sleep(1 * time.Millisecond)
+
 	if !ksync.NewSyncthing().HasBinary() {
 		return fmt.Errorf("missing binary, run init to download")
 	}

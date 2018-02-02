@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/logrusorgru/aurora"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
@@ -56,6 +57,6 @@ func (d *doctorCmd) run(cmd *cobra.Command, args []string) {
 	}
 
 	if !failure {
-		fmt.Printf(doctorSuccess)
+		fmt.Printf("%-40s    %s\n", doctorSuccess, aurora.Green("\u263A"))
 	}
 }
