@@ -443,7 +443,7 @@
   branch = "master"
   name = "github.com/timfallmk/go-daemon"
   packages = ["."]
-  revision = "8a9a6b8c70506379801e562b097ba442d17104ff"
+  revision = "44393e1f7be69808fcc4bdf838d2cf2b23770b68"
 
 [[projects]]
   branch = "master"
