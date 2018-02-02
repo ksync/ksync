@@ -15,6 +15,7 @@ var (
 	watchNotRunningError = `It appears that watch isn't running. You can start it with 'ksync watch'`
 )
 
+// DoesSyncthingExist verifies that the local binary exists.
 func DoesSyncthingExist() error {
 	// There is a timing error when using spinners to output things. If a function
 	// completes immediately, you end up with duplicate content. This makes sure
@@ -28,6 +29,7 @@ func DoesSyncthingExist() error {
 	return nil
 }
 
+// IsWatchRunning verifies that watch is running and ready to go.
 func IsWatchRunning() error {
 	conn, err := grpc.Dial(
 		fmt.Sprintf("127.0.0.1:%d", viper.GetInt("port")),

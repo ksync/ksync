@@ -4,12 +4,14 @@ import (
 	"github.com/vapor-ware/ksync/pkg/cli"
 )
 
+// Check provides the definition of check that is named and validates something.
 type Check struct {
 	Name string
 	Func func() error
 	Type string
 }
 
+// CheckList is the full list of checks run by doctor.
 var CheckList = []Check{
 	Check{
 		Name: "Extra Binaries",
@@ -66,6 +68,7 @@ var CheckList = []Check{
 	},
 }
 
+// Out provides pretty output with colors and spinners of progress.
 func (c *Check) Out() error {
 	return cli.TaskOut(c.Name, c.Func)
 }

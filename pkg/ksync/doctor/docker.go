@@ -18,6 +18,8 @@ var (
 	dockerStorageError = `The configured docker storage driver (%s) on node (%s) is not part of the supported list: %s. Please open an issue to add support for your storage driver.`
 )
 
+// IsDockerVersionCompatible verifies that the remote cluster is running a
+// docker daemon with an API version that falls within the compatible range.
 func IsDockerVersionCompatible() error {
 	nodes, err := cluster.NewService().NodeNames()
 	if err != nil {
@@ -34,7 +36,7 @@ func IsDockerVersionCompatible() error {
 		if err != nil {
 			return err
 		}
-		defer conn.Close()
+		defer conn.Close() // nolint: errcheck
 
 		info, err := pb.NewRadarClient(conn).GetDockerVersion(
 			context.Background(), &empty.Empty{})
@@ -61,6 +63,8 @@ func IsDockerVersionCompatible() error {
 	return nil
 }
 
+// IsDockerStorageCompatible verifies that the remote cluster has been
+// configured to use compatible docker storage drivers.
 func IsDockerStorageCompatible() error {
 	nodes, err := cluster.NewService().NodeNames()
 	if err != nil {
@@ -72,7 +76,7 @@ func IsDockerStorageCompatible() error {
 		if err != nil {
 			return err
 		}
-		defer conn.Close()
+		defer conn.Close() // nolint: errcheck
 
 		info, err := pb.NewRadarClient(conn).GetDockerInfo(
 			context.Background(), &empty.Empty{})

@@ -10,7 +10,8 @@ import (
 )
 
 var (
-	serviceHealthError = `Cluster service is not healthy.
+	missingServiceError = `The cluster service has not been installed yet. Run init to fix.`
+	serviceHealthError  = `Cluster service is not healthy.
 
 - If you just ran init, wait a little longer and try again.
 - Run 'kubectl --namespace=%s --context=%s get pods -lapp=ksync' to look at what's going on.`
@@ -20,6 +21,7 @@ var (
 Run 'ksync init --upgrade' to fix.`
 )
 
+// HasClusterService verifies that the cluster is running the service.
 func HasClusterService() error {
 	result, err := cluster.NewService().IsInstalled()
 	if err != nil {
@@ -27,13 +29,14 @@ func HasClusterService() error {
 	}
 
 	if !result {
-		return fmt.Errorf(
-			"The cluster service has not been installed yet. Run init to fix.")
+		return fmt.Errorf(missingServiceError)
 	}
 
 	return nil
 }
 
+// IsClusterServiceHealthy verifies that the cluster service is healthy
+// across all nodes.
 func IsClusterServiceHealthy() error {
 	// Note: this assumes that the service has already been added, otherwise the
 	// error might not make as much sense. `HasClusterService` should have been
@@ -57,6 +60,8 @@ func IsClusterServiceHealthy() error {
 	return nil
 }
 
+// IsServiceCompatible verifies that the remote service is compatible with
+// the local client.
 func IsServiceCompatible() error {
 	version, err := cluster.NewService().Version()
 	if err != nil {

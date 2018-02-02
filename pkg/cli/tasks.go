@@ -8,10 +8,14 @@ import (
 	"github.com/logrusorgru/aurora"
 )
 
+// TaskOut provides a way to pretty print a long running function with
+// colors and spinners.
 func TaskOut(name string, fn func() error) error {
 	spin := spinner.New(spinner.CharSets[11], 100*time.Millisecond)
-	spin.Color("yellow")
 	spin.Prefix = fmt.Sprintf("%-40s    ", name)
+	if err := spin.Color("yellow"); err != nil {
+		return err
+	}
 
 	spin.Start()
 

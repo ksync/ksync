@@ -17,6 +17,7 @@ var (
 	kubeCfg *rest.Config
 )
 
+// GetKubeConfig fetches a config based off a given context.
 func GetKubeConfig(context string) (*rest.Config, string, error) {
 	rules := clientcmd.NewDefaultClientConfigLoadingRules()
 	rules.DefaultClientConfig = &clientcmd.DefaultClientConfig

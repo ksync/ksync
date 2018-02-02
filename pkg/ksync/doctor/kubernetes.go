@@ -20,6 +20,8 @@ var (
 	kubeVersionError     = `Your cluster version (%s) does not fall within the acceptible range: %s. Please upgrade to a compatible version.`
 )
 
+// IsClusterVersionSupported verifies that the remote cluster's API version
+// falls within the acceptable range.
 func IsClusterVersionSupported() error {
 	clusterInfo, err := cluster.Client.Discovery().ServerVersion()
 	if err != nil {
@@ -47,6 +49,8 @@ func IsClusterVersionSupported() error {
 	return nil
 }
 
+// IsClusterConfigValid verifies that the local configuration can be loaded
+// and potentially used to connect to the cluster.
 func IsClusterConfigValid() error {
 	ctx := viper.GetString("context")
 	_, _, err := cluster.GetKubeConfig(ctx)
@@ -58,11 +62,15 @@ func IsClusterConfigValid() error {
 	// This is a bit of a hack. The singleton should be setup elsewhere, but
 	// doctor will just run through all the checks. If the cluster config is
 	// valid, create the client.
-	cluster.InitKubeClient(ctx)
+	if err := cluster.InitKubeClient(ctx); err != nil {
+		return err
+	}
 
 	return nil
 }
 
+// CanConnectToCluster verifies, naively, that the cluster can be connected to
+// and return a basic result.
 func CanConnectToCluster() error {
 	ctx := viper.GetString("context")
 	client := cluster.Client.DiscoveryClient.RESTClient()
@@ -74,6 +82,8 @@ func CanConnectToCluster() error {
 	return nil
 }
 
+// HasClusterPermissions verifies that the current context/user is able to
+// do everything required on the remote cluster.
 func HasClusterPermissions() error {
 	ctx := viper.GetString("context")
 
