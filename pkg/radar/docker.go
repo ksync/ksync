@@ -1,7 +1,11 @@
 package radar
 
 import (
+	"fmt"
+
 	"github.com/docker/docker/client"
+	apiclient "github.com/docker/docker/client"
+	"github.com/golang/protobuf/ptypes/empty"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 
@@ -33,4 +37,52 @@ func getRootPath(containerPath *pb.ContainerPath) (string, error) {
 	// TODO: how does this work on systems not running overlay2? Will need to
 	// select on type.
 	return cntr.GraphDriver.Data["MergedDir"], nil
+}
+
+func (r *radarServer) GetDockerVersion(
+	ctx context.Context, _ *empty.Empty) (*pb.DockerVersion, error) {
+
+	client, err := apiclient.NewEnvClient()
+	if err != nil {
+		return nil, err
+	}
+
+	info, err := client.ServerVersion(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.DockerVersion{
+		Version:       info.Version,
+		APIVersion:    info.APIVersion,
+		MinAPIVersion: info.MinAPIVersion,
+		GitCommit:     info.GitCommit,
+		GoVersion:     info.GoVersion,
+		Os:            info.Os,
+		Arch:          info.Arch,
+	}, nil
+}
+
+func (r *radarServer) GetDockerInfo(
+	ctx context.Context, _ *empty.Empty) (*pb.DockerInfo, error) {
+
+	client, err := apiclient.NewEnvClient()
+	if err != nil {
+		return nil, err
+	}
+
+	info, err := client.Info(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	status := []string{}
+	for _, pair := range info.DriverStatus {
+		status = append(status, fmt.Sprintf("%s: %s", pair[0], pair[1]))
+	}
+
+	return &pb.DockerInfo{
+		Driver:       info.Driver,
+		DriverStatus: status,
+	}, nil
 }

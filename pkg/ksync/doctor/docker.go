@@ -1,0 +1,97 @@
+package doctor
+
+import (
+	"fmt"
+	"reflect"
+
+	"github.com/blang/semver"
+	"github.com/golang/protobuf/ptypes/empty"
+	// log "github.com/sirupsen/logrus"
+	"golang.org/x/net/context"
+
+	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
+	pb "github.com/vapor-ware/ksync/pkg/proto"
+)
+
+var (
+	dockerVersionError = `The docker version (%s) on node (%s) does not fall within the acceptible range for API versions: %s. Please upgrade to a compatible version.`
+	dockerStorageError = `The configured docker storage driver (%s) on node (%s) is not part of the supported list: %s. Please open an issue to add support for your storage driver.`
+)
+
+// IsDockerVersionCompatible verifies that the remote cluster is running a
+// docker daemon with an API version that falls within the compatible range.
+func IsDockerVersionCompatible() error {
+	nodes, err := cluster.NewService().NodeNames()
+	if err != nil {
+		return err
+	}
+
+	versionRange, err := semver.ParseRange(DockerAPIRange)
+	if err != nil {
+		return err
+	}
+
+	for _, node := range nodes {
+		conn, err := cluster.NewConnection(node).Radar()
+		if err != nil {
+			return err
+		}
+		defer conn.Close() // nolint: errcheck
+
+		info, err := pb.NewRadarClient(conn).GetDockerVersion(
+			context.Background(), &empty.Empty{})
+		if err != nil {
+			return err
+		}
+
+		// Docker's API is not versioned like semver, so we make it that way for
+		// fun and games.
+		apiVersion, err := semver.Make(info.APIVersion + ".0")
+		if err != nil {
+			return err
+		}
+
+		if !versionRange(apiVersion) {
+			return fmt.Errorf(
+				dockerVersionError,
+				info.Version,
+				node,
+				DockerRange)
+		}
+	}
+
+	return nil
+}
+
+// IsDockerStorageCompatible verifies that the remote cluster has been
+// configured to use compatible docker storage drivers.
+func IsDockerStorageCompatible() error {
+	nodes, err := cluster.NewService().NodeNames()
+	if err != nil {
+		return err
+	}
+
+	for _, node := range nodes {
+		conn, err := cluster.NewConnection(node).Radar()
+		if err != nil {
+			return err
+		}
+		defer conn.Close() // nolint: errcheck
+
+		info, err := pb.NewRadarClient(conn).GetDockerInfo(
+			context.Background(), &empty.Empty{})
+		if err != nil {
+			return err
+		}
+
+		if _, ok := DockerDriver[info.Driver]; !ok {
+			return fmt.Errorf(
+				dockerStorageError,
+				info.Driver,
+				node,
+				reflect.ValueOf(DockerDriver).MapKeys())
+		}
+	}
+
+	return nil
+}

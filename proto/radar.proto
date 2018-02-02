@@ -10,6 +10,8 @@ service Radar {
   rpc RestartSyncthing(google.protobuf.Empty) returns (Error) {}
   rpc Restart(ContainerPath) returns (Error) {}
   rpc GetVersionInfo(google.protobuf.Empty) returns (VersionInfo) {}
+  rpc GetDockerVersion(google.protobuf.Empty) returns (DockerVersion) {}
+  rpc GetDockerInfo(google.protobuf.Empty) returns (DockerInfo) {}
 }
 
 message ContainerPath {
@@ -30,4 +32,19 @@ message VersionInfo {
   string GitCommit = 3;
   string GitTag = 4;
   string BuildDate = 5;
+}
+
+message DockerVersion {
+  string Version = 1;
+  string APIVersion = 2;
+  string MinAPIVersion = 3;
+  string GitCommit = 4;
+  string GoVersion = 5;
+  string Os = 6;
+  string Arch = 7;
+}
+
+message DockerInfo {
+  string Driver = 1;
+  repeated string DriverStatus = 2;
 }

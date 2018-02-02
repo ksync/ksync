@@ -59,7 +59,7 @@ func (c *Connection) waitForHealthy() error {
 		}
 
 		if !ready {
-			return fmt.Errorf("radar on %s not ready", c.NodeName)
+			return fmt.Errorf("ksync pod on %s not ready", c.NodeName)
 		}
 
 		return nil
