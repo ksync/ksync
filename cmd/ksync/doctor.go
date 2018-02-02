@@ -2,9 +2,7 @@ package main
 
 import (
 	"fmt"
-	// "os"
 
-	// "github.com/logrusorgru/aurora"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
@@ -58,6 +56,6 @@ func (d *doctorCmd) run(cmd *cobra.Command, args []string) {
 	}
 
 	if !failure {
-		fmt.Println(doctorSuccess)
+		fmt.Printf(doctorSuccess)
 	}
 }

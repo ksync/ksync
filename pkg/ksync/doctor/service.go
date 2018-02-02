@@ -3,18 +3,22 @@ package doctor
 import (
 	"fmt"
 
+	"github.com/spf13/viper"
+
 	"github.com/vapor-ware/ksync/pkg/ksync"
 	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
 )
 
-var serviceHealthError = `Cluster service is not healthy.
+var (
+	serviceHealthError = `Cluster service is not healthy.
 
 - If you just ran init, wait a little longer and try again.
-- Run kubectl --namespace kube-system get po -lapp=ksync to start debugging.`
+- Run 'kubectl --namespace=%s --context=%s get pods -lapp=ksync' to look at what's going on.`
 
-var versionMismatch = `There is a mismatch between the local version (%s) and the cluster (%s).
+	versionMismatch = `There is a mismatch between the local version (%s) and the cluster (%s).
 
-Run ksync init --upgrade to fix.`
+Run 'ksync init --upgrade' to fix.`
+)
 
 func HasClusterService() error {
 	result, err := cluster.NewService().IsInstalled()
@@ -45,7 +49,8 @@ func IsClusterServiceHealthy() error {
 		if state, healthErr := s.IsHealthy(node); healthErr != nil {
 			return healthErr
 		} else if !state {
-			return fmt.Errorf(serviceHealthError)
+			return fmt.Errorf(
+				serviceHealthError, cluster.NewService().Namespace, viper.GetString("context"))
 		}
 	}
 
