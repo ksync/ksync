@@ -92,7 +92,7 @@ jobs:
       - run:
           name: "Building"
           command: |
-            make build-ci OPTS='-os="!netbsd !freebsd !openbsd !windows" -arch="amd64"'
+            make build-ci OPTS='-os="!netbsd !freebsd !openbsd" -arch="amd64"'
 
       - save_cache:
           when: on_success
