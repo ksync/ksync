@@ -17,7 +17,7 @@ var (
 	kubeCfg *rest.Config
 )
 
-func getKubeConfig(context string) (*rest.Config, string, error) {
+func GetKubeConfig(context string) (*rest.Config, string, error) {
 	rules := clientcmd.NewDefaultClientConfigLoadingRules()
 	rules.DefaultClientConfig = &clientcmd.DefaultClientConfig
 
@@ -45,7 +45,7 @@ func InitKubeClient(context string) error {
 	log.WithFields(log.Fields{
 		"context": context,
 	}).Debug("initializing kubernetes client")
-	config, _, err := getKubeConfig(context)
+	config, _, err := GetKubeConfig(context)
 	if err != nil {
 		return err
 	}

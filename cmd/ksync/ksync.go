@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -11,6 +12,7 @@ import (
 	"github.com/vapor-ware/ksync/pkg/cli"
 	"github.com/vapor-ware/ksync/pkg/ksync"
 	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
+	"github.com/vapor-ware/ksync/pkg/ksync/doctor"
 )
 
 var (
@@ -29,6 +31,7 @@ func main() {
 		(&cleanCmd{}).new(),
 		(&createCmd{}).new(),
 		(&deleteCmd{}).new(),
+		(&doctorCmd{}).new(),
 		(&getCmd{}).new(),
 		(&initCmd{}).new(),
 		(&watchCmd{}).new(),
@@ -137,15 +140,18 @@ func init() {
 func initPersistent(cmd *cobra.Command, args []string) {
 	cli.InitLogging()
 
-	initKubeClient()
+	// This is a super special case where we don't want to initialize the k8s
+	// client, instead waiting to test it as part of the doctor process.
+	if !strings.HasPrefix(cmd.Use, "doctor") {
+		initKubeClient()
+	}
 
 	cluster.SetImage(viper.GetString("image"))
 }
 
 func initKubeClient() {
-	if err := cluster.InitKubeClient(viper.GetString("context")); err != nil {
-		log.WithFields(log.Fields{
-			"context": viper.GetString("context"),
-		}).Fatalf("Error creating kubernetes client: %v", err)
+	// The act of testing for a config, initializes the config.
+	if err := doctor.IsClusterConfigValid(); err != nil {
+		log.Fatal(err)
 	}
 }

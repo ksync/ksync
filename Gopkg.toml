@@ -26,29 +26,8 @@
   source = "https://github.com/moby/moby.git"
 
 [[constraint]]
-  name = "github.com/golang/protobuf"
-
-[[constraint]]
-  name = "github.com/grpc-ecosystem/go-grpc-middleware"
-
-[[constraint]]
-  name = "github.com/mitchellh/go-homedir"
-
-[[constraint]]
-  name = "github.com/sirupsen/logrus"
-
-[[constraint]]
-  name = "github.com/spf13/cobra"
-
-[[constraint]]
   name = "github.com/spf13/pflag"
   branch = "master"
-
-[[constraint]]
-  name = "github.com/spf13/cast"
-
-[[constraint]]
-  name = "github.com/spf13/viper"
 
 [[constraint]]
   branch = "master"
@@ -65,24 +44,6 @@
   name = "k8s.io/client-go"
   branch = "release-4.0"
 
-[[constraint]]
-  name = "github.com/olekukonko/tablewriter"
-
-[[constraint]]
-  name = "github.com/pkg/errors"
-
-[[constraint]]
-  name = "gopkg.in/yaml.v2"
-
-[[constraint]]
-  name = "github.com/dustinkirkland/golang-petname"
-
-[[constraint]]
-  name = "github.com/imdario/mergo"
-
-[[constraint]]
-  name = "github.com/fatih/structs"
-
 [[override]]
   name = "github.com/ugorji/go"
   revision = "8c0409fcbb70099c748d71f714529204975f6c3f"
@@ -92,25 +53,5 @@
   branch = "master"
 
 [[constraint]]
-  name = "github.com/cenkalti/backoff"
-
-[[constraint]]
-  name = "github.com/jpillora/overseer"
-
-[[constraint]]
-  branch = "master"
-  name = "github.com/timfallmk/overseer"
-
-[[constraint]]
-  branch = "master"
-  name = "github.com/phayes/permbits"
-
-[[constraint]]
-  name = "github.com/syncthing/syncthing"
-
-[[constraint]]
   branch = "master"
   name = "github.com/timfallmk/go-daemon"
-
-[[constraint]]
-  name = "github.com/go-resty/resty"

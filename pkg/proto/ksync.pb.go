@@ -19,6 +19,8 @@ It has these top-level messages:
 	BasePath
 	Error
 	VersionInfo
+	DockerVersion
+	DockerInfo
 */
 package proto_ksync
 
