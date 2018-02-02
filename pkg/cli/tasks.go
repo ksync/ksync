@@ -10,6 +10,7 @@ import (
 
 func TaskOut(name string, fn func() error) error {
 	spin := spinner.New(spinner.CharSets[11], 100*time.Millisecond)
+	_ = spin.Color("yellow")
 	spin.Prefix = fmt.Sprintf("%-40s    ", name)
 
 	spin.Start()
