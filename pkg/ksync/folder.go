@@ -88,6 +88,14 @@ func (f *Folder) Fields() log.Fields {
 	return debug.StructFields(f)
 }
 
+// ShortFields returns a set of structured fields to show users that are simplified.
+func (f *Folder) ShortFields() log.Fields {
+	return log.Fields{
+		"pod":  f.RemoteContainer.PodName,
+		"spec": f.SpecName,
+	}
+}
+
 // Get the remote folder's path from radar.
 func (f *Folder) path() (string, error) {
 	path, err := f.radarClient.GetBasePath(
@@ -169,18 +177,18 @@ func (f *Folder) hotReload() error {
 				}
 				tooSoon = true
 
-				log.WithFields(f.RemoteContainer.Fields()).Info("issuing reload")
+				log.WithFields(f.ShortFields()).Info("issuing reload")
 				f.Status = ServiceReloading
 
 				if _, err := f.radarClient.Restart(
 					context.Background(), &pb.ContainerPath{
 						ContainerId: f.RemoteContainer.ID,
 					}); err != nil {
-					log.WithFields(f.RemoteContainer.Fields()).Error(err)
+					log.WithFields(f.RemoteContainer.Fields()).Debug(err)
 					continue
 				}
 
-				log.WithFields(f.RemoteContainer.Fields()).Info("reloaded")
+				log.WithFields(f.ShortFields()).Info("reloaded")
 				f.Status = ServiceWatching
 			case <-time.After(tooSoonReset):
 				tooSoon = false
@@ -211,10 +219,10 @@ func (f *Folder) watchEvents() error {
 
 			switch ev.Type {
 			case events.FolderSummary:
-				log.WithFields(f.RemoteContainer.Fields()).Info("updating")
+				log.WithFields(f.ShortFields()).Info("updating")
 				f.Status = ServiceUpdating
 			case events.FolderCompletion:
-				log.WithFields(f.RemoteContainer.Fields()).Info("update complete")
+				log.WithFields(f.ShortFields()).Info("update complete")
 				f.Status = ServiceWatching
 
 				if f.Reload {

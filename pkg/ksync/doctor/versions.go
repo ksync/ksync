@@ -12,6 +12,7 @@ var (
 
 	// DockerDriver is all the compatible storage drivers.
 	DockerDriver = map[string]bool{
-		"overlay": true,
+		"overlay":  true,
+		"overlay2": true,
 	}
 )

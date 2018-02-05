@@ -147,6 +147,8 @@ func initPersistent(cmd *cobra.Command, args []string) {
 	}
 
 	cluster.SetImage(viper.GetString("image"))
+
+	cluster.SetErrorHandlers()
 }
 
 func initKubeClient() {

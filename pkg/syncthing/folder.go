@@ -22,6 +22,7 @@ func (s *Server) GetFolder(id string) *config.FolderConfiguration {
 func (s *Server) SetFolder(folder *config.FolderConfiguration) error {
 	folder.FSWatcherEnabled = true
 	folder.FSWatcherDelayS = 1
+	folder.MaxConflicts = 0
 
 	s.RemoveFolder(folder.ID)
 

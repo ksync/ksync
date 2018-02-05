@@ -37,7 +37,10 @@ func NewServer(host string, apikey string) (*Server, error) {
 		SetRetryCount(connectRetries).
 		SetRetryWaitTime(1*time.Second).
 		SetHostURL(server.URL).
-		SetHeader("X-API-KEY", apikey)
+		SetHeader("X-API-KEY", apikey).
+		// The resty retry code logs, this makes sure that we log it with our
+		// levels and users don't see scary "connection refused" logs by default.
+		SetLogger(log.WithFields(log.Fields{}).WriterLevel(log.DebugLevel))
 
 	// TODO: return a friendly error if refresh isn't successful (likely
 	// the syncthing server isn't starting up in time) #112
