@@ -349,23 +349,26 @@ func (f *Folder) Run() error {
 // destroys the tunnels to those servers (for this folder, as connections
 // are per-folder).
 func (f *Folder) Stop() error {
-	f.localServer.Stop()
-	f.remoteServer.Stop()
-
 	close(f.stop)
 	<-f.stop
 
 	// Leave the devices, there might be other syncs with those nodes. It
 	// shouldn't be a huge deal because the tunnel will be down unless active.
-	f.localServer.RemoveFolder(f.id)
-	f.remoteServer.RemoveFolder(f.id)
+	if f.localServer != nil {
+		f.localServer.Stop()
 
-	if err := f.localServer.Update(); err != nil {
-		return err
+		f.localServer.RemoveFolder(f.id)
+		if err := f.localServer.Update(); err != nil {
+			return err
+		}
 	}
 
-	if err := f.remoteServer.Update(); err != nil {
-		return err
+	if f.remoteServer != nil {
+		f.remoteServer.RemoveFolder(f.id)
+
+		if err := f.remoteServer.Update(); err != nil {
+			return err
+		}
 	}
 
 	if err := f.radarConn.Close(); err != nil {

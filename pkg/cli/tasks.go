@@ -20,11 +20,10 @@ func TaskOut(name string, fn func() error) error {
 	spin.Prefix = fmt.Sprintf("%-40s    ", name)
 
 	if isTerm && log.GetLevel() <= log.InfoLevel {
-		// Color restarts the spinner, so it needs to be in here.
+		// Color restarts the spinner, so this starts it.
 		if err := spin.Color("yellow"); err != nil {
 			return err
 		}
-		spin.Start()
 	}
 
 	err := fn()
