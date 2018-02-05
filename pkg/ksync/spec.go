@@ -172,5 +172,6 @@ func (s *Spec) Cleanup() error {
 	if s.stopWatching != nil {
 		close(s.stopWatching)
 	}
+
 	return s.Services.Stop()
 }

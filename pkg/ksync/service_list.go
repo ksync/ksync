@@ -70,6 +70,11 @@ func (s *ServiceList) Add(pod *v1.Pod, details *SpecDetails) error {
 
 	s.Items = append(s.Items, service)
 
+	log.WithFields(log.Fields{
+		"pod":  cntr.PodName,
+		"spec": service.SpecDetails.Name,
+	}).Info("new pod detected")
+
 	log.WithFields(service.Fields()).Debug("added service")
 
 	return service.Start()

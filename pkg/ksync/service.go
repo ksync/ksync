@@ -54,6 +54,14 @@ func (s *Service) Fields() log.Fields {
 	return s.RemoteContainer.Fields()
 }
 
+// ShortFields returns a set of structured fields to show users that are simplified.
+func (s *Service) ShortFields() log.Fields {
+	return log.Fields{
+		"pod":  s.RemoteContainer.PodName,
+		"spec": s.SpecDetails.Name,
+	}
+}
+
 // Message is used to serialize over gRPC
 func (s *Service) Message() (*pb.Service, error) {
 	cntr, err := s.RemoteContainer.Message()
@@ -90,11 +98,19 @@ func (s *Service) Start() error {
 
 	s.folder = NewFolder(s)
 
-	return s.folder.Run()
+	if err := s.folder.Run(); err != nil {
+		return err
+	}
+
+	log.WithFields(s.ShortFields()).Info("folder sync running")
+
+	return nil
 }
 
 // Stop halts a service that has been running in the background.
 func (s *Service) Stop() error {
+	log.WithFields(s.ShortFields()).Info("stopping")
+
 	log.WithFields(s.Fields()).Debug("stopping service")
 	return s.folder.Stop()
 }

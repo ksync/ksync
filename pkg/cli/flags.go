@@ -35,7 +35,7 @@ func DefaultFlags(cmd *cobra.Command, name string) error {
 	// TODO: can this be limited to a selection?
 	flags.String(
 		"log-level",
-		"warn",
+		"info",
 		"log level to use.")
 	return BindFlag(viper.GetViper(), flags.Lookup("log-level"), name)
 }

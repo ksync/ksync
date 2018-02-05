@@ -43,17 +43,23 @@ func IsClusterServiceHealthy() error {
 	// run beforehand.
 	s := cluster.NewService()
 
+	unhealthyError := fmt.Errorf(
+		serviceHealthError,
+		cluster.NewService().Namespace,
+		viper.GetString("context"))
+
 	nodes, err := s.NodeNames()
 	if err != nil {
 		return err
+	} else if len(nodes) == 0 {
+		return unhealthyError
 	}
 
 	for _, node := range nodes {
 		if state, healthErr := s.IsHealthy(node); healthErr != nil {
 			return healthErr
 		} else if !state {
-			return fmt.Errorf(
-				serviceHealthError, cluster.NewService().Namespace, viper.GetString("context"))
+			return unhealthyError
 		}
 	}
 

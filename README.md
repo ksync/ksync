@@ -67,13 +67,13 @@ ksync version
     curl https://vapor-ware.github.io/gimme-that/gimme.sh | bash
     ```
 
-1. Initialize ksync and install the server component on your cluster. The server component is a DaemonSet that provides access to each node's filesystem.
+1. Initialize ksync and install the server component on your cluster. The server component is a DaemonSet that provides access to each node's filesystem. This will also go through a set of pre and postflight checks to verify that everything is working correctly. You can run these yourself by using `ksync doctor`.
 
     ```bash
     ksync init
     ```
 
-1. Startup the local client. It watches your local config to start new jobs and the kubernetes API to react when things change there. This will just put it into the background. Feel free to run in a separate terminal or add as a service to your host.
+1. Startup the local client. It watches your local config to start new jobs and the kubernetes API to react when things change. This will just put it into the background. Feel free to run in a separate terminal or add as a service to your host.
 
     ```bash
     ksync watch &
@@ -98,7 +98,7 @@ ksync version
     ksync create --selector=app=app $(pwd)/ksync /code
     ```
 
-1. Check on the status.
+1. Check on the status. You should see a `watching` state with a pod name in the list.
 
     ```bash
     ksync get
@@ -175,6 +175,7 @@ ksync version
 - Minikube
     - v0.23.*
     - v0.24.*
+    - v0.25.*
 
 - GKE
     - v1.7.*
@@ -182,18 +183,24 @@ ksync version
 
 - Docker for Mac (Kubernetes)
     - 17.12-ce
+    - 18.*-ce
 
 ## Docker
 
 - Docker
     - 1.13.*
     - 17.*-ce
+    - 18.*-ce
 
 ## Filesystem
 
 - OverlayFS (overlay2)
 
 # Troubleshooting
+
+- Nothing is happening and `ksync get` says that it is `waiting`.
+
+    This is the state where the cluster is being monitored and it doesn't look like there is anything to do. Make sure you're
 
 - `ERROR Path ... does not exist on the server`
 

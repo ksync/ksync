@@ -10,8 +10,8 @@ import (
 // Events returns a stream of events being issued from the syncthing server. It
 // is not filtered and is up to the listener to choose which events they're
 // interested in. Remember to call Server.Stop() to stop listening for events.
-func (s *Server) Events() (<-chan *events.Event, error) {
-	out := make(chan *events.Event)
+func (s *Server) Events() (<-chan events.Event, error) {
+	out := make(chan events.Event)
 
 	// TODO: this will replay all the events for new shares (potentially a ton
 	// for long running watch processes). Should only get the latest.
@@ -42,7 +42,7 @@ func (s *Server) Events() (<-chan *events.Event, error) {
 
 				for _, event := range *resp.Result().(*[]events.Event) {
 					since = event.SubscriptionID
-					out <- &event
+					out <- event
 				}
 			}
 		}
