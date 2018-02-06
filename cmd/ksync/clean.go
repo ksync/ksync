@@ -3,12 +3,10 @@ package main
 import (
 	"io/ioutil"
 	"os"
-	"syscall"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	daemon "github.com/timfallmk/go-daemon"
 
 	"github.com/vapor-ware/ksync/pkg/cli"
 	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
@@ -62,29 +60,6 @@ WARNING: USING THE "NUKE" OPTION WILL REMOVE YOUR CONFIG. USE WITH CAUTION.
 	}
 
 	return c.Cmd
-}
-
-func (c *cleanCmd) cleanLocal() {
-	context := getDaemonContext()
-	if _, err := context.Search(); err != nil {
-		log.Infoln("No daemonized process found. Nothing to clean locally.")
-		log.Warningln(err)
-		return
-	}
-
-	pid, err := daemon.ReadPidFile(context.PidFileName)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if err := syscall.Kill(-pid, os.Interrupt.(syscall.Signal)); err != nil {
-		log.Fatal(err)
-	}
-
-	// Clean up after the process since it seems incapable of doing that itself
-	if err := os.Remove(context.PidFileName); err != nil {
-		log.Fatal(err)
-	}
 }
 
 func (c *cleanCmd) cleanRemote() {

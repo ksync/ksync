@@ -8,7 +8,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strconv"
-	"syscall"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -103,6 +103,37 @@ func (s *Syncthing) resetState() error {
 	return syncthing.ResetConfig(filepath.Join(base, "config.xml"))
 }
 
+// Normally, syscall.Kill would be good enough. Unfortunately, that's not
+// supported in windows. While this isn't tested on windows it at least gets
+// past the compiler.
+func (s *Syncthing) cleanupDaemon(pidPath string) error {
+	content, err := ioutil.ReadFile(pidPath)
+	if err != nil {
+		return err
+	}
+
+	log.Debug("cleaning background daemon")
+
+	pid, pidErr := strconv.Atoi(string(content))
+	if pidErr != nil {
+		return pidErr
+	}
+
+	proc := os.Process{Pid: pid}
+
+	if err := proc.Signal(os.Interrupt); err != nil {
+		if strings.Contains(err.Error(), "process already finished") {
+			return nil
+		}
+
+		return err
+	}
+
+	defer proc.Wait() // nolint: errcheck
+
+	return nil
+}
+
 // Run starts up a local syncthing process to serve files from.
 func (s *Syncthing) Run() error {
 	pidPath := filepath.Join(cli.ConfigPath(), "syncthing.pid")
@@ -114,15 +145,8 @@ func (s *Syncthing) Run() error {
 		return err
 	}
 
-	if content, err := ioutil.ReadFile(pidPath); err == nil {
-		pid, pidErr := strconv.Atoi(string(content))
-		if pidErr != nil {
-			return pidErr
-		}
-
-		if sErr := syscall.Kill(pid, syscall.SIGTERM); err != nil {
-			return sErr
-		}
+	if err := s.cleanupDaemon(pidPath); err != nil {
+		return err
 	}
 
 	path := filepath.Join(cli.ConfigPath(), "bin", "syncthing")

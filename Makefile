@@ -50,8 +50,13 @@ push: docker-push
 .PHONY: build
 build: build-proto build-cmd
 
+HAS_GOX := $(shell command -v gox)
+
 .PHONY: build-ci
 build-ci:
+ifndef HAS_DEP
+	go get -u github.com/mitchellh/gox
+endif
 	gox --ldflags "${LDFLAGS}" --parallel=10 --output="bin/{{ .Dir }}_{{ .OS }}_{{ .Arch }}" ${OPTS} ./cmd/...
 
 .PHONY: build-cmd
@@ -64,22 +69,6 @@ build-cmd:
 .PHONY: build-proto
 build-proto:
 	protoc proto/*.proto --go_out=plugins=grpc:pkg
-
-binaries: binary-darwin binary-linux
-
-binary-%:
-	time GOOS=$* GOARCH=$(GOARCH) CGO_ENABLED=0 \
-		$(GO) build $(GOFLAGS) \
-			-tags '$(TAGS)' \
-			-ldflags '$(LDFLAGS)' \
-			-o $(BINDIR)/ksync_$*_$(GOARCH) \
-			github.com/vapor-ware/ksync/cmd/ksync
-	time GOOS=$* GOARCH=$(GOARCH) CGO_ENABLED=0 \
-		$(GO) build $(GOFLAGS) \
-			-tags '$(TAGS)' \
-			-ldflags '$(LDFLAGS)' \
-			-o $(BINDIR)/radar_$*_$(GOARCH) \
-			github.com/vapor-ware/ksync/cmd/radar
 
 .PHONY: watch
 watch:
