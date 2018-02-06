@@ -3,9 +3,12 @@ package ksync
 import (
 	"bufio"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
+	"syscall"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -102,12 +105,24 @@ func (s *Syncthing) resetState() error {
 
 // Run starts up a local syncthing process to serve files from.
 func (s *Syncthing) Run() error {
+	pidPath := filepath.Join(cli.ConfigPath(), "syncthing.pid")
 	if !s.HasBinary() {
 		return fmt.Errorf("missing pre-requisites, run init to fix")
 	}
 
 	if err := s.resetState(); err != nil {
 		return err
+	}
+
+	if content, err := ioutil.ReadFile(pidPath); err == nil {
+		pid, pidErr := strconv.Atoi(string(content))
+		if pidErr != nil {
+			return pidErr
+		}
+
+		if sErr := syscall.Kill(pid, syscall.SIGTERM); err != nil {
+			return sErr
+		}
 	}
 
 	path := filepath.Join(cli.ConfigPath(), "bin", "syncthing")
@@ -123,11 +138,23 @@ func (s *Syncthing) Run() error {
 
 	s.cmd = exec.Command(path, cmdArgs...) //nolint: gas
 
+	// These need to change by platform.
+	s.cmd.SysProcAttr = syncthingProcAttr
+
 	if err := s.outputHandler(); err != nil {
 		return err
 	}
 
 	if err := s.cmd.Start(); err != nil {
+		return err
+	}
+
+	// Because child process signal handling is completely broken, just save the
+	// pid and try to kill it every start.
+	if err := ioutil.WriteFile(
+		pidPath,
+		[]byte(strconv.Itoa(s.cmd.Process.Pid)),
+		0600); err != nil {
 		return err
 	}
 
@@ -141,6 +168,7 @@ func (s *Syncthing) Run() error {
 
 // Stop halts the background process and cleans up.
 func (s *Syncthing) Stop() error {
-	defer s.cmd.Process.Wait() //nolint: errcheck
+	defer s.cmd.Process.Wait() // nolint: errcheck
+
 	return s.cmd.Process.Kill()
 }

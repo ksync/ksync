@@ -5,10 +5,10 @@ import (
 	"os"
 	"syscall"
 
-	daemon "github.com/timfallmk/go-daemon"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	daemon "github.com/timfallmk/go-daemon"
 
 	"github.com/vapor-ware/ksync/pkg/cli"
 	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
