@@ -34,9 +34,6 @@
   name = "golang.org/x/net"
 
 [[constraint]]
-  name = "google.golang.org/grpc"
-
-[[constraint]]
   branch = "release-1.7"
   name = "k8s.io/apimachinery"
 
