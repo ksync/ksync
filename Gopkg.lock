@@ -443,7 +443,7 @@
   branch = "master"
   name = "github.com/timfallmk/go-daemon"
   packages = ["."]
-  revision = "44393e1f7be69808fcc4bdf838d2cf2b23770b68"
+  revision = "0e4d2554c235b3d1cc95b0c29ed173a5ff223bfc"
 
 [[projects]]
   branch = "master"
@@ -543,6 +543,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a9684a121e2392df6ecf853b5669adca5b5d316e76fb62590e3874c7e32b4232"
+  inputs-digest = "aa6e7b682645bd7856100bb40c7d87a0d1e0ab8afe04a5fcc36a3b2582974dc0"
   solver-name = "gps-cdcl"
   solver-version = 1
