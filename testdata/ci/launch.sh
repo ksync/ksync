@@ -12,7 +12,7 @@ YELLOW='\033[0;33m'
 NC='\033[0m'
 
 # Deploy radar to the cluster
-bin/ksync_linux_amd64 init --local=false
+bin/ksync_linux_amd64 init --local=false | tee
 
 # Get absolute path for kubectl in case it isn't in our shell
 TEST_KUBECTL="/home/circleci/google-cloud-sdk/bin/kubectl"
