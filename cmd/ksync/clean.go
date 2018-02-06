@@ -66,22 +66,18 @@ WARNING: USING THE "NUKE" OPTION WILL REMOVE YOUR CONFIG. USE WITH CAUTION.
 
 func (c *cleanCmd) cleanLocal() {
 	context := getDaemonContext()
-	child, err := context.Search()
-	if err != nil {
+	if _, err := context.Search(); err != nil {
 		log.Infoln("No daemonized process found. Nothing to clean locally.")
 		log.Warningln(err)
 		return
 	}
 
-	// This is the dumbest thing in the world. We have to send signals using flags,
-	// so create a new bool flag that is always true and passes SIGTERM.
-	daemon.AddCommand(
-		daemon.BoolFlag(func(b bool) *bool { return &b }(true)),
-		syscall.SIGTERM,
-		nil)
+	pid, err := daemon.ReadPidFile(context.PidFileName)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	// Skip error checking on this because this library is horrendous
-	if err := daemon.SendCommands(child); err != nil {
+	if err := syscall.Kill(-pid, os.Interrupt.(syscall.Signal)); err != nil {
 		log.Fatal(err)
 	}
 
