@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strings"
+
 	"github.com/fsnotify/fsnotify"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -102,6 +104,10 @@ func (w *watchCmd) run(cmd *cobra.Command, args []string) {
 
 	if err := server.Listen(
 		list, w.Viper.GetString("bind"), viper.GetInt("port")); err != nil {
+		if strings.Contains(err.Error(), "address already in use") {
+			log.Fatal("It appears that watch is already running. Stop it first.")
+		}
+
 		log.Fatal(err)
 	}
 }

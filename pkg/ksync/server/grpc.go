@@ -27,7 +27,7 @@ func withDuration(duration time.Duration) (key string, value interface{}) {
 func Listen(list *ksync.SpecList, bind string, port int) error {
 	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", bind, port))
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		return err
 	}
 
 	log.WithFields(log.Fields{

@@ -18,6 +18,10 @@ import (
 	"github.com/vapor-ware/ksync/pkg/syncthing"
 )
 
+var (
+	duplicateListenerError = "Something is running on 8384 (run 'lsof -i :8384' to find out). Please stop that process before continuing."
+)
+
 // Syncthing represents the local syncthing process.
 type Syncthing struct {
 	cmd *exec.Cmd
@@ -59,7 +63,12 @@ func (s *Syncthing) outputHandler() error {
 
 	go func() {
 		for outScanner.Scan() {
-			logger.Debug(outScanner.Text())
+			text := outScanner.Text()
+			if strings.Contains(text, "address already in use") {
+				log.Fatalf(duplicateListenerError)
+			}
+
+			logger.Debug(text)
 		}
 	}()
 

@@ -7,5 +7,5 @@ import (
 )
 
 var syncthingProcAttr = &syscall.SysProcAttr{
-//	Pdeathsig: syscall.SIGTERM,
+	Pdeathsig: syscall.SIGTERM,
 }
