@@ -21,10 +21,10 @@ jobs:
 
       - checkout
 
-      - restore_cache:
-          keys:
-            - vendor-{{ checksum "Gopkg.toml" }}-{{ checksum "Gopkg.lock" }}
-            - vendor-{{ checksum "Gopkg.toml" }}
+      # - restore_cache:
+      #     keys:
+      #       - vendor-{{ checksum "Gopkg.toml" }}-{{ checksum "Gopkg.lock" }}
+      #       - vendor-{{ checksum "Gopkg.toml" }}
 
       - run:
           name: "Make test report directory"
@@ -94,11 +94,11 @@ jobs:
           command: |
             make build-ci OPTS='-os="!netbsd !freebsd !openbsd" -arch="amd64"'
 
-      - save_cache:
-          when: on_success
-          key: vendor-{{ checksum "Gopkg.toml" }}-{{ checksum "Gopkg.lock" }}
-          paths:
-            - vendor/
+      # - save_cache:
+      #     when: on_success
+      #     key: vendor-{{ checksum "Gopkg.toml" }}-{{ checksum "Gopkg.lock" }}
+      #     paths:
+      #       - vendor/
 
       - persist_to_workspace:
           root: .
