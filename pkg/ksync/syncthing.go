@@ -116,6 +116,14 @@ func (s *Syncthing) resetState() error {
 // supported in windows. While this isn't tested on windows it at least gets
 // past the compiler.
 func (s *Syncthing) cleanupDaemon(pidPath string) error {
+	if _, err := os.Stat(pidPath); err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+
+		return err
+	}
+
 	content, err := ioutil.ReadFile(pidPath)
 	if err != nil {
 		return err
