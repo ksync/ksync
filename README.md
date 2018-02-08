@@ -6,35 +6,37 @@
 <br clear="all" />
 
 ------------
-
-ksync speeds up developers who build applications for Kubernetes. It syncs files between a local directory and arbitrary containers running remotely. You do not need to change your existing workflow to develop directly on a Kubernetes cluster.
+ksync speeds up developers who build applications for Kubernetes. It transparently updates containers running on the cluster from your local checkout. This enables developers to use their favorite IDEs, such as Atom or Sublime Text to work from inside a cluster instead of from outside it. There is no reason to wait minutes to test code changes when you can see the results in seconds.
 
 If you've been wanting to do something like `docker run -v /foo:/bar` with Kubernetes, ksync is for you!
 
 Using ksync is as simple as:
 
-1. `ksync init` to run the server component.
-1. `ksync create --pod=my-pod local_directory remote_directory` to configure a folder you'd like to sync between the cluster and your local system.
-1. `ksync watch` to monitor the kubernetes API and sync.
+1. `ksync create --pod=my-pod local_directory remote_directory` to configure a folder you'd like to sync between your local system and a specific container running on the cluster.
+1. `ksync watch` to connect to the cluster and start updating the container.
 1. Use your favorite editor, like [Atom][atom] or [Sublime Text][st3] to modify the application. It will auto-reload for you remotely, in seconds.
 
 # Installation
+
+You can also download the [latest release][latest-release] and install it yourself.
+
+### Linux/MacOSX
 
 ```bash
 curl https://vapor-ware.github.io/gimme-that/gimme.sh | bash
 ```
 
-You can also download the [latest release][latest-release] and install it yourself.
+### Windows
+
+Download the [latest release][latest-release] and install it yourself.
 
 ## Updating
 
-To update to (or check for) a newer version of `ksync`, you can simply call the built in updater.
+To update to (or check for) a newer version of `ksync`, you can use the built in updater.
 
 ```shell
 ksync update
 ```
-
-This will check GitHub for the [latest official release][latest-release] and download it if newer. You can also follow the [installation](#installation) instructions or compile the binary yourself.
 
 Once a newer `ksync` binary has been downloaded, the cluster portion can be updated with `ksync init`.
 
@@ -42,7 +44,7 @@ Once a newer `ksync` binary has been downloaded, the cluster portion can be upda
 ksync init --upgrade
 ```
 
-This will deploy the cluster component matching your `ksync` version to the target cluster. You can check the versions of both `ksync` and `radar` by running `ksync version`.
+You can check the current versions by running `ksync version`.
 
 ```shell
 ksync version
