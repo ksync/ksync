@@ -39,8 +39,9 @@ func (u *updateCmd) run(cmd *cobra.Command, args []string) {
 		Program:   func(_ overseer.State) {},
 		Address:   ":0000",
 		NoRestart: true,
-		Debug:     false,
-		Fetcher: &fetcher.Github{
+		Debug:     true,
+		NoWarn:    false,
+		Fetcher:   &fetcher.Github{
 			User: repoUsername,
 			Repo: repoName,
 		},
