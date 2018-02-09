@@ -16,6 +16,10 @@ Using ksync is as simple as:
 1. `ksync watch` to connect to the cluster and start updating the container.
 1. Use your favorite editor, like [Atom][atom] or [Sublime Text][st3] to modify the application. It will auto-reload for you remotely, in seconds.
 
+# Demo
+
+![demo](docs/getting-started.gif)
+
 # Installation
 
 You can also download the [latest release][latest-release] and install it yourself.
