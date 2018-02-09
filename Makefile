@@ -66,8 +66,13 @@ build-cmd:
 		-ldflags '$(LDFLAGS)' \
 		github.com/vapor-ware/ksync/cmd/ksync
 
+HAS_PROTOC := $(shell command -v protoc-gen-go)
+
 .PHONY: build-proto
 build-proto:
+ifndef HAS_PROTOC
+	go get -u github.com/golang/protobuf/protoc-gen-go
+endif
 	protoc proto/*.proto --go_out=plugins=grpc:pkg
 
 .PHONY: watch
