@@ -26,3 +26,8 @@ def index(path):
         "pod": os.environ.get('POD_NAME'),
         "files": file_list,
     })
+
+
+@app.route('/demo')
+def demo():
+    return "demo - v1"

@@ -2,6 +2,7 @@ package radar
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
@@ -89,8 +90,9 @@ func (r *radarServer) Restart(
 		return nil, err
 	}
 
+	timeout := 0 * time.Second
 	if err := client.ContainerRestart(
-		context.Background(), cntr.ContainerId, nil); err != nil {
+		context.Background(), cntr.ContainerId, &timeout); err != nil {
 		return nil, err
 	}
 
