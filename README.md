@@ -18,6 +18,8 @@ Using ksync is as simple as:
 
 # Demo
 
+See it in action, below or try it out in your browser using this [Katacoda scenario][katacoda]:
+
 ![demo](docs/getting-started.gif)
 
 # Installation
@@ -66,6 +68,8 @@ ksync version
 - `kubectl` configured to talk to your cluster.
 
 # Getting Started
+
+You can run through this via. a [katacoda scenario][katacoda] in your browser as well.
 
 1. Install ksync. This will fetch the binary and put it at `/usr/local/bin`. Feel free to just download the release binary for your platform and install it yourself.
 
@@ -232,3 +236,4 @@ More detailed documentation can be found in the [docs](docs) directory.
 [minikube]: https://github.com/kubernetes/minikube
 [demo-app]: https://vapor-ware.github.io/ksync/example/app/app.yaml
 [frontend]: https://vapor-ware.github.io/ksync/example/frontend/frontend.yaml
+[katacoda]: https://www.katacoda.com/vaporio/scenarios/ksync
