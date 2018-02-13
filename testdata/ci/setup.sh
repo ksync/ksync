@@ -49,4 +49,5 @@ kubectl apply -f ${CIRCLE_WORKING_DIRECTORY}/testdata/k8s/config/test-app.yaml -
 
 # Getting the latest radar image started
 echo -e "${BLUE}Launching radar${NC}"
+kubectl --namespace kube-system delete daemonset --now=true ksync
 make update-radar-image
