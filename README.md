@@ -36,6 +36,16 @@ curl https://vapor-ware.github.io/gimme-that/gimme.sh | bash
 
 Download the [latest release][latest-release] and install it yourself.
 
+### Source
+
+Grab the source and build the binary.
+
+```shell
+go get github.com/vapor-ware/ksync/cmd/ksync
+```
+
+More detailed information is in the [development documentation](docs/development.md).
+
 ## Updating
 
 To update to (or check for) a newer version of `ksync`, you can use the built in updater.
