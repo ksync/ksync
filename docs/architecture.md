@@ -131,3 +131,4 @@ This is where the bulk of orchestration occurs.
 - Updates status based off the *local* syncthing events.
 - Cleans up all the tunnels, connections and configuration when the remote container goes away.
 
+[syncthing]: https://github.com/syncthing/syncthing
