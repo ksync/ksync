@@ -569,7 +569,7 @@
   branch = "master"
   name = "github.com/zillode/notify"
   packages = ["."]
-  revision = "8fff849a2026ce7a59f67ed9747dd9c7adc8bd0b"
+  revision = "a4d89c12bcfbda5640050eb549079dad19f7741c"
 
 [[projects]]
   branch = "master"
@@ -854,6 +854,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "d3cb05e2308cd47081bba1917ae100c8f3fa73831991b249b06387d26c7483a2"
+  inputs-digest = "4649e1fd8dd9a74d9f572cd1f31a787e1dfa26d84a25035399f71c23228a85f1"
   solver-name = "gps-cdcl"
   solver-version = 1
