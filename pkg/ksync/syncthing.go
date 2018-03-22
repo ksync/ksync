@@ -225,6 +225,7 @@ func (s *Syncthing) Run() error {
 // Stop halts the background process and cleans up.
 func (s *Syncthing) Stop() error {
 	defer s.cmd.Process.Wait() // nolint: errcheck
+	log.Debug("stopped sync")
 
 	return s.cmd.Process.Kill()
 }
