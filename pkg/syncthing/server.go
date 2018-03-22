@@ -2,6 +2,7 @@ package syncthing
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/go-resty/resty"
@@ -13,6 +14,8 @@ import (
 )
 
 var connectRetries = 10
+
+var SignalLoss = make(chan bool)
 
 // Server represents a syncthing REST server. It is used to fetch and modify
 // configuration as well as restart the syncthing process.
@@ -47,6 +50,19 @@ func NewServer(host string, apikey string) (*Server, error) {
 	if err := server.Refresh(); err != nil {
 		return nil, err
 	}
+
+	// This is horrific, but spin off a process to check for signals about LOS
+	// (Loss Of Signal) from the cluster. Cleanup and bail if we get one.
+	go func() {
+		for {
+			select {
+			case <-SignalLoss:
+				log.WithFields(server.Fields()).Info("signal loss dectected. shutting down")
+				server.Stop()
+				os.Exit(1)
+			}
+		}
+	}()
 
 	return server, nil
 }

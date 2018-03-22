@@ -1,8 +1,6 @@
 package ksync
 
 import (
-	err "errors"
-
 	log "github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -12,6 +10,7 @@ import (
 	"github.com/vapor-ware/ksync/pkg/debug"
 	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
 	pb "github.com/vapor-ware/ksync/pkg/proto"
+	"github.com/vapor-ware/ksync/pkg/syncthing"
 )
 
 // SpecStatus is the status of a spec
@@ -33,7 +32,6 @@ type Spec struct {
 	Status SpecStatus
 
 	stopWatching chan bool
-	signalLoss	chan bool
 }
 
 func (s *Spec) String() string {
@@ -83,11 +81,6 @@ func (s *Spec) Watch() error {
 		return nil
 	}
 
-	if s.signalLoss != nil {
-		err := err.New("lost all signals")
-		return err
-	}
-
 	opts := metav1.ListOptions{}
 	opts.LabelSelector = s.Details.Selector
 	watcher, err := cluster.Client.CoreV1().Pods(s.Details.Namespace).Watch(opts)
@@ -98,7 +91,6 @@ func (s *Spec) Watch() error {
 	log.WithFields(s.Fields()).Debug("watching for updates")
 
 	s.stopWatching = make(chan bool)
-	s.signalLoss = make(chan bool)
 	go func() {
 		defer watcher.Stop()
 		for {
@@ -114,7 +106,8 @@ func (s *Spec) Watch() error {
 				// case.
 				if event.Type == "" && event.Object == nil {
 					log.WithFields(s.Fields()).Error("lost connection to cluster")
-					s.signalLoss <- true
+					s.Cleanup()
+					syncthing.SignalLoss <- true
 				}
 
 				if event.Object == nil {
