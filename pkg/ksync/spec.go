@@ -99,6 +99,16 @@ func (s *Spec) Watch() error {
 				return
 
 			case event := <-watcher.ResultChan():
+				// For whatever reason under the sun, if the watcher looses the
+				// connection with the cluster, it ends up sending empty events
+				// as fast as possible. We want to just kill this when that's the
+				// case.
+				if event.Type == "" && event.Object == nil {
+					log.WithFields(s.Fields()).Error("lost connection to cluster")
+					SignalLoss <- true
+					return
+				}
+
 				if event.Object == nil {
 					continue
 				}

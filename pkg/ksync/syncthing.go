@@ -22,6 +22,9 @@ var (
 	duplicateListenerError = "Something is running on 8384 (run 'lsof -i :8384' to find out). Please stop that process before continuing."
 )
 
+// SignalLoss is a channel for communicating when contact with a cluster has been lost
+var SignalLoss = make(chan bool)
+
 // Syncthing represents the local syncthing process.
 type Syncthing struct {
 	cmd *exec.Cmd
@@ -199,6 +202,20 @@ func (s *Syncthing) Run() error {
 		return err
 	}
 
+	// This is horrific, but spin off a process to check for signals about LOS
+	// (Loss Of Signal) from the cluster. Cleanup and bail if we get one.
+	go func() {
+		for {
+			select {
+			case <-SignalLoss:
+				log.WithFields(s.Fields()).Info("signal loss dectected. shutting down")
+				s.Stop()
+				os.Exit(1)
+				return
+			}
+		}
+	}()
+
 	log.WithFields(log.Fields{
 		"cmd":  s.cmd.Path,
 		"args": s.cmd.Args,
@@ -211,5 +228,5 @@ func (s *Syncthing) Run() error {
 func (s *Syncthing) Stop() error {
 	defer s.cmd.Process.Wait() // nolint: errcheck
 
-	return s.cmd.Process.Kill()
+	return s.cmd.Process.Signal(os.Interrupt)
 }
