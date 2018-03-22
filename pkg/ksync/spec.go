@@ -10,7 +10,6 @@ import (
 	"github.com/vapor-ware/ksync/pkg/debug"
 	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
 	pb "github.com/vapor-ware/ksync/pkg/proto"
-	"github.com/vapor-ware/ksync/pkg/syncthing"
 )
 
 // SpecStatus is the status of a spec
@@ -106,8 +105,8 @@ func (s *Spec) Watch() error {
 				// case.
 				if event.Type == "" && event.Object == nil {
 					log.WithFields(s.Fields()).Error("lost connection to cluster")
-					s.Cleanup()
-					syncthing.SignalLoss <- true
+					SignalLoss <- true
+					return
 				}
 
 				if event.Object == nil {

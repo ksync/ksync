@@ -22,6 +22,8 @@ var (
 	duplicateListenerError = "Something is running on 8384 (run 'lsof -i :8384' to find out). Please stop that process before continuing."
 )
 
+var SignalLoss = make(chan bool)
+
 // Syncthing represents the local syncthing process.
 type Syncthing struct {
 	cmd *exec.Cmd
@@ -198,6 +200,19 @@ func (s *Syncthing) Run() error {
 		0600); err != nil {
 		return err
 	}
+
+	// This is horrific, but spin off a process to check for signals about LOS
+	// (Loss Of Signal) from the cluster. Cleanup and bail if we get one.
+	go func() {
+		for {
+			select {
+			case <-SignalLoss:
+				log.WithFields(s.Fields()).Info("signal loss dectected. shutting down")
+				s.Stop()
+				return
+			}
+		}
+	}()
 
 	log.WithFields(log.Fields{
 		"cmd":  s.cmd.Path,
