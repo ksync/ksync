@@ -5,7 +5,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"k8s.io/client-go/kubernetes"
-	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp" // Not sure why this is needed.
+	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp" // for k8s using GCP auth
+	_ "k8s.io/client-go/plugin/pkg/client/auth/oidc" // for k8s using OIDC auth
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 )

@@ -830,6 +830,7 @@
     "pkg/util/parsers",
     "pkg/version",
     "plugin/pkg/client/auth/gcp",
+    "plugin/pkg/client/auth/oidc",
     "rest",
     "rest/watch",
     "third_party/forked/golang/template",
@@ -854,6 +855,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "4649e1fd8dd9a74d9f572cd1f31a787e1dfa26d84a25035399f71c23228a85f1"
+  inputs-digest = "474a7cc7142f101a1c8e5ef56101174908e89be9e549380a43bfc503ef9f6164"
   solver-name = "gps-cdcl"
   solver-version = 1
