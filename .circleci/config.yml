@@ -56,7 +56,7 @@ jobs:
       - run:
           name: "Upload Binaries to Slack"
           command: |
-            curl -F file=@bin/${BINARY_NAME}_linux_amd64 -F channels=${SLACK_CHANNEL} -F token=${SLACK_TOKEN} -F filename=${BINARY_NAME} -F filetype=binary -F title="${BINARY_NAME} ${CIRCLE_TAG}"
+            curl -F file=@bin/${BINARY_NAME}_linux_amd64 -F channels=${SLACK_CHANNEL} -F token=${SLACK_TOKEN} -F filename=${BINARY_NAME} -F filetype=binary -F title="${BINARY_NAME} ${CIRCLE_TAG}" https://slack.com/api/files.upload
 
       - run:
           name: "Install and setup GKE access"
