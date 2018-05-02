@@ -209,7 +209,7 @@ func (s *Syncthing) Run() error {
 			select {
 			case <-SignalLoss:
 				log.WithFields(s.Fields()).Info("signal loss dectected. shutting down")
-				s.Stop()
+				s.Stop() // nolint: errcheck
 				os.Exit(1)
 				return
 			}
