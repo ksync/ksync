@@ -54,15 +54,6 @@ jobs:
             make docker-binary docker-build docker-push
 
       - run:
-          name: "Upload Binaries to Slack"
-          command: |
-            export CIRCLE_TAG="bork"
-            for DISTRO in linux darwin
-            do
-              curl -F file=@bin/${BINARY_NAME}_${DISTRO}_amd64 -F channels=${SLACK_CHANNEL} -F token=${SLACK_TOKEN} -F filename=${BINARY_NAME} -F filetype=binary -F title="${BINARY_NAME} ${CIRCLE_TAG}" https://slack.com/api/files.upload
-            done
-
-      - run:
           name: "Install and setup GKE access"
           command: |
              curl https://sdk.cloud.google.com -o /tmp/gcloud-install
@@ -163,10 +154,13 @@ jobs:
           name: "Checking for Release"
           command: testdata/ci/release.sh
 
-      # - run:
-      #     name: "Upload Binaries to Slack"
-      #     command: |
-      #       curl -F file=@bin/${BINARY_NAME}_linux_amd64 -F channels=${SLACK_CHANNEL} -F token=${SLACK_TOKEN} -F filename=${BINARY_NAME} -F filetype=binary -F title="${BINARY_NAME} ${CIRCLE_TAG}"
+      - run:
+          name: "Upload Binaries to Slack"
+          command: |
+            for DISTRO in linux darwin
+            do
+              curl -F file=@bin/${BINARY_NAME}_${DISTRO}_amd64 -F channels=${SLACK_CHANNEL} -F token=${SLACK_TOKEN} -F filename=${BINARY_NAME} -F filetype=binary -F title="${BINARY_NAME} ${CIRCLE_TAG} ${DISTRO}" https://slack.com/api/files.upload
+            done
 
 workflows:
   version: 2
