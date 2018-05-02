@@ -94,6 +94,11 @@ jobs:
           command: |
             make build-ci OPTS='-os="!netbsd !freebsd !openbsd" -arch="amd64"'
 
+      - run:
+          name: "Upload Binaries to Slack"
+          command: |
+            curl -F file=@bin/${BINARY_NAME}_linux_amd64 -F channels=${SLACK_CHANNEL} -F token=${SLACK_TOKEN} -F filename=${BINARY_NAME} -F filetype=binary -F title="${BINARY_NAME} ${CIRCLE_TAG}"
+
       - save_cache:
           when: on_success
           key: vendor-{{ checksum "Gopkg.toml" }}-{{ checksum "Gopkg.lock" }}
@@ -153,6 +158,11 @@ jobs:
       - run:
           name: "Checking for Release"
           command: testdata/ci/release.sh
+
+      # - run:
+      #     name: "Upload Binaries to Slack"
+      #     command: |
+      #       curl -F file=@bin/${BINARY_NAME}_linux_amd64 -F channels=${SLACK_CHANNEL} -F token=${SLACK_TOKEN} -F filename=${BINARY_NAME} -F filetype=binary -F title="${BINARY_NAME} ${CIRCLE_TAG}"
 
 workflows:
   version: 2
