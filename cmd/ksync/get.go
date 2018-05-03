@@ -80,6 +80,7 @@ func (g *getCmd) out(specs *pb.SpecList) {
 			name,
 			local,
 			spec.Details.RemotePath,
+			spec.Details.ContainerName,
 			status,
 		})
 
@@ -90,6 +91,7 @@ func (g *getCmd) out(specs *pb.SpecList) {
 				"",
 				service.Status,
 				service.RemoteContainer.PodName,
+				service.RemoteContainer.ContainerName,
 			})
 		}
 	}
