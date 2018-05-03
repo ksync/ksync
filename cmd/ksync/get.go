@@ -50,7 +50,7 @@ func (g *getCmd) out(specs *pb.SpecList) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetBorder(false)
 	table.SetColumnSeparator(" ")
-	table.SetHeader([]string{"Name", "Local", "Remote", "Status", "Pod"})
+	table.SetHeader([]string{"Name", "Local", "Remote", "Status", "Pod", "Container"})
 
 	var keys []string
 	for name := range specs.Items {
@@ -80,8 +80,8 @@ func (g *getCmd) out(specs *pb.SpecList) {
 			name,
 			local,
 			spec.Details.RemotePath,
-			spec.Details.ContainerName,
 			status,
+			spec.Details.ContainerName,
 		})
 
 		for _, service := range spec.Services.Items {
