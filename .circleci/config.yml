@@ -176,6 +176,7 @@ workflows:
       - release:
           requires:
             - build
+          context: org-global
           filters:
             branches:
               ignore: /.*/
