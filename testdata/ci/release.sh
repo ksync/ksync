@@ -13,7 +13,7 @@ NC='\033[0m'
 
 # Quick fix for #71 ($CIRCLE_TAG not populated)
 if git describe --exact-match --tags HEAD; then
-  CIRCLE_TAG=$(git describe --exact-match --tags HEAD)
+  export CIRCLE_TAG=$(git describe --exact-match --tags HEAD)
 fi
 
 # Check if `ghr` (https://github.com/tcnksm/ghr) is installed.

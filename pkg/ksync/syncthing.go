@@ -205,11 +205,11 @@ func (s *Syncthing) Run() error {
 	// This is horrific, but spin off a process to check for signals about LOS
 	// (Loss Of Signal) from the cluster. Cleanup and bail if we get one.
 	go func() {
-		for {
+		for { // nolint: megacheck
 			select {
 			case <-SignalLoss:
 				log.WithFields(s.Fields()).Info("signal loss dectected. shutting down")
-				s.Stop()
+				s.Stop() // nolint: errcheck
 				os.Exit(1)
 				return
 			}

@@ -24,7 +24,7 @@ func GetSyncPath(args []string) SyncPath {
 
 // localPathHasPermission checks a given root directory, and all children, for
 // `rw` permissions for the current user.
-func (s *SyncPath) localPathHasPermission() error {
+func (s *SyncPath) localPathHasPermission() error { // nolint: megacheck
 	root, err := filepath.Abs(s.Local)
 	if err != nil {
 		return err

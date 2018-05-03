@@ -154,6 +154,14 @@ jobs:
           name: "Checking for Release"
           command: testdata/ci/release.sh
 
+      - run:
+          name: "Upload Binaries to Slack"
+          command: |
+            for DISTRO in linux darwin
+            do
+              curl -F file=@bin/${BINARY_NAME}_${DISTRO}_amd64 -F channels=${SLACK_CHANNEL} -F token=${SLACK_TOKEN} -F filename=${BINARY_NAME} -F filetype=binary -F title="${BINARY_NAME} ${CIRCLE_TAG} ${DISTRO}" https://slack.com/api/files.upload
+            done
+
 workflows:
   version: 2
 
