@@ -81,7 +81,6 @@ func (g *getCmd) out(specs *pb.SpecList) {
 			local,
 			spec.Details.RemotePath,
 			status,
-			spec.Details.ContainerName,
 		})
 
 		for _, service := range spec.Services.Items {
@@ -91,7 +90,7 @@ func (g *getCmd) out(specs *pb.SpecList) {
 				"",
 				service.Status,
 				service.RemoteContainer.PodName,
-				service.RemoteContainer.ContainerName,
+				spec.Details.ContainerName,
 			})
 		}
 	}
