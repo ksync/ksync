@@ -27,7 +27,7 @@ var tooSoonReset = 3 * time.Second
 
 // Folder is what controls the syncing between a local folder and a specific
 // container running in the remote cluster.
-type Folder struct {
+type Folder struct { // nolint: maligned
 	SpecName        string
 	RemoteContainer *RemoteContainer
 	Reload          bool
