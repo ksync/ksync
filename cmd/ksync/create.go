@@ -66,6 +66,22 @@ func (cmd *createCmd) new() *cobra.Command {
 		log.Fatal(err)
 	}
 
+	flags.Bool(
+		"local-ro",
+		false,
+		"Set the local folder to read-only.")
+	if err := cmd.BindFlag("local-ro"); err != nil {
+		log.Fatal(err)
+	}
+
+	flags.Bool(
+		"remote-ro",
+		false,
+		"Set the remote folder to read-only.")
+	if err := cmd.BindFlag("remote-ro"); err != nil {
+		log.Fatal(err)
+	}
+
 	return cmd.Cmd
 }
 
