@@ -112,6 +112,9 @@ func (cmd *createCmd) run(_ *cobra.Command, args []string) {
 		Selector:      cmd.Viper.GetString("selector"),
 		Namespace:     viper.GetString("namespace"),
 
+		LocalReadOnly:  cmd.Viper.GetBool("local-ro")
+		RemoteReadOnly: cmd.Viper.GetBool("remote-ro")
+
 		LocalPath:  syncPath.Local,
 		RemotePath: syncPath.Remote,
 

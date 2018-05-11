@@ -35,8 +35,8 @@ type Folder struct {
 	RemotePath      string
 	Status          ServiceStatus
 
-	LocalReadOnly      bool
-	RemoteReadOnly     bool
+	LocalReadOnly  bool
+	RemoteReadOnly bool
 
 	id string
 
@@ -59,6 +59,8 @@ func NewFolder(service *Service) *Folder {
 		Reload:          service.SpecDetails.Reload,
 		LocalPath:       service.SpecDetails.LocalPath,
 		RemotePath:      service.SpecDetails.RemotePath,
+		LocalReadOnly:   service.SpecDetails.LocalReadOnly,
+		RemoteReadOnly:  service.SpecDetails.RemoteReadOnly,
 
 		id: fmt.Sprintf("%s-%s",
 			service.SpecDetails.Name, service.RemoteContainer.PodName),
@@ -275,7 +277,7 @@ func (f *Folder) setFolders() error {
 	localFolder := config.NewFolderConfiguration(
 		f.remoteServer.ID, f.id, f.id, fs.FilesystemTypeBasic, f.LocalPath)
 
-	if viper.GetBool("local-ro") {
+	if f.LocalReadOnly {
 		localFolder.Type = config.FolderTypeSendOnly
 		localFolder.IgnoreDelete = true
 	}
@@ -288,7 +290,7 @@ func (f *Folder) setFolders() error {
 	remoteFolder := config.NewFolderConfiguration(
 		f.localServer.ID, f.id, f.id, fs.FilesystemTypeBasic, remotePath)
 
-	if viper.GetBool("remote-ro") {
+	if f.RemoteReadOnly {
 		remoteFolder.Type = config.FolderTypeSendOnly
 		remoteFolder.IgnoreDelete = true
 	}
