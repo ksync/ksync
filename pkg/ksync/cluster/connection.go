@@ -67,7 +67,7 @@ func (c *Connection) waitForHealthy() error {
 
 	return backoff.Retry(
 		test,
-		backoff.WithMaxTries(backoff.NewExponentialBackOff(), maxReadyRetries))
+		backoff.WithMaxRetries(backoff.NewExponentialBackOff(), maxReadyRetries))
 }
 
 func (c *Connection) connection(port int32) (int32, error) {
