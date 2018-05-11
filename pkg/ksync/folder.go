@@ -35,6 +35,9 @@ type Folder struct {
 	RemotePath      string
 	Status          ServiceStatus
 
+	LocalReadOnly      bool
+	RemoteReadOnly     bool
+
 	id string
 
 	localServer  *syncthing.Server
@@ -272,6 +275,11 @@ func (f *Folder) setFolders() error {
 	localFolder := config.NewFolderConfiguration(
 		f.remoteServer.ID, f.id, f.id, fs.FilesystemTypeBasic, f.LocalPath)
 
+	if viper.GetBool("local-ro") {
+		localFolder.Type = config.FolderTypeSendOnly
+		localFolder.IgnoreDelete = true
+	}
+
 	remotePath, err := f.path()
 	if err != nil {
 		return err
@@ -279,6 +287,11 @@ func (f *Folder) setFolders() error {
 
 	remoteFolder := config.NewFolderConfiguration(
 		f.localServer.ID, f.id, f.id, fs.FilesystemTypeBasic, remotePath)
+
+	if viper.GetBool("remote-ro") {
+		remoteFolder.Type = config.FolderTypeSendOnly
+		remoteFolder.IgnoreDelete = true
+	}
 
 	if err := f.localServer.SetFolder(&localFolder); err != nil {
 		return err
