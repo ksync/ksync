@@ -76,10 +76,22 @@ func (g *getCmd) out(specs *pb.SpecList) {
 			local = spec.Details.LocalPath
 		}
 
+		// Print "read-only" status only if it is set
+		if spec.Details.LocalReadOnly {
+			local = fmt.Sprintf("%s:%s", local, "ro")
+		}
+
+		var remote string
+		if spec.Details.RemoteReadOnly {
+			remote = fmt.Sprintf("%s:%s", spec.Details.RemotePath, "ro")
+		} else {
+			remote = spec.Details.RemotePath
+		}
+
 		table.Append([]string{
 			name,
 			local,
-			spec.Details.RemotePath,
+			remote,
 			status,
 		})
 
