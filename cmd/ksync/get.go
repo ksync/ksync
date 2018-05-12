@@ -117,7 +117,7 @@ func (g *getCmd) run(cmd *cobra.Command, args []string) {
 			// This is connecting locally and it is very unlikely watch is overloaded,
 			// set the timeout *super* short to make it easier on the users when they
 			// forgot to start watch.
-			grpc.WithTimeout(100 * time.Millisecond),
+			grpc.WithTimeout(100 * time.Millisecond), // nolint: megacheck
 			grpc.WithBlock(),
 			grpc.WithInsecure(),
 		}...)

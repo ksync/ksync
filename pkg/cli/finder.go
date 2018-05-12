@@ -48,7 +48,7 @@ func (cmd *FinderCmd) Validator() error {
 	}
 
 	// Check that both ends of a sync are not read only
-	if cmd.Viper.GetBool("local-ro") == true && cmd.Viper.GetBool("remote-ro") == true {
+	if cmd.Viper.GetBool("local-read-only") && cmd.Viper.GetBool("remote-read-only") {
 		return fmt.Errorf("only one end of a sync can be read only")
 	}
 
