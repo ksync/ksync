@@ -237,6 +237,7 @@ More detailed documentation can be found in the [docs](docs) directory.
 - [Architecture](docs/architecture.md)
 - [Development](docs/development.md)
 - [Releasing](docs/releasing.md)
+- [Offline Usage](docs/offline.md)
 
 [atom]: https://atom.io/
 [st3]: https://www.sublimetext.com/
