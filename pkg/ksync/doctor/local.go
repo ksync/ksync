@@ -31,13 +31,15 @@ func DoesSyncthingExist() error {
 
 // IsWatchRunning verifies that watch is running and ready to go.
 func IsWatchRunning() error {
-	conn, err := grpc.Dial(
+	// This is connecting locally and it is very unlikely watch is overloaded,
+	// set the timeout *super* short to make it easier on the users when they
+	// forgot to start watch.
+	withTimeout, _ := context.WithTimeout(context.TODO(), 100 * time.Millisecond)
+
+	conn, err := grpc.DialContext(
+		withTimeout,
 		fmt.Sprintf("127.0.0.1:%d", viper.GetInt("port")),
 		[]grpc.DialOption{
-			// This is connecting locally and it is very unlikely watch is overloaded,
-			// set the timeout *super* short to make it easier on the users when they
-			// forgot to start watch.
-			grpc.WithTimeout(100 * time.Millisecond), // nolint: megacheck
 			grpc.WithBlock(),
 			grpc.WithInsecure(),
 		}...)
