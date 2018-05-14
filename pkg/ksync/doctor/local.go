@@ -6,6 +6,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
 	"github.com/vapor-ware/ksync/pkg/ksync"
@@ -34,7 +35,7 @@ func IsWatchRunning() error {
 	// This is connecting locally and it is very unlikely watch is overloaded,
 	// set the timeout *super* short to make it easier on the users when they
 	// forgot to start watch.
-	withTimeout, _ := context.WithTimeout(context.TODO(), 100 * time.Millisecond)
+	withTimeout, _ := context.WithTimeout(context.TODO(), 100*time.Millisecond)
 
 	conn, err := grpc.DialContext(
 		withTimeout,
