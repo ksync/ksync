@@ -76,10 +76,22 @@ func (g *getCmd) out(specs *pb.SpecList) {
 			local = spec.Details.LocalPath
 		}
 
+		// Print "read-only" status only if it is set
+		if spec.Details.LocalReadOnly {
+			local = fmt.Sprintf("%s:%s", local, "ro")
+		}
+
+		var remote string
+		if spec.Details.RemoteReadOnly {
+			remote = fmt.Sprintf("%s:%s", spec.Details.RemotePath, "ro")
+		} else {
+			remote = spec.Details.RemotePath
+		}
+
 		table.Append([]string{
 			name,
 			local,
-			spec.Details.RemotePath,
+			remote,
 			status,
 		})
 
@@ -99,13 +111,15 @@ func (g *getCmd) out(specs *pb.SpecList) {
 }
 
 func (g *getCmd) run(cmd *cobra.Command, args []string) {
-	conn, err := grpc.Dial(
+	// This is connecting locally and it is very unlikely watch is overloaded,
+	// set the timeout *super* short to make it easier on the users when they
+	// forgot to start watch.
+	withTimeout, _ := context.WithTimeout(context.TODO(), 100 * time.Millisecond)
+
+	conn, err := grpc.DialContext(
+		withTimeout,
 		fmt.Sprintf("127.0.0.1:%d", viper.GetInt("port")),
 		[]grpc.DialOption{
-			// This is connecting locally and it is very unlikely watch is overloaded,
-			// set the timeout *super* short to make it easier on the users when they
-			// forgot to start watch.
-			grpc.WithTimeout(100 * time.Millisecond),
 			grpc.WithBlock(),
 			grpc.WithInsecure(),
 		}...)

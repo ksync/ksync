@@ -34,6 +34,10 @@ type SpecDetails struct {
 
 	// Reload related options
 	Reload bool
+
+	// One-way-sync related options
+	LocalReadOnly      bool
+	RemoteReadOnly     bool
 }
 
 func (s *SpecDetails) String() string {

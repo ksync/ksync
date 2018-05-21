@@ -27,13 +27,16 @@ var tooSoonReset = 3 * time.Second
 
 // Folder is what controls the syncing between a local folder and a specific
 // container running in the remote cluster.
-type Folder struct {
+type Folder struct { // nolint: maligned
 	SpecName        string
 	RemoteContainer *RemoteContainer
 	Reload          bool
 	LocalPath       string
 	RemotePath      string
 	Status          ServiceStatus
+
+	LocalReadOnly  bool
+	RemoteReadOnly bool
 
 	id string
 
@@ -56,6 +59,8 @@ func NewFolder(service *Service) *Folder {
 		Reload:          service.SpecDetails.Reload,
 		LocalPath:       service.SpecDetails.LocalPath,
 		RemotePath:      service.SpecDetails.RemotePath,
+		LocalReadOnly:   service.SpecDetails.LocalReadOnly,
+		RemoteReadOnly:  service.SpecDetails.RemoteReadOnly,
 
 		id: fmt.Sprintf("%s-%s",
 			service.SpecDetails.Name, service.RemoteContainer.PodName),
@@ -272,6 +277,11 @@ func (f *Folder) setFolders() error {
 	localFolder := config.NewFolderConfiguration(
 		f.remoteServer.ID, f.id, f.id, fs.FilesystemTypeBasic, f.LocalPath)
 
+	if f.LocalReadOnly {
+		localFolder.Type = config.FolderTypeSendOnly
+		localFolder.IgnoreDelete = true
+	}
+
 	remotePath, err := f.path()
 	if err != nil {
 		return err
@@ -279,6 +289,11 @@ func (f *Folder) setFolders() error {
 
 	remoteFolder := config.NewFolderConfiguration(
 		f.localServer.ID, f.id, f.id, fs.FilesystemTypeBasic, remotePath)
+
+	if f.RemoteReadOnly {
+		remoteFolder.Type = config.FolderTypeSendOnly
+		remoteFolder.IgnoreDelete = true
+	}
 
 	if err := f.localServer.SetFolder(&localFolder); err != nil {
 		return err

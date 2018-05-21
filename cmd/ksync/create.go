@@ -66,6 +66,22 @@ func (cmd *createCmd) new() *cobra.Command {
 		log.Fatal(err)
 	}
 
+	flags.Bool(
+		"local-read-only",
+		false,
+		"Set the local folder to read-only.")
+	if err := cmd.BindFlag("local-read-only"); err != nil {
+		log.Fatal(err)
+	}
+
+	flags.Bool(
+		"remote-read-only",
+		false,
+		"Set the remote folder to read-only.")
+	if err := cmd.BindFlag("remote-read-only"); err != nil {
+		log.Fatal(err)
+	}
+
 	return cmd.Cmd
 }
 
@@ -95,6 +111,9 @@ func (cmd *createCmd) run(_ *cobra.Command, args []string) {
 		Pod:           cmd.Viper.GetString("pod"),
 		Selector:      cmd.Viper.GetString("selector"),
 		Namespace:     viper.GetString("namespace"),
+
+		LocalReadOnly:  cmd.Viper.GetBool("local-read-only"),
+		RemoteReadOnly: cmd.Viper.GetBool("remote-read-only"),
 
 		LocalPath:  syncPath.Local,
 		RemotePath: syncPath.Remote,

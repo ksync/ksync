@@ -47,5 +47,10 @@ func (cmd *FinderCmd) Validator() error {
 		return fmt.Errorf("must specify at least a selector or a pod name")
 	}
 
+	// Check that both ends of a sync are not read only
+	if cmd.Viper.GetBool("local-read-only") && cmd.Viper.GetBool("remote-read-only") {
+		return fmt.Errorf("only one end of a sync can be read only")
+	}
+
 	return nil
 }

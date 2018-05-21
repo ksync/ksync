@@ -6,7 +6,7 @@ package proto_ksync
 import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
-import google_protobuf "github.com/golang/protobuf/ptypes/empty"
+import empty "github.com/golang/protobuf/ptypes/empty"
 
 import (
 	context "golang.org/x/net/context"
@@ -18,14 +18,42 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+
 type ContainerPath struct {
-	ContainerId string `protobuf:"bytes,1,opt,name=container_id,json=containerId" json:"container_id,omitempty"`
+	ContainerId          string   `protobuf:"bytes,1,opt,name=container_id,json=containerId" json:"container_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ContainerPath) Reset()                    { *m = ContainerPath{} }
-func (m *ContainerPath) String() string            { return proto.CompactTextString(m) }
-func (*ContainerPath) ProtoMessage()               {}
-func (*ContainerPath) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{0} }
+func (m *ContainerPath) Reset()         { *m = ContainerPath{} }
+func (m *ContainerPath) String() string { return proto.CompactTextString(m) }
+func (*ContainerPath) ProtoMessage()    {}
+func (*ContainerPath) Descriptor() ([]byte, []int) {
+	return fileDescriptor_radar_f8059590c6cac141, []int{0}
+}
+func (m *ContainerPath) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ContainerPath.Unmarshal(m, b)
+}
+func (m *ContainerPath) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ContainerPath.Marshal(b, m, deterministic)
+}
+func (dst *ContainerPath) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ContainerPath.Merge(dst, src)
+}
+func (m *ContainerPath) XXX_Size() int {
+	return xxx_messageInfo_ContainerPath.Size(m)
+}
+func (m *ContainerPath) XXX_DiscardUnknown() {
+	xxx_messageInfo_ContainerPath.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ContainerPath proto.InternalMessageInfo
 
 func (m *ContainerPath) GetContainerId() string {
 	if m != nil {
@@ -35,13 +63,35 @@ func (m *ContainerPath) GetContainerId() string {
 }
 
 type BasePath struct {
-	Full string `protobuf:"bytes,1,opt,name=full" json:"full,omitempty"`
+	Full                 string   `protobuf:"bytes,1,opt,name=full" json:"full,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *BasePath) Reset()                    { *m = BasePath{} }
-func (m *BasePath) String() string            { return proto.CompactTextString(m) }
-func (*BasePath) ProtoMessage()               {}
-func (*BasePath) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{1} }
+func (m *BasePath) Reset()         { *m = BasePath{} }
+func (m *BasePath) String() string { return proto.CompactTextString(m) }
+func (*BasePath) ProtoMessage()    {}
+func (*BasePath) Descriptor() ([]byte, []int) {
+	return fileDescriptor_radar_f8059590c6cac141, []int{1}
+}
+func (m *BasePath) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_BasePath.Unmarshal(m, b)
+}
+func (m *BasePath) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_BasePath.Marshal(b, m, deterministic)
+}
+func (dst *BasePath) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BasePath.Merge(dst, src)
+}
+func (m *BasePath) XXX_Size() int {
+	return xxx_messageInfo_BasePath.Size(m)
+}
+func (m *BasePath) XXX_DiscardUnknown() {
+	xxx_messageInfo_BasePath.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BasePath proto.InternalMessageInfo
 
 func (m *BasePath) GetFull() string {
 	if m != nil {
@@ -51,13 +101,35 @@ func (m *BasePath) GetFull() string {
 }
 
 type Error struct {
-	Msg string `protobuf:"bytes,1,opt,name=msg" json:"msg,omitempty"`
+	Msg                  string   `protobuf:"bytes,1,opt,name=msg" json:"msg,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *Error) Reset()                    { *m = Error{} }
-func (m *Error) String() string            { return proto.CompactTextString(m) }
-func (*Error) ProtoMessage()               {}
-func (*Error) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{2} }
+func (m *Error) Reset()         { *m = Error{} }
+func (m *Error) String() string { return proto.CompactTextString(m) }
+func (*Error) ProtoMessage()    {}
+func (*Error) Descriptor() ([]byte, []int) {
+	return fileDescriptor_radar_f8059590c6cac141, []int{2}
+}
+func (m *Error) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Error.Unmarshal(m, b)
+}
+func (m *Error) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Error.Marshal(b, m, deterministic)
+}
+func (dst *Error) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Error.Merge(dst, src)
+}
+func (m *Error) XXX_Size() int {
+	return xxx_messageInfo_Error.Size(m)
+}
+func (m *Error) XXX_DiscardUnknown() {
+	xxx_messageInfo_Error.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Error proto.InternalMessageInfo
 
 func (m *Error) GetMsg() string {
 	if m != nil {
@@ -67,17 +139,39 @@ func (m *Error) GetMsg() string {
 }
 
 type VersionInfo struct {
-	Version   string `protobuf:"bytes,1,opt,name=Version,json=version" json:"Version,omitempty"`
-	GoVersion string `protobuf:"bytes,2,opt,name=GoVersion,json=goVersion" json:"GoVersion,omitempty"`
-	GitCommit string `protobuf:"bytes,3,opt,name=GitCommit,json=gitCommit" json:"GitCommit,omitempty"`
-	GitTag    string `protobuf:"bytes,4,opt,name=GitTag,json=gitTag" json:"GitTag,omitempty"`
-	BuildDate string `protobuf:"bytes,5,opt,name=BuildDate,json=buildDate" json:"BuildDate,omitempty"`
+	Version              string   `protobuf:"bytes,1,opt,name=Version" json:"Version,omitempty"`
+	GoVersion            string   `protobuf:"bytes,2,opt,name=GoVersion" json:"GoVersion,omitempty"`
+	GitCommit            string   `protobuf:"bytes,3,opt,name=GitCommit" json:"GitCommit,omitempty"`
+	GitTag               string   `protobuf:"bytes,4,opt,name=GitTag" json:"GitTag,omitempty"`
+	BuildDate            string   `protobuf:"bytes,5,opt,name=BuildDate" json:"BuildDate,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *VersionInfo) Reset()                    { *m = VersionInfo{} }
-func (m *VersionInfo) String() string            { return proto.CompactTextString(m) }
-func (*VersionInfo) ProtoMessage()               {}
-func (*VersionInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{3} }
+func (m *VersionInfo) Reset()         { *m = VersionInfo{} }
+func (m *VersionInfo) String() string { return proto.CompactTextString(m) }
+func (*VersionInfo) ProtoMessage()    {}
+func (*VersionInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor_radar_f8059590c6cac141, []int{3}
+}
+func (m *VersionInfo) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_VersionInfo.Unmarshal(m, b)
+}
+func (m *VersionInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_VersionInfo.Marshal(b, m, deterministic)
+}
+func (dst *VersionInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_VersionInfo.Merge(dst, src)
+}
+func (m *VersionInfo) XXX_Size() int {
+	return xxx_messageInfo_VersionInfo.Size(m)
+}
+func (m *VersionInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_VersionInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_VersionInfo proto.InternalMessageInfo
 
 func (m *VersionInfo) GetVersion() string {
 	if m != nil {
@@ -115,19 +209,41 @@ func (m *VersionInfo) GetBuildDate() string {
 }
 
 type DockerVersion struct {
-	Version       string `protobuf:"bytes,1,opt,name=Version,json=version" json:"Version,omitempty"`
-	APIVersion    string `protobuf:"bytes,2,opt,name=APIVersion,json=aPIVersion" json:"APIVersion,omitempty"`
-	MinAPIVersion string `protobuf:"bytes,3,opt,name=MinAPIVersion,json=minAPIVersion" json:"MinAPIVersion,omitempty"`
-	GitCommit     string `protobuf:"bytes,4,opt,name=GitCommit,json=gitCommit" json:"GitCommit,omitempty"`
-	GoVersion     string `protobuf:"bytes,5,opt,name=GoVersion,json=goVersion" json:"GoVersion,omitempty"`
-	Os            string `protobuf:"bytes,6,opt,name=Os,json=os" json:"Os,omitempty"`
-	Arch          string `protobuf:"bytes,7,opt,name=Arch,json=arch" json:"Arch,omitempty"`
+	Version              string   `protobuf:"bytes,1,opt,name=Version" json:"Version,omitempty"`
+	APIVersion           string   `protobuf:"bytes,2,opt,name=APIVersion" json:"APIVersion,omitempty"`
+	MinAPIVersion        string   `protobuf:"bytes,3,opt,name=MinAPIVersion" json:"MinAPIVersion,omitempty"`
+	GitCommit            string   `protobuf:"bytes,4,opt,name=GitCommit" json:"GitCommit,omitempty"`
+	GoVersion            string   `protobuf:"bytes,5,opt,name=GoVersion" json:"GoVersion,omitempty"`
+	Os                   string   `protobuf:"bytes,6,opt,name=Os" json:"Os,omitempty"`
+	Arch                 string   `protobuf:"bytes,7,opt,name=Arch" json:"Arch,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *DockerVersion) Reset()                    { *m = DockerVersion{} }
-func (m *DockerVersion) String() string            { return proto.CompactTextString(m) }
-func (*DockerVersion) ProtoMessage()               {}
-func (*DockerVersion) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{4} }
+func (m *DockerVersion) Reset()         { *m = DockerVersion{} }
+func (m *DockerVersion) String() string { return proto.CompactTextString(m) }
+func (*DockerVersion) ProtoMessage()    {}
+func (*DockerVersion) Descriptor() ([]byte, []int) {
+	return fileDescriptor_radar_f8059590c6cac141, []int{4}
+}
+func (m *DockerVersion) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DockerVersion.Unmarshal(m, b)
+}
+func (m *DockerVersion) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DockerVersion.Marshal(b, m, deterministic)
+}
+func (dst *DockerVersion) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DockerVersion.Merge(dst, src)
+}
+func (m *DockerVersion) XXX_Size() int {
+	return xxx_messageInfo_DockerVersion.Size(m)
+}
+func (m *DockerVersion) XXX_DiscardUnknown() {
+	xxx_messageInfo_DockerVersion.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DockerVersion proto.InternalMessageInfo
 
 func (m *DockerVersion) GetVersion() string {
 	if m != nil {
@@ -179,14 +295,36 @@ func (m *DockerVersion) GetArch() string {
 }
 
 type DockerInfo struct {
-	Driver       string   `protobuf:"bytes,1,opt,name=Driver,json=driver" json:"Driver,omitempty"`
-	DriverStatus []string `protobuf:"bytes,2,rep,name=DriverStatus,json=driverStatus" json:"DriverStatus,omitempty"`
+	Driver               string   `protobuf:"bytes,1,opt,name=Driver" json:"Driver,omitempty"`
+	DriverStatus         []string `protobuf:"bytes,2,rep,name=DriverStatus" json:"DriverStatus,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *DockerInfo) Reset()                    { *m = DockerInfo{} }
-func (m *DockerInfo) String() string            { return proto.CompactTextString(m) }
-func (*DockerInfo) ProtoMessage()               {}
-func (*DockerInfo) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{5} }
+func (m *DockerInfo) Reset()         { *m = DockerInfo{} }
+func (m *DockerInfo) String() string { return proto.CompactTextString(m) }
+func (*DockerInfo) ProtoMessage()    {}
+func (*DockerInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor_radar_f8059590c6cac141, []int{5}
+}
+func (m *DockerInfo) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DockerInfo.Unmarshal(m, b)
+}
+func (m *DockerInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DockerInfo.Marshal(b, m, deterministic)
+}
+func (dst *DockerInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DockerInfo.Merge(dst, src)
+}
+func (m *DockerInfo) XXX_Size() int {
+	return xxx_messageInfo_DockerInfo.Size(m)
+}
+func (m *DockerInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_DockerInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DockerInfo proto.InternalMessageInfo
 
 func (m *DockerInfo) GetDriver() string {
 	if m != nil {
@@ -219,15 +357,16 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
-// Client API for Radar service
-
+// RadarClient is the client API for Radar service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type RadarClient interface {
 	GetBasePath(ctx context.Context, in *ContainerPath, opts ...grpc.CallOption) (*BasePath, error)
-	RestartSyncthing(ctx context.Context, in *google_protobuf.Empty, opts ...grpc.CallOption) (*Error, error)
+	RestartSyncthing(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*Error, error)
 	Restart(ctx context.Context, in *ContainerPath, opts ...grpc.CallOption) (*Error, error)
-	GetVersionInfo(ctx context.Context, in *google_protobuf.Empty, opts ...grpc.CallOption) (*VersionInfo, error)
-	GetDockerVersion(ctx context.Context, in *google_protobuf.Empty, opts ...grpc.CallOption) (*DockerVersion, error)
-	GetDockerInfo(ctx context.Context, in *google_protobuf.Empty, opts ...grpc.CallOption) (*DockerInfo, error)
+	GetVersionInfo(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*VersionInfo, error)
+	GetDockerVersion(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*DockerVersion, error)
+	GetDockerInfo(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*DockerInfo, error)
 }
 
 type radarClient struct {
@@ -240,16 +379,16 @@ func NewRadarClient(cc *grpc.ClientConn) RadarClient {
 
 func (c *radarClient) GetBasePath(ctx context.Context, in *ContainerPath, opts ...grpc.CallOption) (*BasePath, error) {
 	out := new(BasePath)
-	err := grpc.Invoke(ctx, "/proto.ksync.Radar/GetBasePath", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/proto.ksync.Radar/GetBasePath", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *radarClient) RestartSyncthing(ctx context.Context, in *google_protobuf.Empty, opts ...grpc.CallOption) (*Error, error) {
+func (c *radarClient) RestartSyncthing(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*Error, error) {
 	out := new(Error)
-	err := grpc.Invoke(ctx, "/proto.ksync.Radar/RestartSyncthing", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/proto.ksync.Radar/RestartSyncthing", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -258,34 +397,34 @@ func (c *radarClient) RestartSyncthing(ctx context.Context, in *google_protobuf.
 
 func (c *radarClient) Restart(ctx context.Context, in *ContainerPath, opts ...grpc.CallOption) (*Error, error) {
 	out := new(Error)
-	err := grpc.Invoke(ctx, "/proto.ksync.Radar/Restart", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/proto.ksync.Radar/Restart", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *radarClient) GetVersionInfo(ctx context.Context, in *google_protobuf.Empty, opts ...grpc.CallOption) (*VersionInfo, error) {
+func (c *radarClient) GetVersionInfo(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*VersionInfo, error) {
 	out := new(VersionInfo)
-	err := grpc.Invoke(ctx, "/proto.ksync.Radar/GetVersionInfo", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/proto.ksync.Radar/GetVersionInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *radarClient) GetDockerVersion(ctx context.Context, in *google_protobuf.Empty, opts ...grpc.CallOption) (*DockerVersion, error) {
+func (c *radarClient) GetDockerVersion(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*DockerVersion, error) {
 	out := new(DockerVersion)
-	err := grpc.Invoke(ctx, "/proto.ksync.Radar/GetDockerVersion", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/proto.ksync.Radar/GetDockerVersion", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *radarClient) GetDockerInfo(ctx context.Context, in *google_protobuf.Empty, opts ...grpc.CallOption) (*DockerInfo, error) {
+func (c *radarClient) GetDockerInfo(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*DockerInfo, error) {
 	out := new(DockerInfo)
-	err := grpc.Invoke(ctx, "/proto.ksync.Radar/GetDockerInfo", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/proto.ksync.Radar/GetDockerInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -296,11 +435,11 @@ func (c *radarClient) GetDockerInfo(ctx context.Context, in *google_protobuf.Emp
 
 type RadarServer interface {
 	GetBasePath(context.Context, *ContainerPath) (*BasePath, error)
-	RestartSyncthing(context.Context, *google_protobuf.Empty) (*Error, error)
+	RestartSyncthing(context.Context, *empty.Empty) (*Error, error)
 	Restart(context.Context, *ContainerPath) (*Error, error)
-	GetVersionInfo(context.Context, *google_protobuf.Empty) (*VersionInfo, error)
-	GetDockerVersion(context.Context, *google_protobuf.Empty) (*DockerVersion, error)
-	GetDockerInfo(context.Context, *google_protobuf.Empty) (*DockerInfo, error)
+	GetVersionInfo(context.Context, *empty.Empty) (*VersionInfo, error)
+	GetDockerVersion(context.Context, *empty.Empty) (*DockerVersion, error)
+	GetDockerInfo(context.Context, *empty.Empty) (*DockerInfo, error)
 }
 
 func RegisterRadarServer(s *grpc.Server, srv RadarServer) {
@@ -326,7 +465,7 @@ func _Radar_GetBasePath_Handler(srv interface{}, ctx context.Context, dec func(i
 }
 
 func _Radar_RestartSyncthing_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(google_protobuf.Empty)
+	in := new(empty.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -338,7 +477,7 @@ func _Radar_RestartSyncthing_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: "/proto.ksync.Radar/RestartSyncthing",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RadarServer).RestartSyncthing(ctx, req.(*google_protobuf.Empty))
+		return srv.(RadarServer).RestartSyncthing(ctx, req.(*empty.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -362,7 +501,7 @@ func _Radar_Restart_Handler(srv interface{}, ctx context.Context, dec func(inter
 }
 
 func _Radar_GetVersionInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(google_protobuf.Empty)
+	in := new(empty.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -374,13 +513,13 @@ func _Radar_GetVersionInfo_Handler(srv interface{}, ctx context.Context, dec fun
 		FullMethod: "/proto.ksync.Radar/GetVersionInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RadarServer).GetVersionInfo(ctx, req.(*google_protobuf.Empty))
+		return srv.(RadarServer).GetVersionInfo(ctx, req.(*empty.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Radar_GetDockerVersion_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(google_protobuf.Empty)
+	in := new(empty.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -392,13 +531,13 @@ func _Radar_GetDockerVersion_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: "/proto.ksync.Radar/GetDockerVersion",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RadarServer).GetDockerVersion(ctx, req.(*google_protobuf.Empty))
+		return srv.(RadarServer).GetDockerVersion(ctx, req.(*empty.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Radar_GetDockerInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(google_protobuf.Empty)
+	in := new(empty.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -410,7 +549,7 @@ func _Radar_GetDockerInfo_Handler(srv interface{}, ctx context.Context, dec func
 		FullMethod: "/proto.ksync.Radar/GetDockerInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RadarServer).GetDockerInfo(ctx, req.(*google_protobuf.Empty))
+		return srv.(RadarServer).GetDockerInfo(ctx, req.(*empty.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -448,38 +587,37 @@ var _Radar_serviceDesc = grpc.ServiceDesc{
 	Metadata: "proto/radar.proto",
 }
 
-func init() { proto.RegisterFile("proto/radar.proto", fileDescriptor1) }
+func init() { proto.RegisterFile("proto/radar.proto", fileDescriptor_radar_f8059590c6cac141) }
 
-var fileDescriptor1 = []byte{
-	// 476 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x52, 0xcb, 0x6e, 0xdb, 0x30,
-	0x10, 0xf4, 0x53, 0xae, 0xd7, 0x56, 0xe0, 0x12, 0xa8, 0xcb, 0xba, 0x45, 0x90, 0x12, 0x3d, 0xe4,
-	0x24, 0x03, 0xe9, 0xb1, 0x97, 0xc6, 0x71, 0xa0, 0xf8, 0x50, 0x34, 0x70, 0x8a, 0x5e, 0x0b, 0x5a,
-	0xa2, 0x65, 0x22, 0x96, 0x18, 0x50, 0xeb, 0x00, 0xfe, 0x94, 0x5e, 0xfa, 0x4b, 0xfd, 0xa5, 0x40,
-	0xa4, 0x64, 0x88, 0x41, 0x9c, 0x93, 0xb8, 0x33, 0x3b, 0xab, 0x59, 0x72, 0xe0, 0xed, 0x83, 0x56,
-	0xa8, 0xa6, 0x9a, 0xc7, 0x5c, 0x07, 0xe6, 0x4c, 0x06, 0xe6, 0x13, 0xdc, 0xe7, 0xfb, 0x2c, 0x9a,
-	0x7c, 0x4c, 0x94, 0x4a, 0xb6, 0x62, 0x6a, 0xb0, 0xd5, 0x6e, 0x3d, 0x15, 0xe9, 0x03, 0xee, 0x6d,
-	0x27, 0xbb, 0x00, 0xff, 0x4a, 0x65, 0xc8, 0x65, 0x26, 0xf4, 0x2d, 0xc7, 0x0d, 0xf9, 0x0c, 0xc3,
-	0xa8, 0x02, 0xfe, 0xc8, 0x98, 0x36, 0xcf, 0x9a, 0xe7, 0xfd, 0xe5, 0xe0, 0x80, 0x2d, 0x62, 0x76,
-	0x0a, 0x6f, 0x66, 0x3c, 0x17, 0xa6, 0x9d, 0x40, 0x67, 0xbd, 0xdb, 0x6e, 0xcb, 0x36, 0x73, 0x66,
-	0x1f, 0xa0, 0x7b, 0xad, 0xb5, 0xd2, 0x64, 0x04, 0xed, 0x34, 0x4f, 0x4a, 0xae, 0x38, 0xb2, 0xbf,
-	0x4d, 0x18, 0xfc, 0x16, 0x3a, 0x97, 0x2a, 0x5b, 0x64, 0x6b, 0x45, 0x28, 0xf4, 0xca, 0xb2, 0xec,
-	0xea, 0x3d, 0xda, 0x92, 0x7c, 0x82, 0x7e, 0xa8, 0x2a, 0xae, 0x65, 0xb8, 0x7e, 0x52, 0x01, 0x86,
-	0x95, 0x78, 0xa5, 0xd2, 0x54, 0x22, 0x6d, 0x97, 0x6c, 0x05, 0x90, 0x31, 0x78, 0xa1, 0xc4, 0x5f,
-	0x3c, 0xa1, 0x1d, 0x43, 0x79, 0x89, 0xa9, 0x0a, 0xd5, 0x6c, 0x27, 0xb7, 0xf1, 0x9c, 0xa3, 0xa0,
-	0x5d, 0xab, 0x5a, 0x55, 0x00, 0xfb, 0xdf, 0x04, 0x7f, 0xae, 0xa2, 0x7b, 0xa1, 0xab, 0xbf, 0x1c,
-	0x77, 0x77, 0x0a, 0x70, 0x79, 0xbb, 0x70, 0xed, 0x01, 0x3f, 0x20, 0xe4, 0x0b, 0xf8, 0x3f, 0x64,
-	0x56, 0x6b, 0xb1, 0x1e, 0xfd, 0xb4, 0x0e, 0xba, 0x5b, 0x74, 0x9e, 0x6f, 0xe1, 0xdc, 0x40, 0xf7,
-	0xf9, 0x0d, 0x9c, 0x40, 0xeb, 0x67, 0x4e, 0x3d, 0x03, 0xb7, 0x54, 0x5e, 0x3c, 0xc4, 0xa5, 0x8e,
-	0x36, 0xb4, 0x67, 0x1f, 0x82, 0xeb, 0x68, 0xc3, 0x6e, 0x00, 0xec, 0x42, 0xe6, 0xae, 0xc7, 0xe0,
-	0xcd, 0xb5, 0x7c, 0x14, 0xba, 0x5c, 0xc6, 0x8b, 0x4d, 0x45, 0x18, 0x0c, 0x2d, 0x7e, 0x87, 0x1c,
-	0x77, 0x39, 0x6d, 0x9d, 0xb5, 0xcf, 0xfb, 0xcb, 0x61, 0x5c, 0xc3, 0x2e, 0xfe, 0xb5, 0xa1, 0xbb,
-	0x2c, 0x02, 0x46, 0x66, 0x30, 0x08, 0x05, 0x1e, 0xde, 0x7f, 0x12, 0xd4, 0xa2, 0x16, 0x38, 0x51,
-	0x9a, 0xbc, 0x73, 0xb8, 0x4a, 0xc2, 0x1a, 0xe4, 0x3b, 0x8c, 0x96, 0x22, 0x47, 0xae, 0xf1, 0x6e,
-	0x9f, 0x45, 0xb8, 0x91, 0x59, 0x42, 0xc6, 0x81, 0x8d, 0x69, 0x50, 0xc5, 0x34, 0xb8, 0x2e, 0x62,
-	0x3a, 0x21, 0xce, 0x10, 0x93, 0x2b, 0xd6, 0x20, 0xdf, 0xa0, 0x57, 0x4e, 0x78, 0xd5, 0xc1, 0xcb,
-	0xe2, 0x39, 0x9c, 0x84, 0x02, 0xeb, 0x31, 0x3c, 0xf6, 0x73, 0xea, 0xe8, 0x6b, 0x0a, 0xd6, 0x20,
-	0x37, 0x30, 0x0a, 0x05, 0xba, 0x81, 0x39, 0x36, 0xc7, 0xf5, 0xe8, 0x68, 0x58, 0x83, 0xcc, 0xc0,
-	0x3f, 0x4c, 0x7a, 0xd5, 0xce, 0xfb, 0x17, 0xc6, 0x58, 0x37, 0x2b, 0xcf, 0x30, 0x5f, 0x9f, 0x02,
-	0x00, 0x00, 0xff, 0xff, 0x7b, 0x8c, 0xeb, 0x60, 0x0d, 0x04, 0x00, 0x00,
+var fileDescriptor_radar_f8059590c6cac141 = []byte{
+	// 464 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x52, 0x4d, 0x6f, 0xd3, 0x40,
+	0x10, 0xcd, 0x77, 0xc8, 0xa4, 0xa9, 0xc2, 0x48, 0x84, 0x25, 0xa0, 0xaa, 0xac, 0x38, 0xf4, 0xe4,
+	0x48, 0xe5, 0xc8, 0x85, 0xa6, 0xa9, 0xdc, 0x1c, 0x50, 0xab, 0x14, 0x71, 0x45, 0x5b, 0x67, 0xe3,
+	0xac, 0x9a, 0x78, 0xab, 0xf5, 0x04, 0x29, 0x3f, 0x85, 0x0b, 0x7f, 0x89, 0xbf, 0x84, 0xbc, 0x5e,
+	0x1b, 0x6f, 0xd5, 0xf4, 0xe4, 0xd9, 0xf7, 0xe6, 0x8d, 0xdf, 0xec, 0x3e, 0x78, 0xfd, 0x68, 0x34,
+	0xe9, 0x89, 0x11, 0x4b, 0x61, 0x02, 0x5b, 0x63, 0xdf, 0x7e, 0x82, 0x87, 0x74, 0x9f, 0x44, 0xe3,
+	0xf7, 0xb1, 0xd6, 0xf1, 0x46, 0x4e, 0x2c, 0x76, 0xbf, 0x5b, 0x4d, 0xe4, 0xf6, 0x91, 0xf6, 0x79,
+	0x27, 0x3f, 0x87, 0xc1, 0xa5, 0x4e, 0x48, 0xa8, 0x44, 0x9a, 0x5b, 0x41, 0x6b, 0xfc, 0x08, 0x47,
+	0x51, 0x01, 0xfc, 0x54, 0x4b, 0x56, 0x3f, 0xad, 0x9f, 0xf5, 0x16, 0xfd, 0x12, 0x9b, 0x2f, 0xf9,
+	0x09, 0xbc, 0x9a, 0x8a, 0x54, 0xda, 0x76, 0x84, 0xd6, 0x6a, 0xb7, 0xd9, 0xb8, 0x36, 0x5b, 0xf3,
+	0x77, 0xd0, 0xbe, 0x32, 0x46, 0x1b, 0x1c, 0x42, 0x73, 0x9b, 0xc6, 0x8e, 0xcb, 0x4a, 0xfe, 0xbb,
+	0x0e, 0xfd, 0x1f, 0xd2, 0xa4, 0x4a, 0x27, 0xf3, 0x64, 0xa5, 0x91, 0x41, 0xd7, 0x1d, 0x5d, 0x57,
+	0x71, 0xc4, 0x0f, 0xd0, 0x0b, 0x75, 0xc1, 0x35, 0x2c, 0xf7, 0x1f, 0xb0, 0xac, 0xa2, 0x4b, 0xbd,
+	0xdd, 0x2a, 0x62, 0x4d, 0xc7, 0x16, 0x00, 0x8e, 0xa0, 0x13, 0x2a, 0xfa, 0x2e, 0x62, 0xd6, 0xb2,
+	0x94, 0x3b, 0x65, 0xaa, 0xe9, 0x4e, 0x6d, 0x96, 0x33, 0x41, 0x92, 0xb5, 0x73, 0x55, 0x09, 0xf0,
+	0xbf, 0x75, 0x18, 0xcc, 0x74, 0xf4, 0x20, 0x4d, 0xf1, 0x97, 0xc3, 0xee, 0x4e, 0x00, 0x2e, 0x6e,
+	0xe7, 0xbe, 0xbd, 0x0a, 0x82, 0x9f, 0x60, 0xf0, 0x4d, 0x25, 0x95, 0x96, 0xdc, 0xa3, 0x0f, 0xfa,
+	0x5b, 0xb4, 0x9e, 0x6e, 0xe1, 0xdd, 0x40, 0xfb, 0xe9, 0x0d, 0x1c, 0x43, 0xe3, 0x26, 0x65, 0x1d,
+	0x0b, 0x37, 0x6e, 0xd2, 0xec, 0x21, 0x2e, 0x4c, 0xb4, 0x66, 0xdd, 0xfc, 0x21, 0xb2, 0x9a, 0x5f,
+	0x03, 0xe4, 0x0b, 0xd9, 0xbb, 0x1e, 0x41, 0x67, 0x66, 0xd4, 0x2f, 0x69, 0xdc, 0x32, 0xee, 0x84,
+	0x1c, 0x8e, 0xf2, 0xea, 0x8e, 0x04, 0xed, 0x52, 0xd6, 0x38, 0x6d, 0x9e, 0xf5, 0x16, 0x1e, 0x76,
+	0xfe, 0xa7, 0x09, 0xed, 0x45, 0x16, 0x30, 0x9c, 0x42, 0x3f, 0x94, 0x54, 0xbe, 0xff, 0x38, 0xa8,
+	0x44, 0x2d, 0xf0, 0xa2, 0x34, 0x7e, 0xe3, 0x71, 0x85, 0x84, 0xd7, 0xf0, 0x2b, 0x0c, 0x17, 0x32,
+	0x25, 0x61, 0xe8, 0x6e, 0x9f, 0x44, 0xb4, 0x56, 0x49, 0x8c, 0xa3, 0x20, 0x8f, 0x69, 0x50, 0xc4,
+	0x34, 0xb8, 0xca, 0x62, 0x3a, 0x46, 0x6f, 0x88, 0xcd, 0x15, 0xaf, 0xe1, 0x17, 0xe8, 0xba, 0x09,
+	0x2f, 0x3a, 0x78, 0x5e, 0x3c, 0x83, 0xe3, 0x50, 0x52, 0x35, 0x86, 0x87, 0x7e, 0xce, 0x3c, 0x7d,
+	0x45, 0xc1, 0x6b, 0x78, 0x0d, 0xc3, 0x50, 0x92, 0x1f, 0x98, 0x43, 0x73, 0x7c, 0x8f, 0x9e, 0x86,
+	0xd7, 0x70, 0x0a, 0x83, 0x72, 0xd2, 0x8b, 0x76, 0xde, 0x3e, 0x33, 0x26, 0x77, 0x73, 0xdf, 0xb1,
+	0xcc, 0xe7, 0x7f, 0x01, 0x00, 0x00, 0xff, 0xff, 0x1e, 0xef, 0x35, 0x27, 0x0d, 0x04, 0x00, 0x00,
 }

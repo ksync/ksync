@@ -31,6 +31,9 @@ message SpecDetails {
   string remote_path = 7;
 
   bool reload = 8;
+
+  bool local_read_only = 9;
+  bool remote_read_only = 10;
 }
 
 message ServiceList {
