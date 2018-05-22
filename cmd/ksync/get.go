@@ -38,6 +38,17 @@ func (g *getCmd) new() *cobra.Command {
 		Run:     g.run,
 	})
 
+	flags := g.Cmd.Flags()
+
+	flags.BoolP(
+		"quiet",
+		"q",
+		false,
+		"only print spec name, one per line")
+	if err := g.BindFlag("quiet"); err != nil {
+		log.Fatal(err)
+	}
+
 	return g.Cmd
 }
 
@@ -138,5 +149,11 @@ func (g *getCmd) run(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	g.out(resp)
+	if g.Viper.GetBool("quiet") {
+		for s := range resp.Items {
+			fmt.Printf("%s\n", s)
+		}
+	} else {
+		g.out(resp)
+	}
 }
