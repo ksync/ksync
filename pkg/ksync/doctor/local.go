@@ -10,6 +10,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/vapor-ware/ksync/pkg/ksync"
+	"github.com/vapor-ware/ksync/pkg/syncthing"
 )
 
 var (
@@ -53,6 +54,25 @@ func IsWatchRunning() error {
 	}
 
 	if err := conn.Close(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// IsSyncthingReady checks to see if syncthing is alive and accepting requests
+// TODO: HOTFIX
+func IsSyncthingReady() error {
+	server, err := syncthing.NewServer(fmt.Sprintf("localhost:%d",
+		viper.GetInt("syncthing-port")),
+		viper.GetString("apikey"))
+
+	if err != nil {
+		log.Warn(server)
+		return err
+	}
+
+	if _, err := server.IsAlive(); err != nil {
 		return err
 	}
 

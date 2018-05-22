@@ -14,7 +14,7 @@ import (
 	"github.com/vapor-ware/ksync/pkg/cli"
 	"github.com/vapor-ware/ksync/pkg/input"
 	"github.com/vapor-ware/ksync/pkg/ksync"
-	"github.com/vapr-ware/ksync/pkg/ksync/doctor"
+	"github.com/vapor-ware/ksync/pkg/ksync/doctor"
 )
 
 type createCmd struct {
@@ -133,10 +133,12 @@ func (cmd *createCmd) run(_ *cobra.Command, args []string) {
 		log.Fatalf("Could not create, --force to ignore: %v", err)
 	}
 
-	if err := doctor.IsWatchRunning(); err != nil {
+	// Before writing the config to disk, check to make sure syncthing is up
+	// TODO: HOTFIX
+	if err := doctor.IsSyncthingReady(); err != nil {
 		log.Fatal(err)
 	}
-	
+
 	if err := specs.Save(); err != nil {
 		log.Fatal(err)
 	}
