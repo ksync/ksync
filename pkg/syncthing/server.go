@@ -111,14 +111,3 @@ func (s *Server) Stop() {
 	<-s.stop
 	log.WithFields(s.Fields()).Debug("stopping")
 }
-
-// IsAlive checks the `ping` endpoint to see if syncthing is up
-// TODO: HOTFIX
-func (s *Server) IsAlive() (bool, error) {
-	time.Sleep(time.Second * 5) // Wait long enough to syncthing has gone down
-	if _, err := s.client.NewRequest().Get("system/ping"); err != nil { // nolint: megacheck
-		return false, err
-	}
-
-	return true, nil
-}
