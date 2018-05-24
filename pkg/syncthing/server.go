@@ -117,6 +117,8 @@ func (s *Server) Stop() {
 	log.WithFields(s.Fields()).Debug("stopping")
 }
 
+// IsAlive checks the `system/status` endpoint to see where the syncthing
+// process is alive.
 func (s *Server) IsAlive() bool {
 	if resp, err := s.client.NewRequest().Get("system/status"); err != nil {
 		return false
@@ -124,7 +126,7 @@ func (s *Server) IsAlive() bool {
 		log.Errorf("Error: %s\nBody: %s", resp.Error(), resp.Body())
 		return false
 	} else {
-		log.Warn(resp) // DEBUG: 
+		log.Warn(resp) // DEBUG:
 	}
 	return true
 }

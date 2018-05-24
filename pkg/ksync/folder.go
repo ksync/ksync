@@ -131,7 +131,10 @@ func (f *Folder) initRadarClient() error {
 }
 
 func (f *Folder) initKsyncClient() error {
-	conn, err := grpc.Dial(fmt.Sprintf("127.0.0.1:%d", viper.GetInt("port")), grpc.WithTimeout(5*time.Second), grpc.WithBlock(), grpc.WithInsecure())
+	conn, err := grpc.Dial(fmt.Sprintf("127.0.0.1:%d", viper.GetInt("port")),
+		grpc.WithTimeout(5*time.Second), // nolint: megacheck
+		grpc.WithBlock(),
+		grpc.WithInsecure())
 	if err != nil {
 		return err
 	}
@@ -352,7 +355,7 @@ func (f *Folder) beginSync(listenerPort int32) error {
 		// We should never get this far
 		return fmt.Errorf("something weird happened while checking for health")
 	}
-	
+
 	if err := backoff.Retry(aliveErr, aliveBackoff); err != nil {
 		return err
 	}
