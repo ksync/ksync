@@ -12,11 +12,13 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/vapor-ware/ksync/pkg/ksync"
+	"github.com/vapor-ware/ksync/pkg/syncthing"
 	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
 
 type ksyncServer struct {
 	SpecList *ksync.SpecList
+	Syncthing *syncthing.Server
 }
 
 func withDuration(duration time.Duration) (key string, value interface{}) {

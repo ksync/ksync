@@ -47,6 +47,9 @@ type Folder struct { // nolint: maligned
 	radarConn   *grpc.ClientConn
 	radarClient pb.RadarClient
 
+	ksyncConn   *grpc.ClientConn
+	ksyncClient pb.KsyncClient
+
 	restartContainer chan bool
 	stop             chan bool
 }
@@ -122,6 +125,18 @@ func (f *Folder) initRadarClient() error {
 
 	f.radarConn = conn
 	f.radarClient = pb.NewRadarClient(conn)
+
+	return nil
+}
+
+func (f *Folder) initKsyncClient() error {
+	conn, err := grpc.Dial(fmt.Sprintf("127.0.0.1:%d", viper.GetInt("port")), grpc.WithTimeout(5 * time.Second), grpc.WithBlock(), grpc.WithInsecure())
+	if err != nil {
+		return err
+	}
+
+	f.ksyncConn = conn
+	f.ksyncClient = pb.NewKsyncClient(conn)
 
 	return nil
 }
@@ -332,6 +347,10 @@ func (f *Folder) Run() error {
 		return err
 	}
 
+	if err := f.initKsyncClient(); err != nil {
+		return err
+	}
+
 	if err := f.refreshSyncthing(); err != nil {
 		return err
 	}
@@ -346,6 +365,10 @@ func (f *Folder) Run() error {
 		if err := f.hotReload(); err != nil {
 			return err
 		}
+	}
+
+	if _, err := f.ksyncClient.AwaitAlive(context.Background(), &empty.Empty{}); err != nil {
+		return err
 	}
 
 	if err := f.initServers(apiPort); err != nil {

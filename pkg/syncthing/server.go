@@ -91,6 +91,12 @@ func (s *Server) Update() error {
 		return err
 	}
 
+	if _, err := s.client.NewRequest().
+		SetBody(s.Config).
+		Post("system/status"); err != nil {
+		return err
+	}
+
 	return s.Restart()
 }
 
