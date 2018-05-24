@@ -82,8 +82,7 @@ func (s *Server) Refresh() error {
 	return nil
 }
 
-// Update takes the current config, sets the server's config to that and
-// restarts the process so that it is live.
+// Update takes the current config, sets the server's config to that.
 func (s *Server) Update() error {
 	if _, err := s.client.NewRequest().
 		SetBody(s.Config).
@@ -97,7 +96,7 @@ func (s *Server) Update() error {
 		return err
 	}
 
-	return s.Restart()
+	return nil
 }
 
 // Restart rolls the remote server. Because of how syncthing runs, this just
@@ -116,4 +115,16 @@ func (s *Server) Stop() {
 	close(s.stop)
 	<-s.stop
 	log.WithFields(s.Fields()).Debug("stopping")
+}
+
+func (s *Server) IsAlive() bool {
+	if resp, err := s.client.NewRequest().Get("system/status"); err != nil {
+		return false
+	} else if resp.StatusCode() != 200 {
+		log.Errorf("Error: %s\nBody: %s", resp.Error(), resp.Body())
+		return false
+	} else {
+		log.Warn(resp) // DEBUG: 
+	}
+	return true
 }
