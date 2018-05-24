@@ -20,12 +20,12 @@ func (d *deleteCmd) new() *cobra.Command {
 	example := ``
 
 	d.Init("ksync", &cobra.Command{
-		Use:     "delete [flags] [name]",
+		Use:     "delete [flags] [name]...",
 		Short:   "Delete an existing spec",
 		Long:    long,
 		Example: example,
 		Aliases: []string{"d"},
-		Args:    cobra.ExactArgs(1),
+		Args:    cobra.MinimumNArgs(1),
 		Run:     d.run,
 	})
 
@@ -33,22 +33,22 @@ func (d *deleteCmd) new() *cobra.Command {
 }
 
 func (d *deleteCmd) run(cmd *cobra.Command, args []string) {
-	name := args[0]
+	for name := range args {
+		specs := &ksync.SpecList{}
+		if err := specs.Update(); err != nil {
+			log.Fatal(err)
+		}
 
-	specs := &ksync.SpecList{}
-	if err := specs.Update(); err != nil {
-		log.Fatal(err)
-	}
+		if !specs.Has(args[name]) {
+			log.Fatalf("%s does not exist. Did you mean something else?", args[name])
+		}
 
-	if !specs.Has(name) {
-		log.Fatalf("%s does not exist. Did you mean something else?", name)
-	}
+		if err := specs.Delete(args[name]); err != nil {
+			log.Fatalf("Could not delete %s: %v", args[name], err)
+		}
 
-	if err := specs.Delete(name); err != nil {
-		log.Fatalf("Could not delete %s: %v", name, err)
-	}
-
-	if err := specs.Save(); err != nil {
-		log.Fatal(err)
+		if err := specs.Save(); err != nil {
+			log.Fatal(err)
+		}
 	}
 }
