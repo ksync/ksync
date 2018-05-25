@@ -116,7 +116,7 @@ func (m *Spec) GetStatus() string {
 	return ""
 }
 
-type SpecDetails struct {
+type SpecDetails struct { // nolint: maligned
 	Name                 string   `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
 	ContainerName        string   `protobuf:"bytes,2,opt,name=container_name,json=containerName" json:"container_name,omitempty"`
 	PodName              string   `protobuf:"bytes,3,opt,name=pod_name,json=podName" json:"pod_name,omitempty"`
@@ -380,7 +380,7 @@ func (m *RemoteContainer) GetPodName() string {
 	return ""
 }
 
-type Alive struct {
+type Alive struct { // nolint: maligned
 	Alive                bool     `protobuf:"varint,1,opt,name=alive" json:"alive,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`

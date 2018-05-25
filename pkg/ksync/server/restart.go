@@ -21,6 +21,12 @@ func (k *ksyncServer) RestartSyncthing(ctx context.Context, _ *empty.Empty) (*pb
 		return nil, k.Syncthing.Restart()
 	}
 
-func (k *ksyncServer) IsAlive(ctx context.Context, _ *empty.Empty) bool {
-	return k.Syncthing.IsAlive()
+func (k *ksyncServer) IsAlive(ctx context.Context, _ *empty.Empty) (*pb.Alive, error) {
+	switch k.Syncthing.IsAlive() {
+	case true:
+		return &pb.Alive{Alive: true}, nil
+	case false:
+		return &pb.Alive{Alive: false}, nil
+	}
+	return &pb.Alive{Alive: false}, fmt.Errorf("Error during liveness check")
 }
