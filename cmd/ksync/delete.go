@@ -108,6 +108,6 @@ func (d *deleteCmd) deleteAll() {
 	}
 
 	for name := range resp.Items {
-		d.delete(fmt.Sprintf("%s", name))
+		d.delete(name)
 	}
 }
