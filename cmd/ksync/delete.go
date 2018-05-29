@@ -33,7 +33,7 @@ func (d *deleteCmd) new() *cobra.Command {
 		Long:    long,
 		Example: example,
 		Aliases: []string{"d"},
-		Args:    cobra.ArbitraryArgs(),
+		Args:    cobra.MinimumNArgs(0),
 		Run:     d.run,
 	})
 
