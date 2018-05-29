@@ -56,10 +56,12 @@ func (d *deleteCmd) run(cmd *cobra.Command, args []string) {
 			d.deleteAll()
 		}
 		log.Fatal("cannot specify names when using `--all`")
-	} else {
+	} else if len(cmd.Flags().Args()) != 0 {
 		for name := range args {
 			d.delete(args[name])
 		}
+	} else {
+		log.Errorf("delete requires at least one spec name or `--all`")
 	}
 }
 
