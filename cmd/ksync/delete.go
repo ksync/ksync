@@ -33,7 +33,7 @@ func (d *deleteCmd) new() *cobra.Command {
 		Long:    long,
 		Example: example,
 		Aliases: []string{"d"},
-		Args:    cobra.MinimumNArgs(1),
+		Args:    cobra.ArbitraryArgs(),
 		Run:     d.run,
 	})
 
@@ -52,7 +52,10 @@ func (d *deleteCmd) new() *cobra.Command {
 
 func (d *deleteCmd) run(cmd *cobra.Command, args []string) {
 	if viper.GetBool("all") {
-		d.deleteAll()
+		if len(cmd.Flags().Args()) == 0 {
+			d.deleteAll()
+		}
+		log.Fatal("cannot specify names when using `--all`")
 	} else {
 		for name := range args {
 			d.delete(args[name])
