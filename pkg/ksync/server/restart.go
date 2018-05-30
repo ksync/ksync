@@ -14,7 +14,7 @@ import (
 func (k *ksyncServer) Restart(ctx context.Context, _ *empty.Empty) (*pb.Error, error) {
 	log.Warn("requested restart")
 	time := time.Second * 10
-	k.debounce(time, ctx, &empty.Empty{})
+	k.debounce(ctx, &empty.Empty{}, time)
 	return nil, nil
 }
 
@@ -41,7 +41,7 @@ func (k *ksyncServer) IsAlive(ctx context.Context, _ *empty.Empty) (*pb.Alive, e
 	return &pb.Alive{Alive: false}, fmt.Errorf("Error during liveness check")
 }
 
-func (k *ksyncServer) debounce(t time.Duration, ctx context.Context, _ *empty.Empty) {
+func (k *ksyncServer) debounce(ctx context.Context, _ *empty.Empty, t time.Duration) {
 	log.Warn("checking debounce")
 	incoming := make(chan int)
 
