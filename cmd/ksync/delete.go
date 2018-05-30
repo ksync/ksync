@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sort"
 	"time"
 
 	"github.com/golang/protobuf/ptypes/empty"
@@ -56,6 +57,7 @@ func (d *deleteCmd) run(cmd *cobra.Command, args []string) {
 		}
 		log.Fatal("cannot specify names when using `--all`")
 	} else if len(d.Cmd.Flags().Args()) != 0 {
+		sort.Strings(args)
 		for name := range args {
 			d.delete(args[name])
 		}
