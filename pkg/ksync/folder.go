@@ -360,7 +360,9 @@ func (f *Folder) beginSync(listenerPort int32) error {
 		return err
 	}
 
-	return f.localServer.Restart()
+	_, err := f.ksyncClient.Restart(context.Background(), &empty.Empty{})
+
+	return err
 }
 
 // Run starts syncing the folder between the local host and the remote

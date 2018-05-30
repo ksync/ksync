@@ -9,15 +9,16 @@ import (
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 
 	"github.com/vapor-ware/ksync/pkg/ksync"
-	"github.com/vapor-ware/ksync/pkg/syncthing"
 	pb "github.com/vapor-ware/ksync/pkg/proto"
+	"github.com/vapor-ware/ksync/pkg/syncthing"
 )
 
 type ksyncServer struct {
-	SpecList *ksync.SpecList
+	SpecList  *ksync.SpecList
 	Syncthing *syncthing.Server
 }
 
@@ -37,7 +38,20 @@ func Listen(list *ksync.SpecList, bind string, port int) error {
 		"port": port,
 	}).Info("listening")
 
-	server := &ksyncServer{SpecList: list}
+	syncthingServer, err := syncthing.NewServer(fmt.Sprintf("localhost:%d", viper.GetInt("syncthing-port")), viper.GetString("apikey"))
+	if err != nil {
+		return err
+	}
+
+	log.WithFields(log.Fields{
+		"syncthing": "localhost",
+		"port":      viper.GetInt("syncthing-port"),
+	}).Info("syncthing listening")
+
+	server := &ksyncServer{
+		SpecList:  list,
+		Syncthing: syncthingServer,
+	}
 
 	logrusEntry := log.NewEntry(log.StandardLogger())
 	logOpts := []grpc_logrus.Option{

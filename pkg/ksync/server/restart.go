@@ -2,6 +2,7 @@ package server
 
 import (
   "fmt"
+	"time"
 
   "github.com/golang/protobuf/ptypes/empty"
 	"golang.org/x/net/context"
@@ -9,6 +10,14 @@ import (
 
 	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
+
+func (k *ksyncServer) Restart(ctx context.Context, _ *empty.Empty) (*pb.Error, error) {
+	log.Warn("requested restart")
+	time := time.Second * 10
+	k.debounce(time, ctx, &empty.Empty{})
+	return nil, nil
+}
+
 
 func (k *ksyncServer) RestartSyncthing(ctx context.Context, _ *empty.Empty) (*pb.Error, error) {
 
@@ -22,6 +31,7 @@ func (k *ksyncServer) RestartSyncthing(ctx context.Context, _ *empty.Empty) (*pb
 	}
 
 func (k *ksyncServer) IsAlive(ctx context.Context, _ *empty.Empty) (*pb.Alive, error) {
+	log.Debug(k.Syncthing)
 	switch k.Syncthing.IsAlive() {
 	case true:
 		return &pb.Alive{Alive: true}, nil
@@ -29,4 +39,33 @@ func (k *ksyncServer) IsAlive(ctx context.Context, _ *empty.Empty) (*pb.Alive, e
 		return &pb.Alive{Alive: false}, nil
 	}
 	return &pb.Alive{Alive: false}, fmt.Errorf("Error during liveness check")
+}
+
+func (k *ksyncServer) debounce(t time.Duration, ctx context.Context, _ *empty.Empty) {
+	log.Warn("checking debounce")
+	incoming := make(chan int)
+
+	go func() {
+		var r int
+
+		d := time.NewTimer(t)
+		d.Stop()
+
+		for {
+			select {
+			case r = <- incoming:
+				d.Reset(t)
+				log.Warn("Got %v requests", r)
+			case <- d.C:
+				pbErr, err := k.RestartSyncthing(ctx, &empty.Empty{})
+				// TODO: This should pass errors on an error channel
+				if pbErr != nil {
+					log.Fatal(pbErr)
+				}
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
+		}
+	}()
 }

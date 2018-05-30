@@ -50,12 +50,12 @@ func (d *deleteCmd) new() *cobra.Command {
 }
 
 func (d *deleteCmd) run(cmd *cobra.Command, args []string) {
-	if viper.GetBool("all") {
-		if len(cmd.Flags().Args()) == 0 {
+	if d.Viper.GetBool("all") {
+		if len(d.Cmd.Flags().Args()) == 0 {
 			d.deleteAll()
 		}
 		log.Fatal("cannot specify names when using `--all`")
-	} else if len(cmd.Flags().Args()) != 0 {
+	} else if len(d.Cmd.Flags().Args()) != 0 {
 		for name := range args {
 			d.delete(args[name])
 		}
@@ -74,6 +74,7 @@ func (d *deleteCmd) delete(name string) {
 		log.Fatalf("%s does not exist. Did you mean something else?", name)
 	}
 
+	log.Debugf("deleting spec %s", name)
 	if err := specs.Delete(name); err != nil {
 		log.Fatalf("Could not delete %s: %v", name, err)
 	}
