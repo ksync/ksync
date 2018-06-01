@@ -50,6 +50,7 @@ func (g *getCmd) new() *cobra.Command {
 		log.Fatal(err)
 	}
 
+	// TODO: Move this to the global list or add config/env setting
 	flags.StringP(
 		"output",
 		"o",
