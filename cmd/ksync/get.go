@@ -165,10 +165,14 @@ func (g *getCmd) run(cmd *cobra.Command, args []string) {
 			fmt.Printf("%s\n", s)
 		}
 	} else if g.Viper.GetString("output") == "json" {
-		marshaller := &jsonpb.Marshaler{}
+		marshaller := &jsonpb.Marshaler{
+			Indent: "	",
+			EnumsAsInts: true,
+		}
 		if err := marshaller.Marshal(os.Stdout, resp); err != nil {
 			log.Fatal(err)
 		}
+		fmt.Printf("\n")
 	} else {
 		g.out(resp)
 	}
