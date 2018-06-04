@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/phayes/permbits"
 )
@@ -62,6 +63,13 @@ func (s *SyncPath) Validator() error {
 		return fmt.Errorf("local path must be absolute")
 	}
 
+	// Some cross platform checking is needed in cases where the client and remote
+	// run on different platforms. In this case we'll only be checking for the case
+	// where the remote is *nix and the local client is Windows.
+	if runtime.GOOS == "windows" {
+		return os.PathSeparator = "/"
+	}
+	
 	if !filepath.IsAbs(s.Remote) {
 		return fmt.Errorf("remote path must be absolute")
 	}
