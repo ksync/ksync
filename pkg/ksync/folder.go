@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/cenkalti/backoff"
 	"github.com/golang/protobuf/ptypes/empty"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -46,6 +47,9 @@ type Folder struct { // nolint: maligned
 	connection  *cluster.Connection
 	radarConn   *grpc.ClientConn
 	radarClient pb.RadarClient
+
+	ksyncConn   *grpc.ClientConn
+	ksyncClient pb.KsyncClient
 
 	restartContainer chan bool
 	stop             chan bool
@@ -122,6 +126,21 @@ func (f *Folder) initRadarClient() error {
 
 	f.radarConn = conn
 	f.radarClient = pb.NewRadarClient(conn)
+
+	return nil
+}
+
+func (f *Folder) initKsyncClient() error {
+	conn, err := grpc.Dial(fmt.Sprintf("127.0.0.1:%d", viper.GetInt("port")),
+		grpc.WithTimeout(5*time.Second), // nolint: megacheck
+		grpc.WithBlock(),
+		grpc.WithInsecure())
+	if err != nil {
+		return err
+	}
+
+	f.ksyncConn = conn
+	f.ksyncClient = pb.NewKsyncClient(conn)
 
 	return nil
 }
@@ -319,7 +338,31 @@ func (f *Folder) beginSync(listenerPort int32) error {
 		return err
 	}
 
-	return f.localServer.Update()
+	if err := f.localServer.Update(); err != nil {
+		return err
+	}
+
+	aliveBackoff := backoff.NewExponentialBackOff()
+	aliveBackoff.MaxInterval = time.Minute * 1
+
+	aliveErr := func() error {
+		switch f.localServer.IsAlive() {
+		case false:
+			return fmt.Errorf("syncthing not alive")
+		case true:
+			return nil
+		}
+		// We should never get this far
+		return fmt.Errorf("something weird happened while checking for health")
+	}
+
+	if err := backoff.Retry(aliveErr, aliveBackoff); err != nil {
+		return err
+	}
+
+	_, err := f.ksyncClient.Restart(context.Background(), &empty.Empty{})
+
+	return err
 }
 
 // Run starts syncing the folder between the local host and the remote
@@ -329,6 +372,10 @@ func (f *Folder) Run() error {
 	f.Status = ServiceStarting
 
 	if err := f.initRadarClient(); err != nil {
+		return err
+	}
+
+	if err := f.initKsyncClient(); err != nil {
 		return err
 	}
 

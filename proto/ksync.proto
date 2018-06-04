@@ -4,9 +4,12 @@ syntax = "proto3";
 package proto.ksync;
 
 import "google/protobuf/empty.proto";
+import "proto/radar.proto";
 
 service Ksync {
   rpc GetSpecList(google.protobuf.Empty) returns (SpecList) {}
+  rpc RestartSyncthing(google.protobuf.Empty) returns (Error) {}
+  rpc IsAlive(google.protobuf.Empty) returns (Alive) {}
 }
 
 message SpecList {
@@ -51,4 +54,8 @@ message RemoteContainer {
   string container_name = 2;
   string node_name = 3;
   string pod_name = 4;
+}
+
+message Alive {
+  bool alive = 1;
 }

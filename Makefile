@@ -158,6 +158,7 @@ most-lint:
 		--vendor \
 		--skip "testdata" \
 		--exclude "[a-zA-Z]*_test.go" \
+		--exclude "[a-zA-Z]*.pb.go" \
 		--disable=megacheck \
 		--tests \
 		--sort=severity \
@@ -170,6 +171,7 @@ megacheck:
 		--vendor \
 		--skip "testdata" \
 		--exclude "[a-zA-Z]*_test.go" \
+		--exclude "[a-zA-Z]*.pb.go" \
 		--disable-all \
 		--tests \
 		--sort=severity \
