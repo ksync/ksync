@@ -3,13 +3,15 @@ package main
 import (
 	"sort"
 
+	"github.com/golang/protobuf/ptypes/empty"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"golang.org/x/net/context"
+	"google.golang.org/grpc"
 
 	"github.com/vapor-ware/ksync/pkg/cli"
-	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
 	"github.com/vapor-ware/ksync/pkg/ksync"
+	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
 	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
 
@@ -62,8 +64,25 @@ func (r *reloadCmd) run(cmd *cobra.Command, args []string) {
 }
 
 func (r *reloadCmd) reload(specName string) {
-	specs := &ksync.SpecList{}
-	if err := specs.Update(); err != nil {
+	grpcConnection, err := grpc.DialContext(
+		withTimeout,
+		fmt.Sprintf("127.0.0.1:%d", viper.GetInt("port")),
+		[]grpc.DialOption{
+			grpc.WithBlock(),
+			grpc.WithInsecure(),
+		}...)
+	if err != nil {
+		// The assumption is that the only real error here is because watch isn't
+		// running
+		log.Debug(err)
+		log.Fatal("Having problems querying status. Are you running watch?")
+	}
+	defer grpcConnection.Close() // nolint: errcheck
+
+	ksyncClient := pb.NewKsyncClient(grpcConnection)
+
+	specs, err := ksyncClient.GetSpecList(context.Background(), &empty.Empty{})
+	if err != nil {
 		log.Fatal(err)
 	}
 
@@ -79,7 +98,7 @@ func (r *reloadCmd) reload(specName string) {
 		log.Fatal(err)
 	}
 
-	log.Debugf("%s", )
+	log.Debugf("%s")
 	service, err := spec.Services.Get(spec.Details.Name)
 	if err != nil {
 		log.Fatal(err)
@@ -110,7 +129,7 @@ func (r *reloadCmd) reloadAll() {
 		log.Fatal(err)
 	}
 
-	for name, _ := range specs.Items {
+	for name := range specs.Items {
 		r.reload(name)
 	}
 }
