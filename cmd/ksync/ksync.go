@@ -34,6 +34,7 @@ func main() {
 		(&doctorCmd{}).new(),
 		(&getCmd{}).new(),
 		(&initCmd{}).new(),
+		(&reloadCmd{}).new(),
 		(&watchCmd{}).new(),
 		(&versionCmd{}).new(),
 		(&updateCmd{}).new(),

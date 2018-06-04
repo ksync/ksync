@@ -104,6 +104,18 @@ func (s *ServiceList) Pop(podName string) *Service {
 	return nil
 }
 
+func (s *ServiceList) Get(name string) (*Service, error) {
+	log.Debugf("%+v", s)
+	for _, service := range s.Items {
+		log.Debugf("checking service %+v", service)
+		if service.SpecDetails.Name == name {
+			return service, nil
+		}
+	}
+
+	return nil, fmt.Errorf("couldn't get service with name %s", name)
+}
+
 // Stop takes all the services in a list and stops them.
 func (s *ServiceList) Stop() error {
 	for _, service := range s.Items {

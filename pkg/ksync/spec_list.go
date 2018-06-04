@@ -188,3 +188,19 @@ func (s *SpecList) Has(target string) bool {
 	}
 	return false
 }
+
+// Get checks the spec list for a matching spec (by name) and returns that spec
+func (s *SpecList) Get(name string) (*Spec, error) {
+	items, err := allSpecs()
+	if err != nil {
+		return nil, err
+	}
+
+	for name, spec := range items {
+		if _, ok := s.Items[name]; ok {
+			return spec, nil
+		}
+	}
+
+	return nil, fmt.Errorf("no specs matching %s", name)
+}
