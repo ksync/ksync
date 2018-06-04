@@ -44,6 +44,22 @@ func (s *ServiceList) Message() (*pb.ServiceList, error) {
 	}, nil
 }
 
+func DeserializeServiceList(s *pb.ServiceList) (*ServiceList, error) {
+	items := []*Service{}
+
+	for _, v := range s.Items {
+		msg, err := DeserializeService(v)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, msg)
+	}
+
+	return &ServiceList{
+		Items: items,
+	}, nil
+}
+
 // NewServiceList is a constructor for ServiceList
 func NewServiceList() *ServiceList {
 	return &ServiceList{

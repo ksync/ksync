@@ -48,6 +48,22 @@ func (s *SpecList) Message() (*pb.SpecList, error) {
 	}, nil
 }
 
+func DeserializeSpecList(s *pb.SpecList) (*SpecList, error) {
+	items := map[string]*Spec{}
+
+	for n, v := range s.Items {
+		msg, err := DeserializeSpec(v)
+		if err != nil {
+			return nil, err
+		}
+		items[n] = msg
+	}
+
+	return &SpecList{
+		Items: items,
+	}, nil
+}
+
 func allSpecs() (map[string]*Spec, error) {
 	items := map[string]*Spec{}
 

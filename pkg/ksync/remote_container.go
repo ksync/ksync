@@ -88,3 +88,13 @@ func (c *RemoteContainer) Message() (*pb.RemoteContainer, error) {
 	}
 	return &result, nil
 }
+
+func DeserializeRemoteContainer(c *pb.RemoteContainer) (*RemoteContainer, error) {
+	result := &RemoteContainer{
+		ID: c.GetId(),
+		Name: c.GetContainerName(),
+		NodeName: c.NodeName,
+		PodName: c.GetPodName(),
+	}
+	return result, nil
+}
