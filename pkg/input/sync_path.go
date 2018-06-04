@@ -3,8 +3,8 @@ package input
 import (
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
-	"runtime"
 
 	"github.com/phayes/permbits"
 )
@@ -66,11 +66,7 @@ func (s *SyncPath) Validator() error {
 	// Some cross platform checking is needed in cases where the client and remote
 	// run on different platforms. In this case we'll only be checking for the case
 	// where the remote is *nix and the local client is Windows.
-	if runtime.GOOS == "windows" {
-		return os.PathSeparator = "/"
-	}
-	
-	if !filepath.IsAbs(s.Remote) {
+	if !path.IsAbs(s.Remote) {
 		return fmt.Errorf("remote path must be absolute")
 	}
 	// Removing this temporarily to ensure .git is not checked. See issue https://github.com/vapor-ware/ksync/issues/151 and https://github.com/vapor-ware/ksync/issues/127
