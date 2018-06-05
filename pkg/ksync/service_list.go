@@ -44,6 +44,23 @@ func (s *ServiceList) Message() (*pb.ServiceList, error) {
 	}, nil
 }
 
+// DeserializeServiceList deserializes gRPC messages into a ServiceList struct
+func DeserializeServiceList(s *pb.ServiceList) (*ServiceList, error) {
+	items := []*Service{}
+
+	for _, v := range s.Items {
+		msg, err := DeserializeService(v)
+		if err != nil {
+			return nil, err
+		}
+		items = append(items, msg)
+	}
+
+	return &ServiceList{
+		Items: items,
+	}, nil
+}
+
 // NewServiceList is a constructor for ServiceList
 func NewServiceList() *ServiceList {
 	return &ServiceList{
@@ -102,6 +119,17 @@ func (s *ServiceList) Pop(podName string) *Service {
 	}
 
 	return nil
+}
+
+// Get searches the service list for a matching service (by name) and returns it
+func (s *ServiceList) Get(name string) (*Service, error) {
+	for _, service := range s.Items {
+		if service.SpecDetails.Name == name {
+			return service, nil
+		}
+	}
+
+	return nil, fmt.Errorf("couldn't get service with name %s", name)
 }
 
 // Stop takes all the services in a list and stops them.

@@ -81,6 +81,24 @@ func (s *Service) Message() (*pb.Service, error) {
 	}, nil
 }
 
+// DeserializeService deserializes gRPC messages into a Service struct
+func DeserializeService(s *pb.Service) (*Service, error) {
+	cntr, err := DeserializeRemoteContainer(s.RemoteContainer)
+	if err != nil {
+		return nil, err
+	}
+
+	details, err := DeserializeSpecDetails(s.SpecDetails)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Service{
+		RemoteContainer: cntr,
+		SpecDetails:     details,
+	}, nil
+}
+
 // Status returns the current status of this service.
 func (s *Service) Status() ServiceStatus {
 	if s.folder == nil {

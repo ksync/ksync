@@ -58,6 +58,24 @@ func (s *SpecDetails) Message() (*pb.SpecDetails, error) {
 	return &result, nil
 }
 
+// DeserializeSpecDetails deserializes gRPC messages into a SpecDetails struct
+func DeserializeSpecDetails(s *pb.SpecDetails) (*SpecDetails, error) {
+	result := &SpecDetails{
+		Name: s.GetName(),
+		ContainerName: s.GetContainerName(),
+		Pod: s.GetPodName(),
+		Selector: s.GetSelector(),
+		Namespace: s.GetNamespace(),
+		LocalPath: s.GetLocalPath(),
+		RemotePath: s.GetRemotePath(),
+		Reload: s.GetReload(),
+		LocalReadOnly: s.GetLocalReadOnly(),
+		RemoteReadOnly: s.GetRemoteReadOnly(),
+	}
+
+	return result, nil
+}
+
 // IsValid returns an error if the spec is not valid.
 func (s *SpecDetails) IsValid() error {
 

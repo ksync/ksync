@@ -61,6 +61,26 @@ func (s *Spec) Message() (*pb.Spec, error) {
 	}, nil
 }
 
+// DeserializeSpec deserializes gRPC messages into a Spec struct
+func DeserializeSpec(s *pb.Spec) (*Spec, error) {
+	details, err := DeserializeSpecDetails(s.GetDetails())
+	if err != nil {
+		return nil, err
+	}
+
+	services, err := DeserializeServiceList(s.GetServices())
+	if err != nil {
+		return nil, err
+	}
+
+	status := SpecStatus(s.GetStatus())
+	return &Spec{
+		Details:  details,
+		Services: services,
+		Status:   status,
+	}, nil
+}
+
 // NewSpec is a constructor for Specs
 func NewSpec(details *SpecDetails) *Spec {
 	return &Spec{
