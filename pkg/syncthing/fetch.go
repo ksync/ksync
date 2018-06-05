@@ -2,11 +2,14 @@ package syncthing
 
 import (
 	"archive/tar"
+	"archive/zip"
 	"io"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
+	"fmt"
+	"bytes"
 
 	"github.com/jpillora/overseer/fetcher"
 	log "github.com/sirupsen/logrus"
@@ -23,7 +26,7 @@ func matchRelease(filename string) bool {
 		strings.Contains(filename, runtime.GOARCH)
 }
 
-func saveBinary(tarReader *tar.Reader, path string) error { //nolint interfacer
+func saveBinary(reader io.Reader, path string) error { //nolint interfacer
 	dir := filepath.Dir(path)
 	if _, statErr := os.Stat(dir); os.IsNotExist(statErr) {
 		if mkdirErr := os.Mkdir(dir, 0700); mkdirErr != nil {
@@ -37,7 +40,7 @@ func saveBinary(tarReader *tar.Reader, path string) error { //nolint interfacer
 	}
 	defer f.Close() // nolint: errcheck
 
-	if _, err := io.Copy(f, tarReader); err != nil {
+	if _, err := io.Copy(f, reader); err != nil {
 		return err
 	}
 
@@ -60,25 +63,62 @@ func Fetch(path string) error {
 
 	log.Debug("fetching new syncthing binary")
 
-	gzReader, err := f.Fetch()
+	archiveReader, err := f.Fetch()
 	if err != nil {
 		return err
 	}
 
-	tarReader := tar.NewReader(gzReader)
+	var binaryReader io.Reader
+	switch runtime.GOOS {
+	case "windows":
+		binaryReader, err = UnpackWindows(archiveReader)
+	// We should do some other platform detection here for completeness
+	default:
+		binaryReader, err = UnpackNix(archiveReader)
+	}
+
+	return saveBinary(binaryReader, path)
+}
+
+func UnpackNix(reader io.Reader) (io.Reader, error) {
+	tarReader := tar.NewReader(reader)
 
 	for {
 		header, err := tarReader.Next()
 
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		// There are config files that are named the same thing as the binary. As
 		// they're in etc directories, ignore those too.
 		if strings.HasSuffix(header.Name, "/syncthing") &&
 			!strings.Contains(header.Name, "/etc/") {
-			return saveBinary(tarReader, path)
+			return tarReader, nil
 		}
 	}
+
+	return nil, fmt.Errorf("no syncthing binary found")
+}
+
+func UnpackWindows(reader io.Reader) (io.Reader, error) {
+	zipReader, err := zip.NewReader(reader.(io.ReaderAt), getSize(reader))
+	if err != nil {
+		return nil, err
+	}
+
+	for _, f := range zipReader.File {
+		if strings.HasSuffix(f.Name, "syncthing.exe") && !strings.Contains(f.Name, "sig") {
+			file, _ := f.Open()
+			return file, nil
+		}
+	}
+
+	return nil, fmt.Errorf("no syncthing binary found")
+}
+
+func getSize(stream io.Reader) int64 {
+    buf := new(bytes.Buffer)
+    buf.ReadFrom(stream)
+    return int64(buf.Len())
 }
