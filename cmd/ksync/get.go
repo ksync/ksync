@@ -50,16 +50,6 @@ func (g *getCmd) new() *cobra.Command {
 		log.Fatal(err)
 	}
 
-	// TODO: Move this to the global list or add config/env setting
-	flags.StringP(
-		"output",
-		"o",
-		"pretty",
-		"output format to use (e.g. \"json\")")
-	if err := g.BindFlag("output"); err != nil {
-		log.Fatal(err)
-	}
-
 	return g.Cmd
 }
 

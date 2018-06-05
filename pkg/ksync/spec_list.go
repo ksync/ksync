@@ -48,6 +48,23 @@ func (s *SpecList) Message() (*pb.SpecList, error) {
 	}, nil
 }
 
+// DeserializeSpecList deserializes gRPC messages into a SpecList struct
+func DeserializeSpecList(s *pb.SpecList) (*SpecList, error) {
+	items := map[string]*Spec{}
+
+	for n, v := range s.Items {
+		msg, err := DeserializeSpec(v)
+		if err != nil {
+			return nil, err
+		}
+		items[n] = msg
+	}
+
+	return &SpecList{
+		Items: items,
+	}, nil
+}
+
 func allSpecs() (map[string]*Spec, error) {
 	items := map[string]*Spec{}
 
@@ -187,4 +204,20 @@ func (s *SpecList) Has(target string) bool {
 		return true
 	}
 	return false
+}
+
+// Get checks the spec list for a matching spec (by name) and returns that spec
+func (s *SpecList) Get(name string) (*Spec, error) {
+	items, err := allSpecs()
+	if err != nil {
+		return nil, err
+	}
+
+	for name, spec := range items {
+		if _, ok := s.Items[name]; ok {
+			return spec, nil
+		}
+	}
+
+	return nil, fmt.Errorf("no specs matching %s", name)
 }

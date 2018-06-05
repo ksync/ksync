@@ -361,7 +361,7 @@ func (f *Folder) beginSync(listenerPort int32) error {
 		return err
 	}
 
-	_, err := f.ksyncClient.Restart(context.Background(), &empty.Empty{})
+	_, err := f.ksyncClient.RestartSyncthing(context.Background(), &empty.Empty{})
 
 	return err
 }
