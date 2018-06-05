@@ -48,6 +48,7 @@ func (s *SpecList) Message() (*pb.SpecList, error) {
 	}, nil
 }
 
+// DeserializeSpecList deserializes gRPC messages into a SpecList struct
 func DeserializeSpecList(s *pb.SpecList) (*SpecList, error) {
 	items := map[string]*Spec{}
 

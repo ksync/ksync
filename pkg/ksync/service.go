@@ -81,6 +81,7 @@ func (s *Service) Message() (*pb.Service, error) {
 	}, nil
 }
 
+// DeserializeService deserializes gRPC messages into a Service struct
 func DeserializeService(s *pb.Service) (*Service, error) {
 	cntr, err := DeserializeRemoteContainer(s.RemoteContainer)
 	if err != nil {

@@ -58,6 +58,7 @@ func (s *SpecDetails) Message() (*pb.SpecDetails, error) {
 	return &result, nil
 }
 
+// DeserializeSpecDetails deserializes gRPC messages into a SpecDetails struct
 func DeserializeSpecDetails(s *pb.SpecDetails) (*SpecDetails, error) {
 	result := &SpecDetails{
 		Name: s.GetName(),

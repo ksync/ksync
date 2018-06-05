@@ -54,8 +54,9 @@ func (r *reloadCmd) run(cmd *cobra.Command, args []string) {
 	if r.Viper.GetBool("all") {
 		if len(r.Cmd.Flags().Args()) == 0 {
 			r.reloadAll()
+		} else {
+			log.Fatal("cannot specify names when using `--all`")
 		}
-		log.Fatal("cannot specify names when using `--all`")
 	} else if len(r.Cmd.Flags().Args()) != 0 {
 		sort.Strings(args)
 		for specName := range args {
@@ -94,8 +95,6 @@ func (r *reloadCmd) reload(specName string) {
 		log.Fatal(err)
 	}
 
-	log.Debugf("%+v", resp.GetItems())
-
 	specs, err := ksync.DeserializeSpecList(resp)
 	if err != nil {
 		log.Fatal(err)
@@ -105,15 +104,10 @@ func (r *reloadCmd) reload(specName string) {
 		log.Fatalf("%s does not exist. Did you mean something else?", specName)
 	}
 
-	log.Debugf("attempting reload of %s", specName)
+	log.Infof("attempting reload of %s", specName)
 
-	spec, err := specs.Get(specName)
-	log.Debugf("%+v", spec)
-	if err != nil {
-		log.Fatal(err)
-	}
+	spec := specs.Items[specName]
 
-	log.Debugf("%s", spec.Details)
 	service, err := spec.Services.Get(spec.Details.Name)
 	if err != nil {
 		log.Fatal(err)
@@ -135,7 +129,6 @@ func (r *reloadCmd) reload(specName string) {
 		log.Fatal(err)
 	}
 
-	log.Infof("restart initiated for %s", specName)
 }
 
 func (r *reloadCmd) reloadAll() {

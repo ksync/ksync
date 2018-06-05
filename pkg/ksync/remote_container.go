@@ -89,6 +89,7 @@ func (c *RemoteContainer) Message() (*pb.RemoteContainer, error) {
 	return &result, nil
 }
 
+// DeserializeRemoteContainer deserializes gRPC messages into a RemoteContainer struct
 func DeserializeRemoteContainer(c *pb.RemoteContainer) (*RemoteContainer, error) {
 	result := &RemoteContainer{
 		ID: c.GetId(),

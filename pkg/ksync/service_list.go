@@ -44,6 +44,7 @@ func (s *ServiceList) Message() (*pb.ServiceList, error) {
 	}, nil
 }
 
+// DeserializeServiceList deserializes gRPC messages into a ServiceList struct
 func DeserializeServiceList(s *pb.ServiceList) (*ServiceList, error) {
 	items := []*Service{}
 
@@ -120,10 +121,9 @@ func (s *ServiceList) Pop(podName string) *Service {
 	return nil
 }
 
+// Get searches the service list for a matching service (by name) and returns it
 func (s *ServiceList) Get(name string) (*Service, error) {
-	log.Debugf("%+v", s)
 	for _, service := range s.Items {
-		log.Debugf("checking service %+v", service)
 		if service.SpecDetails.Name == name {
 			return service, nil
 		}

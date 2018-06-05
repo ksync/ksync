@@ -61,6 +61,7 @@ func (s *Spec) Message() (*pb.Spec, error) {
 	}, nil
 }
 
+// DeserializeSpec deserializes gRPC messages into a Spec struct
 func DeserializeSpec(s *pb.Spec) (*Spec, error) {
 	details, err := DeserializeSpecDetails(s.GetDetails())
 	if err != nil {
