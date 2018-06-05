@@ -89,7 +89,7 @@ func Fetch(path string) error {
 // UnpackNix upacks the tarball and returns a reader containing the binary
 func UnpackNix(reader io.Reader) (io.Reader, error) {
 	log.Debug("decompressing")
-	
+
 	tarReader := tar.NewReader(reader)
 
 	for {
@@ -112,15 +112,15 @@ func UnpackNix(reader io.Reader) (io.Reader, error) {
 func UnpackWindows(reader io.Reader) (io.Reader, error) {
 	log.Debug("decompressing")
 
-	// `encoding/tar` and `encoding/zip` and implemented just differently enough
-	// that we have to do all this stupid shit. See what you've reduced me to?
+	// `encoding/tar` and `encoding/zip` are implemented just differently enough
+	// to force us into doing all this stupid shit. See what you've reduced me to?
 	b, err := ioutil.ReadAll(reader)
 	if err != nil {
 		return nil, err
 	}
 	readerAt := bytes.NewReader(b)
 
-	zipReader, err := zip.NewReader(b, getSize(readerAt))
+	zipReader, err := zip.NewReader(readerAt, getSize(readerAt))
 	if err != nil {
 		return nil, err
 	}
