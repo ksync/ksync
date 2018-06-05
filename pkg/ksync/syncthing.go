@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 
@@ -119,6 +120,11 @@ func (s *Syncthing) resetState() error {
 // supported in windows. While this isn't tested on windows it at least gets
 // past the compiler.
 func (s *Syncthing) cleanupDaemon(pidPath string) error {
+	// Deal with Windows conditions by bailing
+	if runtime.GOOS == "windows" {
+		return nil
+	}
+
 	if _, err := os.Stat(pidPath); err != nil {
 		if os.IsNotExist(err) {
 			return nil
