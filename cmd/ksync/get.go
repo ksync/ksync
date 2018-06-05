@@ -15,6 +15,7 @@ import (
 	"github.com/spf13/viper"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"github.com/golang/protobuf/jsonpb"
 
 	"github.com/vapor-ware/ksync/pkg/cli"
 	pb "github.com/vapor-ware/ksync/pkg/proto"
@@ -46,6 +47,16 @@ func (g *getCmd) new() *cobra.Command {
 		false,
 		"only print spec name, one per line")
 	if err := g.BindFlag("quiet"); err != nil {
+		log.Fatal(err)
+	}
+
+	// TODO: Move this to the global list or add config/env setting
+	flags.StringP(
+		"output",
+		"o",
+		"pretty",
+		"output format to use (e.g. \"json\")")
+	if err := g.BindFlag("output"); err != nil {
 		log.Fatal(err)
 	}
 
@@ -153,6 +164,15 @@ func (g *getCmd) run(cmd *cobra.Command, args []string) {
 		for s := range resp.Items {
 			fmt.Printf("%s\n", s)
 		}
+	} else if g.Viper.GetString("output") == "json" {
+		marshaller := &jsonpb.Marshaler{
+			Indent: "	",
+			EnumsAsInts: true,
+		}
+		if err := marshaller.Marshal(os.Stdout, resp); err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("\n")
 	} else {
 		g.out(resp)
 	}
