@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -71,9 +72,11 @@ func Fetch(path string) error {
 	var binaryReader io.Reader
 	switch runtime.GOOS {
 	case "windows":
+		log.Debug("found windows binary")
 		binaryReader, err = UnpackWindows(archiveReader)
 	// We should do some other platform detection here for completeness
 	default:
+		log.Debug("found binary")
 		binaryReader, err = UnpackNix(archiveReader)
 	}
 	if err != nil {
@@ -85,6 +88,8 @@ func Fetch(path string) error {
 
 // UnpackNix upacks the tarball and returns a reader containing the binary
 func UnpackNix(reader io.Reader) (io.Reader, error) {
+	log.Debug("decompressing")
+	
 	tarReader := tar.NewReader(reader)
 
 	for {
@@ -105,7 +110,17 @@ func UnpackNix(reader io.Reader) (io.Reader, error) {
 
 // UnpackWindows unpacks the zip archive and returns a reader containing the binary
 func UnpackWindows(reader io.Reader) (io.Reader, error) {
-	zipReader, err := zip.NewReader(reader.(io.ReaderAt), getSize(reader))
+	log.Debug("decompressing")
+
+	// `encoding/tar` and `encoding/zip` and implemented just differently enough
+	// that we have to do all this stupid shit. See what you've reduced me to?
+	b, err := ioutil.ReadAll(reader)
+	if err != nil {
+		return nil, err
+	}
+	readerAt := bytes.NewReader(b)
+
+	zipReader, err := zip.NewReader(b, getSize(readerAt))
 	if err != nil {
 		return nil, err
 	}
