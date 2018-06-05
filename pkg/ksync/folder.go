@@ -3,8 +3,8 @@ package ksync
 import (
 	"fmt"
 	"os"
-	"path"
-	"path/filepath"
+	canonicalPath "path"
+	// "path/filepath"
 	"time"
 
 	"github.com/cenkalti/backoff"
@@ -116,7 +116,7 @@ func (f *Folder) path() (string, error) {
 		return "", err
 	}
 
-	return path.Join(path.Full, f.RemotePath), nil
+	return canonicalPath.Join(path.Full, f.RemotePath), nil
 }
 
 func (f *Folder) initRadarClient() error {
