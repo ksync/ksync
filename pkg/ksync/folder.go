@@ -3,6 +3,7 @@ package ksync
 import (
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 	"time"
 
@@ -115,7 +116,7 @@ func (f *Folder) path() (string, error) {
 		return "", err
 	}
 
-	return filepath.Join(path.Full, f.RemotePath), nil
+	return path.Join(path.Full, f.RemotePath), nil
 }
 
 func (f *Folder) initRadarClient() error {
