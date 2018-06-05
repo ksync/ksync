@@ -3,13 +3,13 @@ package syncthing
 import (
 	"archive/tar"
 	"archive/zip"
+	"bytes"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
-	"fmt"
-	"bytes"
 
 	"github.com/jpillora/overseer/fetcher"
 	log "github.com/sirupsen/logrus"
@@ -76,10 +76,14 @@ func Fetch(path string) error {
 	default:
 		binaryReader, err = UnpackNix(archiveReader)
 	}
+	if err != nil {
+		return err
+	}
 
 	return saveBinary(binaryReader, path)
 }
 
+// UnpackNix upacks the tarball and returns a reader containing the binary
 func UnpackNix(reader io.Reader) (io.Reader, error) {
 	tarReader := tar.NewReader(reader)
 
@@ -97,10 +101,9 @@ func UnpackNix(reader io.Reader) (io.Reader, error) {
 			return tarReader, nil
 		}
 	}
-
-	return nil, fmt.Errorf("no syncthing binary found")
 }
 
+// UnpackWindows unpacks the zip archive and returns a reader containing the binary
 func UnpackWindows(reader io.Reader) (io.Reader, error) {
 	zipReader, err := zip.NewReader(reader.(io.ReaderAt), getSize(reader))
 	if err != nil {
@@ -109,16 +112,17 @@ func UnpackWindows(reader io.Reader) (io.Reader, error) {
 
 	for _, f := range zipReader.File {
 		if strings.HasSuffix(f.Name, "syncthing.exe") && !strings.Contains(f.Name, "sig") {
-			file, _ := f.Open()
-			return file, nil
+			file, err := f.Open()
+			return file, err
 		}
 	}
 
 	return nil, fmt.Errorf("no syncthing binary found")
 }
 
+// getSize returns the size of an arbitrary io.Reader
 func getSize(stream io.Reader) int64 {
-    buf := new(bytes.Buffer)
-    buf.ReadFrom(stream)
-    return int64(buf.Len())
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(stream) // nolint: errcheck, gas
+	return int64(buf.Len())
 }
