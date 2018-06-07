@@ -1,12 +1,12 @@
 package server
 
 import (
-  "fmt"
+	"fmt"
 	"time"
 
-  "github.com/golang/protobuf/ptypes/empty"
-	"golang.org/x/net/context"
+	"github.com/golang/protobuf/ptypes/empty"
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/net/context"
 
 	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
@@ -18,17 +18,16 @@ func (k *ksyncServer) Restart(ctx context.Context, _ *empty.Empty) (*pb.Error, e
 	return nil, nil
 }
 
-
 func (k *ksyncServer) RestartSyncthing(ctx context.Context, _ *empty.Empty) (*pb.Error, error) {
 
-		if !k.Syncthing.IsAlive() {
-			return &pb.Error{Msg: "Syncthing does not appear to be running locally"}, fmt.Errorf("%s", "Syncthing does not appear to be running locally")
-		}
-
-		log.Debug("restarting local syncthing")
-
-		return nil, k.Syncthing.Restart()
+	if !k.Syncthing.IsAlive() {
+		return &pb.Error{Msg: "Syncthing does not appear to be running locally"}, fmt.Errorf("%s", "Syncthing does not appear to be running locally")
 	}
+
+	log.Debug("restarting local syncthing")
+
+	return nil, k.Syncthing.Restart()
+}
 
 func (k *ksyncServer) IsAlive(ctx context.Context, _ *empty.Empty) (*pb.Alive, error) {
 	log.Debug(k.Syncthing)
@@ -53,10 +52,10 @@ func (k *ksyncServer) debounce(ctx context.Context, _ *empty.Empty, t time.Durat
 
 		for {
 			select {
-			case r = <- incoming:
+			case r = <-incoming:
 				d.Reset(t)
 				log.Warn("Got %v requests", r)
-			case <- d.C:
+			case <-d.C:
 				pbErr, err := k.RestartSyncthing(ctx, &empty.Empty{})
 				// TODO: This should pass errors on an error channel
 				if pbErr != nil {

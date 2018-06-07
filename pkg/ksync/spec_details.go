@@ -36,8 +36,8 @@ type SpecDetails struct {
 	Reload bool
 
 	// One-way-sync related options
-	LocalReadOnly      bool
-	RemoteReadOnly     bool
+	LocalReadOnly  bool
+	RemoteReadOnly bool
 }
 
 func (s *SpecDetails) String() string {
@@ -61,15 +61,15 @@ func (s *SpecDetails) Message() (*pb.SpecDetails, error) {
 // DeserializeSpecDetails deserializes gRPC messages into a SpecDetails struct
 func DeserializeSpecDetails(s *pb.SpecDetails) (*SpecDetails, error) {
 	result := &SpecDetails{
-		Name: s.GetName(),
-		ContainerName: s.GetContainerName(),
-		Pod: s.GetPodName(),
-		Selector: s.GetSelector(),
-		Namespace: s.GetNamespace(),
-		LocalPath: s.GetLocalPath(),
-		RemotePath: s.GetRemotePath(),
-		Reload: s.GetReload(),
-		LocalReadOnly: s.GetLocalReadOnly(),
+		Name:           s.GetName(),
+		ContainerName:  s.GetContainerName(),
+		Pod:            s.GetPodName(),
+		Selector:       s.GetSelector(),
+		Namespace:      s.GetNamespace(),
+		LocalPath:      s.GetLocalPath(),
+		RemotePath:     s.GetRemotePath(),
+		Reload:         s.GetReload(),
+		LocalReadOnly:  s.GetLocalReadOnly(),
 		RemoteReadOnly: s.GetRemoteReadOnly(),
 	}
 
