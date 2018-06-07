@@ -27,10 +27,6 @@ jobs:
             - vendor-{{ checksum "Gopkg.toml" }}
 
       - run:
-          name: "Make test report directory"
-          command: mkdir -p /tmp/$TEST_DIRECTORY
-
-      - run:
           name: "Installing Vendored Dependencies"
           command: |
             go get -v github.com/golang/dep/cmd/dep
@@ -70,24 +66,9 @@ jobs:
             testdata/ci/setup.sh
 
       - run:
-          name: "Lint"
-          command: |
-            make lint
-
-      - run:
           name: "Launch Required Objects Into Cluster"
           command: |
             testdata/ci/launch.sh
-
-      - run:
-          name: "Get test to junit xml parser"
-          command: |
-            go get -v -u github.com/jstemmer/go-junit-report
-
-      - run:
-          name: "Running Tests"
-          command: |
-            make ci-test
 
       - run:
           name: "Building"
@@ -108,6 +89,61 @@ jobs:
       - store_artifacts:
           path: bin
           destination: binaries
+
+  lint:
+    resource_class: large
+    docker:
+      - image: circleci/golang:latest
+        environment:
+          DEBUG: true
+
+    working_directory: /go/src/github.com/vapor-ware/ksync
+
+    steps:
+      - checkout
+
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - attach_workspace:
+          at: .
+
+      - run:
+          name: "Lint"
+          command: |
+            make lint
+
+  test:
+    resource_class: large
+    docker:
+      - image: circleci/golang:latest
+        environment:
+          DEBUG: true
+
+    working_directory: /go/src/github.com/vapor-ware/ksync
+
+    steps:
+      - checkout
+
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - attach_workspace:
+          at: .
+
+      - run:
+          name: "Make test report directory"
+          command: mkdir -p /tmp/$TEST_DIRECTORY
+
+      - run:
+          name: "Get test to junit xml parser"
+          command: |
+            go get -v -u github.com/jstemmer/go-junit-report
+
+      - run:
+          name: "Running Tests"
+          command: |
+            make ci-test
 
       - store_test_results:
           path: /tmp/gotest
@@ -165,9 +201,21 @@ jobs:
 workflows:
   version: 2
 
-  release:
+  github-push:
     jobs:
       - build:
+          context: org-global
+          filters:
+            tags:
+              only: /.*/
+
+      - lint:
+          context: org-global
+          filters:
+            tags:
+              only: /.*/
+
+      - test:
           context: org-global
           filters:
             tags:
