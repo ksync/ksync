@@ -108,6 +108,19 @@ jobs:
       - attach_workspace:
           at: .
 
+
+      - restore_cache:
+          keys:
+            - vendor-{{ checksum "Gopkg.toml" }}-{{ checksum "Gopkg.lock" }}
+            - vendor-{{ checksum "Gopkg.toml" }}
+
+      # - run:
+      #     name: "Installing Vendored Dependencies"
+      #     command: |
+      #       go get -v github.com/golang/dep/cmd/dep
+      #       go install github.com/golang/dep/cmd/dep
+      #       dep ensure -v --vendor-only
+
       - run:
           name: "Lint"
           command: |
@@ -130,6 +143,19 @@ jobs:
 
       - attach_workspace:
           at: .
+
+      - restore_cache:
+          keys:
+            - vendor-{{ checksum "Gopkg.toml" }}-{{ checksum "Gopkg.lock" }}
+            - vendor-{{ checksum "Gopkg.toml" }}
+
+      - run:
+          name: "Installing Vendored Dependencies"
+          command: |
+            go get -v github.com/golang/dep/cmd/dep
+            go install github.com/golang/dep/cmd/dep
+            dep ensure -v --vendor-only
+
 
       - run:
           name: "Make test report directory"
@@ -195,7 +221,7 @@ jobs:
           command: |
             for DISTRO in linux darwin
             do
-              curl -F file=@bin/${BINARY_NAME}_${DISTRO}_amd64 -F channels=${SLACK_CHANNEL} -F token=${SLACK_TOKEN} -F filename=${BINARY_NAME} -F filetype=binary -F title="${BINARY_NAME} ${CIRCLE_TAG} ${DISTRO}" https://slack.com/api/files.upload
+              curl --progress-bar -F file=@bin/${BINARY_NAME}_${DISTRO}_amd64 -F channels=${SLACK_CHANNEL} -F token=${SLACK_TOKEN} -F filename=${BINARY_NAME} -F filetype=binary -F title="${BINARY_NAME} ${CIRCLE_TAG} ${DISTRO}" https://slack.com/api/files.upload
             done
 
 workflows:
@@ -224,6 +250,8 @@ workflows:
       - release:
           requires:
             - build
+            - lint
+            - test
           context: org-global
           filters:
             branches:
