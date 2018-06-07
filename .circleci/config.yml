@@ -10,16 +10,104 @@ jobs:
     working_directory: /go/src/github.com/vapor-ware/ksync
 
     environment:
-        TEST_DIRECTORY: "gotest"
         BINARY_NAME: "ksync"
-        CLUSTER_NAME: "tim-dev"
-        CLUSTER_ZONE: "us-central1-b"
 
     steps:
       - setup_remote_docker:
           docker_layer_caching: true
 
       - checkout
+
+      - restore_cache:
+          keys:
+            - vendor-{{ checksum "Gopkg.toml" }}-{{ checksum "Gopkg.lock" }}
+            - vendor-{{ checksum "Gopkg.toml" }}
+
+      - run:
+          name: "Installing Vendored Dependencies"
+          command: |
+            go get -v github.com/golang/dep/cmd/dep
+            go install github.com/golang/dep/cmd/dep
+            dep ensure -v --vendor-only
+
+      - run:
+          name: "Building"
+          command: |
+            make build-ci OPTS='-os="!netbsd !freebsd !openbsd" -arch="amd64"'
+
+      - save_cache:
+          when: on_success
+          key: vendor-{{ checksum "Gopkg.toml" }}-{{ checksum "Gopkg.lock" }}
+          paths:
+            - vendor/
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - bin
+
+      - store_artifacts:
+          path: bin
+          destination: binaries
+
+  lint:
+    resource_class: large
+    docker:
+      - image: circleci/golang:latest
+        environment:
+          DEBUG: true
+
+    working_directory: /go/src/github.com/vapor-ware/ksync
+
+    steps:
+      - checkout
+
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - attach_workspace:
+          at: .
+
+
+      - restore_cache:
+          keys:
+            - vendor-{{ checksum "Gopkg.toml" }}-{{ checksum "Gopkg.lock" }}
+            - vendor-{{ checksum "Gopkg.toml" }}
+
+      - run:
+          name: "Installing Vendored Dependencies"
+          command: |
+            go get -v github.com/golang/dep/cmd/dep
+            go install github.com/golang/dep/cmd/dep
+            dep ensure -v --vendor-only
+
+      - run:
+          name: "Lint"
+          command: |
+            make lint
+
+  test:
+    resource_class: large
+    docker:
+      - image: circleci/golang:latest
+        environment:
+          DEBUG: true
+
+    working_directory: /go/src/github.com/vapor-ware/ksync
+
+    environment:
+        TEST_DIRECTORY: "gotest"
+        CLUSTER_NAME: "tim-dev"
+        CLUSTER_ZONE: "us-central1-b"
+
+    steps:
+      - checkout
+
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - attach_workspace:
+          at: .
 
       - restore_cache:
           keys:
@@ -69,93 +157,6 @@ jobs:
           name: "Launch Required Objects Into Cluster"
           command: |
             testdata/ci/launch.sh
-
-      - run:
-          name: "Building"
-          command: |
-            make build-ci OPTS='-os="!netbsd !freebsd !openbsd" -arch="amd64"'
-
-      - save_cache:
-          when: on_success
-          key: vendor-{{ checksum "Gopkg.toml" }}-{{ checksum "Gopkg.lock" }}
-          paths:
-            - vendor/
-
-      - persist_to_workspace:
-          root: .
-          paths:
-            - bin
-
-      - store_artifacts:
-          path: bin
-          destination: binaries
-
-  lint:
-    resource_class: large
-    docker:
-      - image: circleci/golang:latest
-        environment:
-          DEBUG: true
-
-    working_directory: /go/src/github.com/vapor-ware/ksync
-
-    steps:
-      - checkout
-
-      - setup_remote_docker:
-          docker_layer_caching: true
-
-      - attach_workspace:
-          at: .
-
-
-      - restore_cache:
-          keys:
-            - vendor-{{ checksum "Gopkg.toml" }}-{{ checksum "Gopkg.lock" }}
-            - vendor-{{ checksum "Gopkg.toml" }}
-
-      # - run:
-      #     name: "Installing Vendored Dependencies"
-      #     command: |
-      #       go get -v github.com/golang/dep/cmd/dep
-      #       go install github.com/golang/dep/cmd/dep
-      #       dep ensure -v --vendor-only
-
-      - run:
-          name: "Lint"
-          command: |
-            make lint
-
-  test:
-    resource_class: large
-    docker:
-      - image: circleci/golang:latest
-        environment:
-          DEBUG: true
-
-    working_directory: /go/src/github.com/vapor-ware/ksync
-
-    steps:
-      - checkout
-
-      - setup_remote_docker:
-          docker_layer_caching: true
-
-      - attach_workspace:
-          at: .
-
-      - restore_cache:
-          keys:
-            - vendor-{{ checksum "Gopkg.toml" }}-{{ checksum "Gopkg.lock" }}
-            - vendor-{{ checksum "Gopkg.toml" }}
-
-      - run:
-          name: "Installing Vendored Dependencies"
-          command: |
-            go get -v github.com/golang/dep/cmd/dep
-            go install github.com/golang/dep/cmd/dep
-            dep ensure -v --vendor-only
-
 
       - run:
           name: "Make test report directory"
@@ -230,6 +231,9 @@ workflows:
   github-push:
     jobs:
       - build:
+          requires:
+            - lint
+            - test
           context: org-global
           filters:
             tags:
