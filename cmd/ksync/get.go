@@ -154,7 +154,7 @@ func (g *getCmd) run(cmd *cobra.Command, args []string) {
 		for s := range resp.Items {
 			fmt.Printf("%s\n", s)
 		}
-	} else if g.Viper.GetString("output") == "json" {
+	} else if viper.GetString("output") == "json" {
 		marshaller := &jsonpb.Marshaler{
 			Indent: "	",
 			EnumsAsInts: true,
