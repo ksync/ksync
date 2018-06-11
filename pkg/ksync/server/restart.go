@@ -15,7 +15,7 @@ func (k *ksyncServer) Restart(ctx context.Context, _ *empty.Empty) (*pb.Error, e
 	log.Warn("requested restart")
 	time := time.Second * 10
 	k.debounce(ctx, &empty.Empty{}, time)
-	return nil, nil
+	return &pb.Error{Msg: ""}, nil
 }
 
 func (k *ksyncServer) RestartSyncthing(ctx context.Context, _ *empty.Empty) (*pb.Error, error) {
@@ -26,7 +26,7 @@ func (k *ksyncServer) RestartSyncthing(ctx context.Context, _ *empty.Empty) (*pb
 
 	log.Debug("restarting local syncthing")
 
-	return nil, k.Syncthing.Restart()
+	return &pb.Error{Msg: ""}, k.Syncthing.Restart()
 }
 
 func (k *ksyncServer) IsAlive(ctx context.Context, _ *empty.Empty) (*pb.Alive, error) {
