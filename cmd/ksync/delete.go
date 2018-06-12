@@ -55,7 +55,6 @@ func (d *deleteCmd) run(cmd *cobra.Command, args []string) {
 		if len(d.Cmd.Flags().Args()) == 0 {
 			d.deleteAll()
 		}
-		log.Fatal("cannot specify names when using `--all`")
 	} else if len(d.Cmd.Flags().Args()) != 0 {
 		sort.Strings(args)
 		for name := range args {
@@ -70,6 +69,10 @@ func (d *deleteCmd) delete(name string) {
 	specs := &ksync.SpecList{}
 	if err := specs.Update(); err != nil {
 		log.Fatal(err)
+	}
+
+	if len(specs.Items) == 0 {
+		log.Fatal("no specs found")
 	}
 
 	if !specs.Has(name) {
