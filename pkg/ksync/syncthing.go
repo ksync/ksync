@@ -85,10 +85,6 @@ func (s *Syncthing) outputHandler() error {
 	return nil
 }
 
-func (s *Syncthing) binPath() string {
-	return filepath.Join(cli.ConfigPath(), "bin", "syncthing")
-}
-
 // HasBinary checks whether the syncthing binary exists in the correct location
 // or not.
 func (s *Syncthing) HasBinary() bool {
