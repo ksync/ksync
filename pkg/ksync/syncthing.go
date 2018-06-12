@@ -86,7 +86,15 @@ func (s *Syncthing) outputHandler() error {
 }
 
 func (s *Syncthing) binPath() string {
-	return filepath.Join(cli.ConfigPath(), "bin", "syncthing")
+	// TODO: Clean this up to be a little more elegant
+	path := filepath.Join(cli.ConfigPath(), "bin", "syncthing")
+	
+	switch runtime.GOOS {
+	case "windows":
+		return fmt.Sprintf("%s.%s", path, "exe")
+	default:
+		return path
+	}
 }
 
 // HasBinary checks whether the syncthing binary exists in the correct location
