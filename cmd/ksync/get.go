@@ -71,6 +71,13 @@ func (g *getCmd) out(specs *pb.SpecList) {
 	sort.Strings(keys)
 
 	for _, name := range keys {
+		if len(g.Cmd.Flags().Args()) != 0 {
+			for search := range g.Cmd.Flags().Args() {
+				if !strings.Contains(name, g.Cmd.Flags().Arg(search)) {
+					continue
+				}
+			}
+		}
 		spec := specs.Items[name]
 
 		status := spec.Status
