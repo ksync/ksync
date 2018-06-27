@@ -53,7 +53,7 @@ func (g *getCmd) new() *cobra.Command {
 	return g.Cmd
 }
 
-func (g *getCmd) out(specs *pb.SpecList) {
+func (g *getCmd) out(specs *pb.SpecList) { // nolint: gocyclo
 	cwd, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
