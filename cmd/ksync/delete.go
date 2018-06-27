@@ -26,7 +26,7 @@ func (d *deleteCmd) new() *cobra.Command {
 	local directory and the remote containers.
 
 	The files you've synced are not touched and the remote container is left as is.`
-	example := ``
+	example := `ksync delete eager-wasp`
 
 	d.Init("ksync", &cobra.Command{
 		Use:     "delete [flags] [name]...",

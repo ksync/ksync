@@ -20,7 +20,7 @@ type updateCmd struct {
 
 func (u *updateCmd) new() *cobra.Command {
 	long := `Update ksync to the latest version.`
-	example := ``
+	example := `ksync update`
 
 	u.Init("ksync", &cobra.Command{
 		Use:     "update",

@@ -21,7 +21,7 @@ type doctorCmd struct {
 
 func (d *doctorCmd) new() *cobra.Command {
 	long := `Troubleshoot and verify your setup is correct.`
-	example := ``
+	example := `ksync doctor`
 
 	d.Init("ksync", &cobra.Command{
 		Use:     "doctor [flags] [name]",

@@ -23,7 +23,7 @@ type createCmd struct {
 func (cmd *createCmd) new() *cobra.Command {
 	long := `Create a new spec to sync files between a local and remote directory
   for specific containers running on the cluster.`
-	example := ``
+	example := `ksync create /code /go/src/github.com/vapor-ware/code --local-read-only`
 
 	cmd.Init("ksync", &cobra.Command{
 		Use:     "create [flags] [local path] [remote path]",

@@ -19,7 +19,7 @@ type versionCmd struct {
 
 func (v *versionCmd) new() *cobra.Command {
 	long := `View the versions of both the local binary and remote service.`
-	example := ``
+	example := `ksync version`
 
 	v.Init("ksync", &cobra.Command{
 		Use:     "version",
