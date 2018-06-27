@@ -20,7 +20,7 @@ type watchCmd struct {
 
 func (w *watchCmd) new() *cobra.Command {
 	long := `Watch configured specs and start syncing files when required.`
-	example := ``
+	example := `ksync watch --daemon`
 
 	w.Init("ksync", &cobra.Command{
 		Use:     "watch",

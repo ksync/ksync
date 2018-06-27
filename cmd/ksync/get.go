@@ -29,7 +29,7 @@ func (g *getCmd) new() *cobra.Command {
 	long := `Get all specs.
 
 	Based off what specs have been created, returns the current status of each spec.`
-	example := ``
+	example := `ksync get wasp`
 
 	g.Init("ksync", &cobra.Command{
 		Use:     "get",

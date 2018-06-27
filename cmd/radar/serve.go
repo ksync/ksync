@@ -20,7 +20,7 @@ type serveCmd struct {
 // TODO: update docs, add example.
 func (s *serveCmd) new() *cobra.Command {
 	long := `Start the server.`
-	example := ``
+	example := `radar serve --port 40321`
 
 	s.Init("radar", &cobra.Command{
 		Use:     "serve [flags]",

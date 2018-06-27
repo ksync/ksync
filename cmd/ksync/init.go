@@ -31,7 +31,7 @@ func (i *initCmd) new() *cobra.Command {
 	long := `Prepare ksync.
 
 	Both the local host and remote cluster are initialized.`
-	example := ``
+	example := `ksync init --local`
 
 	i.Init("ksync", &cobra.Command{
 		Use:     "init [flags]",

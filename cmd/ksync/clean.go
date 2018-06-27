@@ -21,7 +21,7 @@ func (c *cleanCmd) new() *cobra.Command {
 
 WARNING: USING THE "NUKE" OPTION WILL REMOVE YOUR CONFIG. USE WITH CAUTION.
 	`
-	example := ``
+	example := `ksync clean --nuke`
 
 	c.Init("ksync", &cobra.Command{
 		Use:     "clean",
