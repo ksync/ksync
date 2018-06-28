@@ -41,7 +41,7 @@ func (u *updateCmd) run(cmd *cobra.Command, args []string) {
 		NoRestart: true,
 		Debug:     true,
 		NoWarn:    false,
-		Fetcher:   &fetcher.Github{
+		Fetcher: &fetcher.Github{
 			User: repoUsername,
 			Repo: repoName,
 		},
