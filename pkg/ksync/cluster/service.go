@@ -8,7 +8,7 @@ import (
 	"golang.org/x/net/context"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/pkg/api/v1"
+	"k8s.io/api/core/v1"
 
 	"github.com/vapor-ware/ksync/pkg/debug"
 	pb "github.com/vapor-ware/ksync/pkg/proto"
@@ -63,7 +63,7 @@ func NewService() *Service {
 // IsInstalled makes sure the cluster service has been installed.
 func (s *Service) IsInstalled() (bool, error) {
 	// TODO: add version checking here.
-	if _, err := Client.DaemonSets(s.Namespace).Get(
+	if _, err := Client.ExtensionsV1beta1().DaemonSets(s.Namespace).Get(
 		s.name, metav1.GetOptions{}); err != nil {
 		if !errors.IsNotFound(err) {
 			return false, err
@@ -183,7 +183,7 @@ func (s *Service) NodeNames() ([]string, error) {
 
 // Run starts (or upgrades) the ksync daemonset on the remote cluster.
 func (s *Service) Run(upgrade bool) error {
-	daemonSets := Client.DaemonSets(s.Namespace)
+	daemonSets := Client.ExtensionsV1beta1().DaemonSets(s.Namespace)
 
 	if _, err := daemonSets.Create(s.daemonSet()); err != nil {
 		if !errors.IsAlreadyExists(err) {
@@ -241,7 +241,7 @@ func (s *Service) Version() (*pb.VersionInfo, error) {
 // Remove provides cleanup for the ksync daemonset on the cluster. Only run this
 // when you want to clean everything up.
 func (s *Service) Remove() error {
-	daemonSets := Client.DaemonSets(s.Namespace)
+	daemonSets := Client.ExtensionsV1beta1().DaemonSets(s.Namespace)
 
 	if err := daemonSets.Delete(s.name, &metav1.DeleteOptions{}); err != nil {
 		return err

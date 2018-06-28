@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"fmt"
 	"net"
+	"net/http"
 	"strconv"
 
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/client-go/tools/portforward"
-	"k8s.io/client-go/tools/remotecommand"
+	// "k8s.io/client-go/tools/remotecommand"
+	"k8s.io/client-go/transport/spdy"
 
 	"github.com/vapor-ware/ksync/pkg/debug"
 )
@@ -66,7 +68,12 @@ func (t *Tunnel) Start() error {
 		Name(t.PodName).
 		SubResource("portforward")
 
-	dialer, err := remotecommand.NewExecutor(kubeCfg, "POST", req.URL())
+	transport, upgrader, err := spdy.RoundTripperFor(kubeCfg)
+		if err != nil {
+			return err
+		}
+
+	dialer := spdy.NewDialer(upgrader, &http.Client{Transport: transport}, "POST", req.URL())
 	if err != nil {
 		return err
 	}
