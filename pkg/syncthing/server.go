@@ -14,7 +14,6 @@ import (
 
 var connectRetries = 10
 
-
 // Server represents a syncthing REST server. It is used to fetch and modify
 // configuration as well as restart the syncthing process.
 type Server struct {

@@ -77,16 +77,15 @@ func localFlags(flags *pflag.FlagSet) {
 		log.Fatal(err)
 	}
 
+	flags.StringP(
+		"output",
+		"o",
+		"pretty",
+		"output format to use (e.g. \"json\")")
 
-		flags.StringP(
-			"output",
-			"o",
-			"pretty",
-			"output format to use (e.g. \"json\")")
-
-		if err := cli.BindFlag(viper.GetViper(), flags.Lookup("output"), "output"); err != nil {
-			log.Fatal(err)
-		}
+	if err := cli.BindFlag(viper.GetViper(), flags.Lookup("output"), "output"); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func remoteFlags(flags *pflag.FlagSet) {

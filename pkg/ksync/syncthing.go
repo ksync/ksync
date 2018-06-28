@@ -88,7 +88,7 @@ func (s *Syncthing) outputHandler() error {
 func (s *Syncthing) binPath() string {
 	// TODO: Clean this up to be a little more elegant
 	path := filepath.Join(cli.ConfigPath(), "bin", "syncthing")
-	
+
 	switch runtime.GOOS {
 	case "windows":
 		return fmt.Sprintf("%s.%s", path, "exe")

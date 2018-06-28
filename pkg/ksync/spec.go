@@ -2,10 +2,10 @@ package ksync
 
 import (
 	log "github.com/sirupsen/logrus"
+	"k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
-	"k8s.io/api/core/v1"
 
 	"github.com/vapor-ware/ksync/pkg/debug"
 	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
