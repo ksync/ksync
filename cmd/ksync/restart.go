@@ -26,7 +26,7 @@ func (r *reloadCmd) new() *cobra.Command {
 	long := `Reload one or more remote specs.
 
 	Initiates a manual reload of the remote side of one or more specs.`
-	example := ``
+	example := `ksync reload --all`
 
 	r.Init("ksync", &cobra.Command{
 		Use:     "reload",

@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/olekukonko/tablewriter"
 	log "github.com/sirupsen/logrus"
@@ -15,7 +16,6 @@ import (
 	"github.com/spf13/viper"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	"github.com/golang/protobuf/jsonpb"
 
 	"github.com/vapor-ware/ksync/pkg/cli"
 	pb "github.com/vapor-ware/ksync/pkg/proto"
@@ -29,7 +29,7 @@ func (g *getCmd) new() *cobra.Command {
 	long := `Get all specs.
 
 	Based off what specs have been created, returns the current status of each spec.`
-	example := ``
+	example := `ksync get wasp`
 
 	g.Init("ksync", &cobra.Command{
 		Use:     "get",
@@ -134,7 +134,7 @@ func (g *getCmd) run(cmd *cobra.Command, args []string) {
 	// This is connecting locally and it is very unlikely watch is overloaded,
 	// set the timeout *super* short to make it easier on the users when they
 	// forgot to start watch.
-	withTimeout, _ := context.WithTimeout(context.TODO(), 100 * time.Millisecond)
+	withTimeout, _ := context.WithTimeout(context.TODO(), 100*time.Millisecond)
 
 	conn, err := grpc.DialContext(
 		withTimeout,

@@ -5,10 +5,10 @@ import (
 	"time"
 
 	"github.com/spf13/viper"
+	"k8s.io/api/core/v1"
+	v1beta1 "k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
-	"k8s.io/client-go/pkg/api/v1"
-	v1beta1 "k8s.io/client-go/pkg/apis/extensions/v1beta1"
 )
 
 func (s *Service) daemonSet() *v1beta1.DaemonSet {

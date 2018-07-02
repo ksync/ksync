@@ -34,12 +34,12 @@
   name = "golang.org/x/net"
 
 [[constraint]]
-  branch = "release-1.7"
+  branch = "release-1.11"
   name = "k8s.io/apimachinery"
 
 [[constraint]]
   name = "k8s.io/client-go"
-  branch = "release-4.0"
+  branch = "release-8.0"
 
 [[override]]
   name = "github.com/ugorji/go"
@@ -52,3 +52,7 @@
 [[constraint]]
   branch = "master"
   name = "github.com/timfallmk/go-daemon"
+
+[[override]]
+  branch = "master"
+  name = "github.com/json-iterator/go"
