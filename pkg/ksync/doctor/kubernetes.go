@@ -75,7 +75,7 @@ func CanConnectToCluster() error {
 	ctx := viper.GetString("context")
 	client := cluster.Client.DiscoveryClient.RESTClient()
 
-	if client.Get().Timeout(1*time.Second).Do().Error() != nil {
+	if client.Get().Timeout(5*time.Second).Do().Error() != nil {
 		return fmt.Errorf(kubeConnectError, ctx, ctx)
 	}
 
