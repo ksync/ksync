@@ -53,7 +53,7 @@ func (g *getCmd) new() *cobra.Command {
 	return g.Cmd
 }
 
-func (g *getCmd) out(specs *pb.SpecList) {
+func (g *getCmd) out(specs *pb.SpecList) { // nolint: gocyclo
 	cwd, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
@@ -70,7 +70,15 @@ func (g *getCmd) out(specs *pb.SpecList) {
 	}
 	sort.Strings(keys)
 
+	sort:
 	for _, name := range keys {
+		if len(g.Cmd.Flags().Args()) != 0 {
+			for search := range g.Cmd.Flags().Args() {
+				if !strings.Contains(name, g.Cmd.Flags().Arg(search)) {
+					continue sort
+				}
+			}
+		}
 		spec := specs.Items[name]
 
 		status := spec.Status
