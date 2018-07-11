@@ -17,7 +17,7 @@ import (
 var (
 	dockerVersionError = `The docker version (%s) on node (%s) does not fall within the acceptible range for API versions: %s. Please upgrade to a compatible version.`
 	dockerStorageError = `The configured docker storage driver (%s) on node (%s) is not part of the supported list: %s. Please open an issue to add support for your storage driver.`
-	dockerGraphError   = `The configured docker storage root (%s) on node (%s) does not match the storage root specified: %s. Please check your remote storage root or pass the correct root in init with --graph-root.`
+	dockerGraphError   = `The configured docker storage root (%s) on node (%s) does not match the storage root specified: %s. Please check your remote storage root or pass the correct root in init with --docker-root.`
 )
 
 // IsDockerVersionCompatible verifies that the remote cluster is running a
@@ -118,12 +118,12 @@ func IsDockerGraphMatching() error {
 			return err
 		}
 
-		if viper.GetString("graph-root") != info.GraphRoot {
+		if viper.GetString("docker-root") != info.DockerRoot {
 			return fmt.Errorf(
 				dockerGraphError,
-				info.GraphRoot,
+				info.DockerRoot,
 				node,
-				viper.GetString("graph-root"))
+				viper.GetString("docker-root"))
 		}
 	}
 

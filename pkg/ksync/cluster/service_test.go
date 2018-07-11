@@ -14,8 +14,8 @@ func init() {
 		SetImage(os.Getenv("IMAGE"))
 	}
 
-	// Set the default for `graph-root` so it's evaluated properly in the daemon set template during testing
-	viper.Set("graph-root", "/var/lib/docker")
+	// Set the default for `docker-root` so it's evaluated properly in the daemon set template during testing
+	viper.Set("docker-root", "/var/lib/docker")
 }
 
 func TestNewRadarInstance(t *testing.T) {

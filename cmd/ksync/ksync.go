@@ -132,15 +132,15 @@ func remoteFlags(flags *pflag.FlagSet) {
 	}
 
 	flags.String(
-		"graph-root",
+		"docker-root",
 		"/var/lib/docker",
 		"root directory of the docker storage (graph) driver")
-	if err := flags.MarkHidden("graph-root"); err != nil {
+	if err := flags.MarkHidden("docker-root"); err != nil {
 		log.Fatal(err)
 	}
 
 	if err := cli.BindFlag(
-		viper.GetViper(), flags.Lookup("graph-root"), "ksync"); err != nil {
+		viper.GetViper(), flags.Lookup("docker-root"), "ksync"); err != nil {
 
 		log.Fatal(err)
 	}
