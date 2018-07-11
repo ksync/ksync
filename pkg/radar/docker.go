@@ -82,6 +82,7 @@ func (r *radarServer) GetDockerInfo(
 	}
 
 	return &pb.DockerInfo{
+		GraphRoot:    info.DockerRootDir,
 		Driver:       info.Driver,
 		DriverStatus: status,
 	}, nil

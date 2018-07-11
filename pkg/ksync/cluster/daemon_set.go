@@ -75,7 +75,7 @@ func (s *Service) daemonSet() *v1beta1.DaemonSet {
 							VolumeMounts: []v1.VolumeMount{
 								v1.VolumeMount{
 									Name:      "dockerfs",
-									MountPath: "/var/lib/docker",
+									MountPath: viper.GetString("graph-root"),
 								},
 								v1.VolumeMount{
 									Name:      "dockersock",

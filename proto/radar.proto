@@ -45,6 +45,7 @@ message DockerVersion {
 }
 
 message DockerInfo {
-  string Driver = 1;
-  repeated string DriverStatus = 2;
+  string GraphRoot = 1;
+  string Driver = 2;
+  repeated string DriverStatus = 3;
 }

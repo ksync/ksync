@@ -7,6 +7,7 @@ import (
 	"github.com/blang/semver"
 	"github.com/golang/protobuf/ptypes/empty"
 	// log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"golang.org/x/net/context"
 
 	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
@@ -16,6 +17,7 @@ import (
 var (
 	dockerVersionError = `The docker version (%s) on node (%s) does not fall within the acceptible range for API versions: %s. Please upgrade to a compatible version.`
 	dockerStorageError = `The configured docker storage driver (%s) on node (%s) is not part of the supported list: %s. Please open an issue to add support for your storage driver.`
+	dockerGraphError   = `The configured docker storage root (%s) on node (%s) does not match the storage root specified: %s. Please check your remote storage root or pass the correct root in init with --graph-root.`
 )
 
 // IsDockerVersionCompatible verifies that the remote cluster is running a
@@ -90,6 +92,38 @@ func IsDockerStorageCompatible() error {
 				info.Driver,
 				node,
 				reflect.ValueOf(DockerDriver).MapKeys())
+		}
+	}
+
+	return nil
+}
+
+// IsDockerGraphMatching checks to see if the configured graph directory (the location of the graph driver storage directories) matches what's configured in radar
+func IsDockerGraphMatching() error {
+	nodes, err := cluster.NewService().NodeNames()
+	if err != nil {
+		return err
+	}
+
+	for _, node := range nodes {
+		conn, err := cluster.NewConnection(node).Radar()
+		if err != nil {
+			return err
+		}
+		defer conn.Close() // nolint: errcheck
+
+		info, err := pb.NewRadarClient(conn).GetDockerInfo(
+			context.Background(), &empty.Empty{})
+		if err != nil {
+			return err
+		}
+
+		if viper.GetString("graph-root") != info.GraphRoot {
+			return fmt.Errorf(
+				dockerGraphError,
+				info.GraphRoot,
+				node,
+				viper.GetString("graph-root"))
 		}
 	}
 
