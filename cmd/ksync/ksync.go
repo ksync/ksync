@@ -83,7 +83,7 @@ func localFlags(flags *pflag.FlagSet) {
 		"pretty",
 		"output format to use (e.g. \"json\")")
 
-	if err := cli.BindFlag(viper.GetViper(), flags.Lookup("output"), "output"); err != nil {
+	if err := cli.BindFlag(viper.GetViper(), flags.Lookup("output"), "ksync"); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -130,6 +130,21 @@ func remoteFlags(flags *pflag.FlagSet) {
 
 		log.Fatal(err)
 	}
+
+	flags.String(
+		"docker-root",
+		"/var/lib/docker",
+		"root directory of the docker storage (graph) driver")
+	if err := flags.MarkHidden("docker-root"); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := cli.BindFlag(
+		viper.GetViper(), flags.Lookup("docker-root"), "ksync"); err != nil {
+
+		log.Fatal(err)
+	}
+
 }
 
 func init() {

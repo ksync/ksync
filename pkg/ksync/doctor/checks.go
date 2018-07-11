@@ -63,6 +63,11 @@ var CheckList = []Check{
 		Type: "post",
 	},
 	Check{
+		Name: "Docker Storage Root",
+		Func: IsDockerGraphMatching,
+		Type: "post",
+	},
+	Check{
 		Name: "Watch Running",
 		Func: IsWatchRunning,
 	},

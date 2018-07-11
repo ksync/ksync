@@ -47,4 +47,5 @@ message DockerVersion {
 message DockerInfo {
   string Driver = 1;
   repeated string DriverStatus = 2;
+  string DockerRoot = 3;
 }

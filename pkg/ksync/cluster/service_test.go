@@ -4,6 +4,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -12,6 +13,9 @@ func init() {
 	if os.Getenv("IMAGE") != "" {
 		SetImage(os.Getenv("IMAGE"))
 	}
+
+	// Set the default for `docker-root` so it's evaluated properly in the daemon set template during testing
+	viper.Set("docker-root", "/var/lib/docker")
 }
 
 func TestNewRadarInstance(t *testing.T) {
