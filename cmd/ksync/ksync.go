@@ -83,7 +83,7 @@ func localFlags(flags *pflag.FlagSet) {
 		"pretty",
 		"output format to use (e.g. \"json\")")
 
-	if err := cli.BindFlag(viper.GetViper(), flags.Lookup("output"), "output"); err != nil {
+	if err := cli.BindFlag(viper.GetViper(), flags.Lookup("output"), "ksync"); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -140,7 +140,7 @@ func remoteFlags(flags *pflag.FlagSet) {
 	}
 
 	if err := cli.BindFlag(
-		viper.GetViper(), flags.Lookup("graph-root"), "init"); err != nil {
+		viper.GetViper(), flags.Lookup("graph-root"), "ksync"); err != nil {
 
 		log.Fatal(err)
 	}
