@@ -35,7 +35,7 @@ Because these commands simply work on the config file, it is not a requirement t
 
 ### Get
 
-The current status of folders is managed by watch. To fetch this, get connects to the small gRPC server started via. watch and gets the currently running SpecList. This contains everything required to show what is happening.
+The current status of folders is managed by watch. To fetch this, get connects to the small gRPC server started via watch and gets the currently running SpecList. This contains everything required to show what is happening.
 
 ### Watch
 
@@ -56,7 +56,7 @@ The configuration directory (~/.ksync) has the following format:
 
 # Remote
 
-There is a cluster component that compliments `ksync` running locally. It is a docker image that is run as a DaemonSet on every node in your cluster. The launched pods have two containers (via. the same docker image): radar and syncthing. The functionality provided by this piece is:
+There is a cluster component that complements `ksync` running locally. It is a docker image that is run as a DaemonSet on every node in your cluster. The launched pods have two containers (via. the same docker image): radar and syncthing. The functionality provided by this piece is:
 
 - Path discovery via. the docker daemon.
 - Container restart for both syncthing and the "hot reloaded" container.
@@ -87,7 +87,7 @@ From a syncing perspective, the most important objects (and their relationships)
 The canonical list of specs (and thus folders) that contain the configuration required to move files between the local and remote systems.
 
 - Deserializes the specs from config.
-- Provides add/delette functionality.
+- Provides add/delete functionality.
 - Watches the config file, updating what is currently live.
 
 ## Spec
