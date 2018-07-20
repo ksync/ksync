@@ -31,10 +31,10 @@ func (cmd *FinderCmd) DefaultFlags() error {
 		return err
 	}
 
-	flags.StringP(
+	flags.StringSliceP(
 		"selector",
 		"l",
-		"",
+		nil,
 		"Selector (label query) to filter on, supports '=', '==', and '!='.")
 	return cmd.BindFlag("selector")
 }
@@ -43,7 +43,7 @@ func (cmd *FinderCmd) DefaultFlags() error {
 func (cmd *FinderCmd) Validator() error {
 	// TODO: something like cmdutil.UsageErrorf
 	// TODO: move into its own function (add to command as a validator?)
-	if cmd.Viper.GetString("selector") == "" && cmd.Viper.GetString("pod") == "" {
+	if cmd.Viper.GetStringSlice("selector") == nil && cmd.Viper.GetString("pod") == "" {
 		return fmt.Errorf("must specify at least a selector or a pod name")
 	}
 

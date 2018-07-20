@@ -1,6 +1,8 @@
 package ksync
 
 import (
+	"strings"
+
 	log "github.com/sirupsen/logrus"
 	"k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -100,8 +102,10 @@ func (s *Spec) Watch() error {
 		return nil
 	}
 
+	selectors := strings.Join(s.Details.Selector, ",")
+	
 	opts := metav1.ListOptions{}
-	opts.LabelSelector = s.Details.Selector
+	opts.LabelSelector = selectors
 	watcher, err := cluster.Client.CoreV1().Pods(s.Details.Namespace).Watch(opts)
 	if err != nil {
 		return err

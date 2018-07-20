@@ -109,7 +109,7 @@ func (cmd *createCmd) run(_ *cobra.Command, args []string) {
 
 		ContainerName: cmd.Viper.GetString("container"),
 		Pod:           cmd.Viper.GetString("pod"),
-		Selector:      cmd.Viper.GetString("selector"),
+		Selector:      cmd.Viper.GetStringSlice("selector"),
 		Namespace:     viper.GetString("namespace"),
 
 		LocalReadOnly:  cmd.Viper.GetBool("local-read-only"),
