@@ -18,6 +18,11 @@ var CheckList = []Check{
 		Func: DoesSyncthingExist,
 	},
 	Check{
+		Name: "Local Config",
+		Func: IsLocalConfigValid,
+		Type: "pre",
+	},
+	Check{
 		Name: "Cluster Config",
 		Func: IsClusterConfigValid,
 		Type: "pre",
