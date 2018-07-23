@@ -25,7 +25,7 @@ type SpecDetails struct {
 	// RemoteContainer Locator
 	ContainerName string
 	Pod           string
-	Selector      string
+	Selector      []string
 	Namespace     string
 
 	// File config

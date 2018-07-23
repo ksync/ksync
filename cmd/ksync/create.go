@@ -23,7 +23,7 @@ type createCmd struct {
 func (cmd *createCmd) new() *cobra.Command {
 	long := `Create a new spec to sync files between a local and remote directory
   for specific containers running on the cluster.`
-	example := `ksync create /code /go/src/github.com/vapor-ware/code --local-read-only`
+	example := `ksync create --local-read-only /code /go/src/github.com/vapor-ware/code`
 
 	cmd.Init("ksync", &cobra.Command{
 		Use:     "create [flags] [local path] [remote path]",
@@ -109,7 +109,7 @@ func (cmd *createCmd) run(_ *cobra.Command, args []string) {
 
 		ContainerName: cmd.Viper.GetString("container"),
 		Pod:           cmd.Viper.GetString("pod"),
-		Selector:      cmd.Viper.GetString("selector"),
+		Selector:      cmd.Viper.GetStringSlice("selector"),
 		Namespace:     viper.GetString("namespace"),
 
 		LocalReadOnly:  cmd.Viper.GetBool("local-read-only"),
