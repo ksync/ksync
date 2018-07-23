@@ -10,8 +10,6 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/vapor-ware/ksync/pkg/ksync"
-	"github.com/vapor-ware/ksync/pkg/debug"
-	"github.com/vapor-ware/ksync/pkg/cli"
 )
 
 var (
@@ -55,15 +53,6 @@ func IsWatchRunning() error {
 	}
 
 	if err := conn.Close(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func IsLocalConfigValid() error {
-	path := cli.ConfigPath()
-	err := debug.ValidateConfig(path); if err != nil {
 		return err
 	}
 
