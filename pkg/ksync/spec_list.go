@@ -71,6 +71,7 @@ func allSpecs() (map[string]*Spec, error) {
 	for _, raw := range cast.ToSlice(viper.Get("spec")) {
 		var details SpecDetails
 		if err := mapstructure.Decode(raw, &details); err != nil {
+			log.Warn("This may be due to config changes. Check Release Notes for any updates")
 			return nil, err
 		}
 
