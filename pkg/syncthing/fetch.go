@@ -138,6 +138,6 @@ func UnpackWindows(reader io.Reader) (io.Reader, error) {
 // getSize returns the size of an arbitrary io.Reader
 func getSize(stream io.Reader) int64 {
 	buf := new(bytes.Buffer)
-	buf.ReadFrom(stream) // nolint: errcheck, gas
+	buf.ReadFrom(stream) // nolint: errcheck, gas, gosec
 	return int64(buf.Len())
 }
