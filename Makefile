@@ -160,6 +160,7 @@ most-lint:
 		--exclude "[a-zA-Z]*_test.go" \
 		--exclude "[a-zA-Z]*.pb.go" \
 		--disable=megacheck \
+		--disable=gosec \
 		--tests \
 		--sort=severity \
 		--aggregate \
