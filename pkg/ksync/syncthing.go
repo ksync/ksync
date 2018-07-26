@@ -194,7 +194,7 @@ func (s *Syncthing) Run() error {
 		"-no-browser",
 	}
 
-	s.cmd = exec.Command(path, cmdArgs...) //nolint: gas
+	s.cmd = exec.Command(path, cmdArgs...) //nolint: gas, gosec
 
 	// These need to change by platform.
 	s.cmd.SysProcAttr = syncthingProcAttr
@@ -223,7 +223,7 @@ func (s *Syncthing) Run() error {
 			select {
 			case <-SignalLoss:
 				log.WithFields(s.Fields()).Info("signal loss dectected. shutting down")
-				s.Stop() // nolint: errcheck
+				s.Stop() // nolint: errcheck, gosec
 				os.Exit(1)
 				return
 			}
