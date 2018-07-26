@@ -84,7 +84,7 @@ func (c *cleanCmd) fromOrbit() {
 	log.Debug("Removing remote processes")
 	c.cleanRemote()
 
-	files, _ := ioutil.ReadDir(viper.ConfigFileUsed())
+	files, _ := ioutil.ReadDir(viper.ConfigFileUsed()) // nolint: gosec
 	log.WithFields(log.Fields{
 		"path":  viper.ConfigFileUsed(),
 		"files": files,
