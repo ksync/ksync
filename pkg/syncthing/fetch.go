@@ -16,11 +16,11 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// syncthing renames the OS for mac to macosx instead of darwin.
+// syncthing renames the OS for mac to macos instead of darwin.
 func matchRelease(filename string) bool {
 	os := runtime.GOOS
 	if os == "darwin" {
-		os = "macosx"
+		os = "macos"
 	}
 
 	return strings.Contains(filename, os) &&
