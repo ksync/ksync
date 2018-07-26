@@ -110,7 +110,7 @@ func (s *Syncthing) HasBinary() bool {
 // Fetch the latest syncthing binary to Syncthing.binPath().
 func (s *Syncthing) Fetch() error {
 	return syncthing.Fetch(s.binPath())
-}
+} // nolint: gosec
 
 // To make sure no odd devices or folders are being synced after edge cases
 // (such as the process being kill'd), the config and db are blown away before
