@@ -229,6 +229,10 @@ You can run through this via. a [katacoda scenario][katacoda] in your browser as
 - `client is newer than server (client API version: ..., server API version: ...)`
 
     You're using an older version of docker than we support.
+    
+- `The configured docker storage root (/dind/docker) on node <node> does not match the storage root specified: /var/lib/docker. Please check your remote storage root or pass the correct root in init with --docker-root.`
+
+    You're using [Docker in Docker Kubernetes](https://github.com/kubernetes-sigs/kubeadm-dind-cluster) (or some other setup) which uses a different directory structure for it's root. You may follow the steps in [Issue #212](https://github.com/vapor-ware/ksync/issues/212) to specify a different root directory.
 
 # Documentation
 
