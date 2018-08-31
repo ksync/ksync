@@ -32,6 +32,7 @@ func main() {
 		(&createCmd{}).new(),
 		(&deleteCmd{}).new(),
 		(&doctorCmd{}).new(),
+		(&execCmd{}).new(),
 		(&getCmd{}).new(),
 		(&initCmd{}).new(),
 		(&reloadCmd{}).new(),
