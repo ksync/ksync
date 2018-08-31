@@ -54,11 +54,11 @@ func (e *execCmd) new() *cobra.Command {
 	}
 
 	flags.BoolP(
-		"attach",
+		"interactive",
 		"i",
 		false,
-		"Attach to a session after command execute and redirect STDOUT.")
-	if err := e.BindFlag("attach"); err != nil {
+		"Attach to a session before command execution and redirect STDIN.")
+	if err := e.BindFlag("interactive"); err != nil {
 		log.Fatal(err)
 	}
 
