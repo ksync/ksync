@@ -236,6 +236,11 @@ You can run through this via. a [katacoda scenario][katacoda] in your browser as
 
     You're using [Docker in Docker Kubernetes](https://github.com/kubernetes-sigs/kubeadm-dind-cluster) (or some other setup) which uses a different directory structure for it's root. You may follow the steps in [Issue #212](https://github.com/vapor-ware/ksync/issues/212) to specify a different root directory.
 
+- `FATA[0000] rpc error: code = Unavailable desc = transport is closing`
+
+    If you're using minikube with `vm-driver=none`, make sure that `socat` is installed on the host where minikube is running.
+
+
 # Documentation
 
 More detailed documentation can be found in the [docs](docs) directory.
