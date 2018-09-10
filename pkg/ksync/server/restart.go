@@ -54,7 +54,7 @@ func (k *ksyncServer) debounce(ctx context.Context, _ *empty.Empty, t time.Durat
 			select {
 			case r = <-incoming:
 				d.Reset(t)
-				log.Warn("Got %v requests", r)
+				log.Warn("Got %v requests", r) // nolint: vet
 			case <-d.C:
 				pbErr, err := k.RestartSyncthing(ctx, &empty.Empty{})
 				// TODO: This should pass errors on an error channel
