@@ -141,7 +141,7 @@ func (s *Syncthing) cleanupDaemon(pidPath string) error {
 		return err
 	}
 
-	content, err := ioutil.ReadFile(pidPath)
+	content, err := ioutil.ReadFile(pidPath) // nolint: gosec
 	if err != nil {
 		return err
 	}
