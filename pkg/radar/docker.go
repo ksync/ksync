@@ -16,7 +16,7 @@ import (
 // TODO: what to do about paths that include volumes? two syncs? they're different
 // directories on the host itself. Maybe an alert for v1?
 func getRootPath(containerPath *pb.ContainerPath) (string, error) {
-	cli, err := client.NewEnvClient()
+	cli, err := apiclient.NewClientWithOpts(apiclient.FromEnv)
 	if err != nil {
 		return "", err
 	}
@@ -42,7 +42,7 @@ func getRootPath(containerPath *pb.ContainerPath) (string, error) {
 func (r *radarServer) GetDockerVersion(
 	ctx context.Context, _ *empty.Empty) (*pb.DockerVersion, error) {
 
-	client, err := apiclient.NewEnvClient()
+	client, err := apiclient.NewClientWithOpts(apiclient.FromEnv)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (r *radarServer) GetDockerVersion(
 func (r *radarServer) GetDockerInfo(
 	ctx context.Context, _ *empty.Empty) (*pb.DockerInfo, error) {
 
-	client, err := apiclient.NewEnvClient()
+	client, err := apiclient.NewClientWithOpts(apiclient.FromEnv)
 	if err != nil {
 		return nil, err
 	}

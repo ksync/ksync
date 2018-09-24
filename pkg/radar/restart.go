@@ -31,7 +31,7 @@ func (r *radarServer) RestartSyncthing(
 	// TODO: this is awful, I can't figure out how to attach config to context.
 	podName := viper.GetString("pod-name")
 
-	client, err := apiclient.NewEnvClient()
+	client, err := apiclient.NewClientWithOpts(apiclient.FromEnv)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func (r *radarServer) RestartSyncthing(
 func (r *radarServer) Restart(
 	ctx context.Context, cntr *pb.ContainerPath) (*pb.Error, error) {
 
-	client, err := apiclient.NewEnvClient()
+	client, err := apiclient.NewClientWithOpts(apiclient.FromEnv)
 	if err != nil {
 		return nil, err
 	}
