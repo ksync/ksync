@@ -20,6 +20,8 @@ func getRootPath(containerPath *pb.ContainerPath) (string, error) {
 		return "", err
 	}
 
+	cli.NegotiateAPIVersion(context.Background())
+
 	log.Debug("docker client created")
 
 	cntr, err := cli.ContainerInspect(
@@ -46,6 +48,8 @@ func (r *radarServer) GetDockerVersion(
 		return nil, err
 	}
 
+	client.NegotiateAPIVersion(context.Background())
+
 	info, err := client.ServerVersion(context.Background())
 	if err != nil {
 		return nil, err
@@ -69,6 +73,8 @@ func (r *radarServer) GetDockerInfo(
 	if err != nil {
 		return nil, err
 	}
+
+	client.NegotiateAPIVersion(context.Background())
 
 	info, err := client.Info(context.Background())
 	if err != nil {

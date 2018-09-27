@@ -36,6 +36,8 @@ func (r *radarServer) RestartSyncthing(
 		return nil, err
 	}
 
+	client.NegotiateAPIVersion(context.Background())
+
 	args := filters.NewArgs()
 	args.Add("label", "io.kubernetes.container.name=syncthing")
 	args.Add("label", fmt.Sprintf("io.kubernetes.pod.name=%s", podName))
@@ -89,6 +91,8 @@ func (r *radarServer) Restart(
 	if err != nil {
 		return nil, err
 	}
+
+	client.NegotiateAPIVersion(context.Background())
 
 	timeout := 0 * time.Second
 	if err := client.ContainerRestart(

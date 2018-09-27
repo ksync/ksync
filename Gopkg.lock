@@ -648,14 +648,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:585453cb69b82df2440a9b60397b6e30fc990d22c6163b9e78d4261977603c38"
+  digest = "1:a2d7051515dbe0f029f042925a7252b926ffe19ae5117fc207f1d0fd0868d5ee"
   name = "github.com/syncthing/notify"
   packages = ["."]
   pruneopts = ""
-  revision = "cdf89c4039d13726e227d0a472053ea19de021b4"
+  revision = "b76b45868a77e7800dd06cce61101af9c4274bcc"
 
 [[projects]]
-  digest = "1:06052e8fd6352f53d54216e87a72b50b3a5557338dd6140eb857b5135c62d25a"
+  digest = "1:00b105bf99c71ffd8e9af73b1035acf956fe828b7073f237fbded28daf5ffc19"
   name = "github.com/syncthing/syncthing"
   packages = [
     "lib/config",
@@ -674,8 +674,8 @@
     "lib/versioner",
   ]
   pruneopts = ""
-  revision = "6b82538e623feb4df2bef9fc4b37d581de96309a"
-  version = "v0.14.49"
+  revision = "09aff7bb14f99d2c7ca06b8a1207228c4ef15d95"
+  version = "v0.14.50"
 
 [[projects]]
   branch = "master"
