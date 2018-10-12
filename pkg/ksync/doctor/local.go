@@ -4,16 +4,20 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/golang/protobuf/ptypes/empty"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
 	"github.com/vapor-ware/ksync/pkg/ksync"
+	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
 
 var (
-	watchNotRunningError = `It appears that watch isn't running. You can start it with 'ksync watch'`
+	errWatchNotRunning     = fmt.Errorf(`It appears that watch isn't running. You can start it with 'ksync watch'`)
+	errWatchNotResponding  = fmt.Errorf(`It appears that watch isn't responding`)
+	errSyncthingNotRunning = fmt.Errorf(`It appears that watch isn't running correctly. Please restart 'ksync watch' to correct this`)
 )
 
 // DoesSyncthingExist verifies that the local binary exists.
@@ -49,7 +53,18 @@ func IsWatchRunning() error {
 		// The assumption is that the only real error here is because watch isn't
 		// running
 		log.Debug(err)
-		return fmt.Errorf(watchNotRunningError)
+		return errWatchNotRunning
+	}
+
+	client := pb.NewKsyncClient(conn)
+	alive, err := client.IsAlive(context.Background(), &empty.Empty{})
+	if err != nil {
+		log.Debug(err)
+		return errWatchNotResponding
+	}
+
+	if !alive.Alive {
+		return errSyncthingNotRunning
 	}
 
 	if err := conn.Close(); err != nil {
