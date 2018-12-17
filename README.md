@@ -240,6 +240,12 @@ You can run through this via. a [katacoda scenario][katacoda] in your browser as
 
     If you're using minikube with `vm-driver=none`, make sure that `socat` is installed on the host where minikube is running.
 
+- `There is a mismatch between the local version (some version) and the cluster ()`
+
+    This is caused by a transient error in our CI pipeline when builds are released with the same git tag (how version matching is done). You may specify the image to use with the remote DaemonSet via the `--image` flag. An example to solve this problem with version `0.4` would be the following:
+
+    `ksync init --remote --image=vaporio/ksync:0.4.0`
+
 
 # Documentation
 
