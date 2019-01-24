@@ -580,6 +580,14 @@
   version = "v0.2.0"
 
 [[projects]]
+  digest = "1:05dc5c00381eccf0bbc07717248b8757e0e9318877e15e09316fac9b72f1b3ef"
+  name = "github.com/sevlyar/go-daemon"
+  packages = ["."]
+  pruneopts = ""
+  revision = "f9261e73885de99b1647d68bedadf2b9a99ad11f"
+  version = "v0.1.4"
+
+[[projects]]
   digest = "1:9a3c631555e0351fdc4e696577bb63afd90c399d782a8462dba9d100d7021db3"
   name = "github.com/sirupsen/logrus"
   packages = ["."]
@@ -1048,6 +1056,7 @@
     "github.com/olekukonko/tablewriter",
     "github.com/phayes/permbits",
     "github.com/pkg/errors",
+    "github.com/sevlyar/go-daemon",
     "github.com/sirupsen/logrus",
     "github.com/spf13/cast",
     "github.com/spf13/cobra",

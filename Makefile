@@ -143,7 +143,7 @@ ci-test:
 HAS_LINT := $(shell command -v gometalinter)
 
 .PHONY: lint
-lint: install-linter most-lint megacheck
+lint: install-linter most-lint
 
 .PHONY: install-linter
 install-linter:
@@ -159,25 +159,10 @@ most-lint:
 		--skip "testdata" \
 		--exclude "[a-zA-Z]*_test.go" \
 		--exclude "[a-zA-Z]*.pb.go" \
-		--disable=megacheck \
 		--tests \
 		--sort=severity \
 		--aggregate \
 		--deadline=500s
-
-.PHONY: megacheck
-megacheck:
-	gometalinter ./... \
-		--vendor \
-		--skip "testdata" \
-		--exclude "[a-zA-Z]*_test.go" \
-		--exclude "[a-zA-Z]*.pb.go" \
-		--disable-all \
-		--tests \
-		--sort=severity \
-		--aggregate \
-		--enable=megacheck \
-		--deadline=240s
 
 HAS_STERN := $(shell command -v stern)
 

@@ -25,7 +25,7 @@ func GetSyncPath(args []string) SyncPath {
 
 // localPathHasPermission checks a given root directory, and all children, for
 // `rw` permissions for the current user.
-func (s *SyncPath) localPathHasPermission() error { // nolint: megacheck
+func (s *SyncPath) localPathHasPermission() error { // nolint: staticcheck
 	root, err := filepath.Abs(s.Local)
 	if err != nil {
 		return err
@@ -38,9 +38,9 @@ func (s *SyncPath) localPathHasPermission() error { // nolint: megacheck
 
 		switch {
 		case !permissions.UserRead():
-			return fmt.Errorf("File %s is not readable. It is set to %v", path, permissions)
+			return fmt.Errorf("File %s is not readable. It is set to %v", path, permissions) // nolint: staticcheck
 		case !permissions.UserWrite():
-			return fmt.Errorf("File %s is not writable. It is set to %v", path, permissions)
+			return fmt.Errorf("File %s is not writable. It is set to %v", path, permissions) // nolint: staticcheck
 		}
 
 		return nil
