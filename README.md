@@ -202,6 +202,7 @@ You can run through this via. a [katacoda scenario][katacoda] in your browser as
     - v1.8.*
     - v1.9.*
     - v1.10.*
+    - v1.11.*
 
 - Docker for Mac (Kubernetes)
     - 17.12-ce
@@ -245,6 +246,12 @@ You can run through this via. a [katacoda scenario][katacoda] in your browser as
     This is caused by a transient error in our CI pipeline when builds are released with the same git tag (how version matching is done). You may specify the image to use with the remote DaemonSet via the `--image` flag. An example to solve this problem with version `0.4` would be the following:
 
     `ksync init --remote --image=vaporio/ksync:0.4.0`
+
+- `ksync watch` exits with `signal loss detected. shutting down` when changing local networks
+
+    This occurs due to [changes in adapter state when changing networks](https://github.com/vapor-ware/ksync/issues/247) (e.g. switching wifi networks, toggling VPNs, etc.). The change in adapter state causes all existing tunnels (which `ksync` uses to communicate with various components) to close, terminating the connection to the cluster and causing the `watch` process to exit.
+
+    Restarting `watch` will recreate the tunnels and solve this issue. If this occurs frequently, or networks are changed often, it may be beneficial to place `ksync watch` under process control, automatically restarting after an unclean exit.
 
 
 # Documentation
