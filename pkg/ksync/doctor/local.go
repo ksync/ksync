@@ -14,6 +14,7 @@ import (
 	pb "github.com/vapor-ware/ksync/pkg/proto"
 )
 
+// nolint: staticcheck
 var (
 	errWatchNotRunning     = fmt.Errorf(`It appears that watch isn't running. You can start it with 'ksync watch'`)
 	errWatchNotResponding  = fmt.Errorf(`It appears that watch isn't responding`)

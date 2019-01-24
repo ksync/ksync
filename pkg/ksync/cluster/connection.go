@@ -45,7 +45,7 @@ func (c *Connection) Fields() log.Fields {
 
 func (c *Connection) opts() []grpc.DialOption {
 	return []grpc.DialOption{
-		grpc.WithTimeout(5 * time.Second), // nolint: megacheck
+		grpc.WithTimeout(5 * time.Second), // nolint: staticcheck
 		grpc.WithBlock(),
 		grpc.WithInsecure(),
 	}

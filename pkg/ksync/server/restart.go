@@ -37,7 +37,7 @@ func (k *ksyncServer) IsAlive(ctx context.Context, _ *empty.Empty) (*pb.Alive, e
 	case false:
 		return &pb.Alive{Alive: false}, nil
 	}
-	return &pb.Alive{Alive: false}, fmt.Errorf("Error during liveness check")
+	return &pb.Alive{Alive: false}, fmt.Errorf("Error during liveness check") // nolint: staticcheck
 }
 
 func (k *ksyncServer) debounce(ctx context.Context, _ *empty.Empty, t time.Duration) {
