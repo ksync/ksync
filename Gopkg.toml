@@ -46,12 +46,12 @@
   name = "golang.org/x/net"
 
 [[constraint]]
-  branch = "release-1.11"
+  branch = "release-1.13"
   name = "k8s.io/apimachinery"
 
-# [[constraint]]
-#   name = "k8s.io/client-go"
-#   branch = "release-8.0"
+[[constraint]]
+  name = "k8s.io/client-go"
+  branch = "release-10.0"
 
 [[override]]
   name = "github.com/ugorji/go"
