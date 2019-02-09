@@ -53,7 +53,7 @@ func (s *Service) daemonSet() *v1beta1.DaemonSet {
 							VolumeMounts: []v1.VolumeMount{
 								v1.VolumeMount{
 									Name:      "dockersock",
-									MountPath: "/var/run/docker.sock",
+									MountPath: viper.GetString("docker-socket"),
 								},
 							},
 						},
@@ -79,7 +79,7 @@ func (s *Service) daemonSet() *v1beta1.DaemonSet {
 								},
 								v1.VolumeMount{
 									Name:      "dockersock",
-									MountPath: "/var/run/docker.sock",
+									MountPath: viper.GetString("docker-socket"),
 								},
 								v1.VolumeMount{
 									Name:      "kubelet",
@@ -113,7 +113,7 @@ func (s *Service) daemonSet() *v1beta1.DaemonSet {
 							Name: "dockerfs",
 							VolumeSource: v1.VolumeSource{
 								HostPath: &v1.HostPathVolumeSource{
-									Path: "/var/lib/docker",
+									Path: viper.GetString("docker-root"),
 								},
 							},
 						},
@@ -121,7 +121,7 @@ func (s *Service) daemonSet() *v1beta1.DaemonSet {
 							Name: "dockersock",
 							VolumeSource: v1.VolumeSource{
 								HostPath: &v1.HostPathVolumeSource{
-									Path: "/var/run/docker.sock",
+									Path: viper.GetString("docker-socket"),
 								},
 							},
 						},
