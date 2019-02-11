@@ -88,7 +88,7 @@ func localFlags(flags *pflag.FlagSet) {
 	}
 }
 
-func remoteFlags(flags *pflag.FlagSet) {
+func remoteFlags(flags *pflag.FlagSet) { //nolint: gocyclo
 	flags.String(
 		"image",
 		fmt.Sprintf("vaporio/ksync:git-%s", ksync.GitCommit),
