@@ -88,7 +88,7 @@ func localFlags(flags *pflag.FlagSet) {
 	}
 }
 
-func remoteFlags(flags *pflag.FlagSet) {
+func remoteFlags(flags *pflag.FlagSet) { //nolint: gocyclo
 	flags.String(
 		"image",
 		fmt.Sprintf("vaporio/ksync:git-%s", ksync.GitCommit),
@@ -145,6 +145,19 @@ func remoteFlags(flags *pflag.FlagSet) {
 		log.Fatal(err)
 	}
 
+	flags.String(
+		"docker-socket",
+		"/var/run/docker.sock",
+		"path to the docker socket")
+	if err := flags.MarkHidden("docker-socket"); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := cli.BindFlag(
+		viper.GetViper(), flags.Lookup("docker-socket"), "ksync"); err != nil {
+
+		log.Fatal(err)
+	}
 }
 
 func init() {

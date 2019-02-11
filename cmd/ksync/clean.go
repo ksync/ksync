@@ -88,7 +88,7 @@ func (c *cleanCmd) fromOrbit() {
 	log.WithFields(log.Fields{
 		"path":  viper.ConfigFileUsed(),
 		"files": files,
-	}).Info("Nuking all files from from orbit. It's the only way.")
+	}).Info("Nuking all files from orbit. It's the only way.")
 	if err := os.RemoveAll(cli.ConfigPath()); err != nil {
 		log.Fatal(err)
 	}

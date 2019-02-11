@@ -16,6 +16,8 @@ func init() {
 
 	// Set the default for `docker-root` so it's evaluated properly in the daemon set template during testing
 	viper.Set("docker-root", "/var/lib/docker")
+	// and same for docker-sock
+	viper.Set("docker-socket", "/var/run/docker.sock")
 }
 
 func TestNewRadarInstance(t *testing.T) {
