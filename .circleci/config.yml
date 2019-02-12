@@ -59,14 +59,17 @@ jobs:
     environment:
         BINARY_NAME: "ksync"
         DEBUG: "true"
+        GOPATH: "$HOME/go"
+        GOROOT: "/usr/local/go"
 
     steps:
       - run:
           name: "get golang"
           command: |
-            curl -L https://dl.google.com/go/go1.11.5.darwin-amd64.pkg -o /tmp/go.pkg
-            sudo installer -pkg /tmp/go.pkg -target /
-            go env
+            curl -sL https://dl.google.com/go/go1.11.5.darwin-amd64.pkg -o /tmp/go.pkg
+            sudo installer -verbose -pkg /tmp/go.pkg -target /
+            export PATH="$PATH:${GOPATH}/bin:${GOROOT}/bin"
+            echo $PATH
 
       - checkout
 
