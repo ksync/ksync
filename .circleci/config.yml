@@ -65,7 +65,7 @@ jobs:
           name: "get golang"
           command: |
             curl -L https://dl.google.com/go/go1.11.5.darwin-amd64.pkg -o /tmp/go.pkg
-            installer -pkg /tmp/go.pkg -target /
+            sudo installer -pkg /tmp/go.pkg -target /
             go env
 
       - checkout
