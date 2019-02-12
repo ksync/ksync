@@ -50,6 +50,58 @@ jobs:
           path: bin
           destination: binaries
 
+  build-macos:
+    resource_class: large
+    macos:
+      xcode: "10.1.0"
+
+    working_directory: /go/src/github.com/vapor-ware/ksync
+
+    environment:
+        BINARY_NAME: "ksync"
+        DEBUG: "true"
+
+    steps:
+      - run:
+          name: "get golang"
+          command: |
+            curl -L https://dl.google.com/go/go1.11.5.darwin-amd64.pkg -o /tmp/go.pkg
+            sudo installer -pkg /tmp/go.pkg
+
+      - checkout
+
+      - restore_cache:
+          keys:
+            - vendor-{{ checksum "Gopkg.toml" }}-{{ checksum "Gopkg.lock" }}
+            - vendor-{{ checksum "Gopkg.toml" }}
+
+      - run:
+          name: "Installing Vendored Dependencies"
+          command: |
+            go get -v github.com/golang/dep/cmd/dep
+            go install github.com/golang/dep/cmd/dep
+            dep ensure -v --vendor-only
+
+      - run:
+          name: "Building"
+          command: |
+            make build-ci OPTS='-os="darwin" -arch="amd64"'
+
+      - save_cache:
+          when: on_success
+          key: vendor-{{ checksum "Gopkg.toml" }}-{{ checksum "Gopkg.lock" }}
+          paths:
+            - vendor/
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - bin
+
+      - store_artifacts:
+          path: bin
+          destination: binaries
+
   lint:
     resource_class: large
     docker:
@@ -262,3 +314,9 @@ workflows:
               ignore: /.*/
             tags:
               only: /^[0-9]*(\.[0-9]*)*(-(\S)*)?$/
+
+      - build-macos:
+          context: org-global
+          filters:
+            tags:
+              only: /.*/
