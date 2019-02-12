@@ -54,20 +54,16 @@ jobs:
     macos:
       xcode: "10.1.0"
 
-    working_directory: /go/src/github.com/vapor-ware/ksync
-
     environment:
         BINARY_NAME: "ksync"
         DEBUG: "true"
-        GOPATH: "/tmp/go"
 
     steps:
       - run:
           name: "get golang"
           command: |
-            curl -L https://dl.google.com/go/go1.11.5.darwin-amd64.pkg -o /tmp/go.pkg
-            export GOPATH=/tmp/go
-            installer -pkg /tmp/go.pkg
+            /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+            brew install go
 
       - checkout
 
