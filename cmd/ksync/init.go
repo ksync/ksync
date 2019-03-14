@@ -79,6 +79,15 @@ func (i *initCmd) new() *cobra.Command {
 		log.Fatal(err)
 	}
 
+	flags.String(
+		"daemonset-namespace",
+		"kube-system",
+		"Set the namespace for the remote DaemonSet to be deployed in.",
+	)
+	if err := i.BindFlag("daemonset-namespace"); err != nil {
+		log.Fatal(err)
+	}
+
 	return i.Cmd
 }
 
