@@ -5,6 +5,7 @@ import (
 
 	"github.com/golang/protobuf/ptypes/empty"
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"golang.org/x/net/context"
 	"k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -47,7 +48,7 @@ func (s *Service) Fields() log.Fields {
 // NewService constructs a Service to track the ksync daemonset on the cluster.
 func NewService() *Service {
 	return &Service{
-		Namespace: "kube-system",
+		Namespace: viper.GetString("daemonset-namespace"),
 		name:      "ksync",
 		labels: map[string]string{
 			"name": "ksync",
