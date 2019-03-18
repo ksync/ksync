@@ -158,6 +158,20 @@ func remoteFlags(flags *pflag.FlagSet) { //nolint: gocyclo
 
 		log.Fatal(err)
 	}
+
+	flags.String(
+		"daemonset-namespace",
+		"kube-system",
+		"Set the namespace for the remote DaemonSet to be deployed in.")
+	if err := flags.MarkHidden("daemonset-namespace"); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := cli.BindFlag(
+		viper.GetViper(), flags.Lookup("daemonset-namespace"), "ksync"); err != nil {
+
+		log.Fatal(err)
+	}
 }
 
 func init() {

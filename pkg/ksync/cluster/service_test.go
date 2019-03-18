@@ -18,6 +18,8 @@ func init() {
 	viper.Set("docker-root", "/var/lib/docker")
 	// and same for docker-sock
 	viper.Set("docker-socket", "/var/run/docker.sock")
+	// and finally for the daemonset namespace
+	viper.Set("daemonset-namespace", "kube-system")
 }
 
 func TestNewRadarInstance(t *testing.T) {
