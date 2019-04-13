@@ -132,3 +132,5 @@ This is where the bulk of orchestration occurs.
 - Cleans up all the tunnels, connections and configuration when the remote container goes away.
 
 [syncthing]: https://github.com/syncthing/syncthing
+
+![architecture](architecture.png)
