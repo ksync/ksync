@@ -132,7 +132,7 @@ func (r *reloadCmd) reload(specName string) {
 }
 
 func (r *reloadCmd) reloadAll() {
-	specs := &ksync.SpecList{}
+	specs := ksync.NewSpecList()
 	if err := specs.Update(); err != nil {
 		log.Fatal(err)
 	}

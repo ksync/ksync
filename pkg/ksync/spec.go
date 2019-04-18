@@ -94,7 +94,7 @@ func NewSpec(details *SpecDetails) *Spec {
 
 // Watch will contact the cluster's api server and start watching for events
 // that match the spec. If a match is found, a new service is started up to
-// mange syncing the folder. If a event shows that the match is going away,
+// manage syncing the folder. If a event shows that the match is going away,
 // the running service is stopped.
 func (s *Spec) Watch() error {
 	if s.stopWatching != nil {
@@ -103,7 +103,7 @@ func (s *Spec) Watch() error {
 	}
 
 	selectors := strings.Join(s.Details.Selector, ",")
-	
+
 	opts := metav1.ListOptions{}
 	opts.LabelSelector = selectors
 	watcher, err := cluster.Client.CoreV1().Pods(s.Details.Namespace).Watch(opts)

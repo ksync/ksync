@@ -99,7 +99,7 @@ func (cmd *createCmd) run(_ *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	specs := &ksync.SpecList{}
+	specs := ksync.NewSpecList()
 	if err := specs.Update(); err != nil {
 		log.Fatal(err)
 	}

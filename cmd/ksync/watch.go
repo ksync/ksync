@@ -71,7 +71,7 @@ func (w *watchCmd) local(list *ksync.SpecList) {
 
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
-		log.Debug("config change")
+		log.Info("Ksync configuration change detected. Updating...")
 		if err := w.update(list); err != nil {
 			log.Fatal(err)
 		}
@@ -79,7 +79,7 @@ func (w *watchCmd) local(list *ksync.SpecList) {
 }
 
 func (w *watchCmd) run(cmd *cobra.Command, args []string) {
-	list := &ksync.SpecList{}
+	list := ksync.NewSpecList()
 
 	w.local(list)
 
