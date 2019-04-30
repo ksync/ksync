@@ -66,7 +66,7 @@ func (d *deleteCmd) run(cmd *cobra.Command, args []string) {
 }
 
 func (d *deleteCmd) delete(name string) {
-	specs := &ksync.SpecList{}
+	specs := ksync.NewSpecList()
 	if err := specs.Update(); err != nil {
 		log.Fatal(err)
 	}

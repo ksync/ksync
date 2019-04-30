@@ -22,6 +22,11 @@ type SpecList struct {
 	Items map[string]*Spec
 }
 
+// NewSpecList is a constructor for SpecList
+func NewSpecList() *SpecList {
+	return &SpecList{}
+}
+
 func (s *SpecList) String() string {
 	return debug.YamlString(s)
 }
@@ -65,7 +70,8 @@ func DeserializeSpecList(s *pb.SpecList) (*SpecList, error) {
 	}, nil
 }
 
-func allSpecs() (map[string]*Spec, error) {
+// getExistingSpecItems returns the latest spec configuration from the disk using viper
+func getExistingSpecItems() (map[string]*Spec, error) {
 	items := map[string]*Spec{}
 
 	for _, raw := range cast.ToSlice(viper.Get("spec")) {
@@ -82,28 +88,28 @@ func allSpecs() (map[string]*Spec, error) {
 	return items, nil
 }
 
-// Update looks at config and updates the SpecList to the latest state on disk,
-// cleaning any items that are removed.
+// Update looks at config and updates the SpecList to the latest state on disk.
+// It also cleans any items that are removed.
 func (s *SpecList) Update() error {
 	if s.Items == nil {
 		s.Items = map[string]*Spec{}
 	}
 
-	newItems, err := allSpecs()
+	desiredSpecItems, err := getExistingSpecItems()
 	if err != nil {
 		return err
 	}
 
-	// there are new specs to monitor
-	for name, spec := range newItems {
+	// update the spec item list if there are new specs to monitor
+	for name, spec := range desiredSpecItems {
 		if _, ok := s.Items[name]; !ok {
 			s.Items[name] = spec
 		}
 	}
 
-	// there have been specs removed
+	// cleanup if specs have been removed and update the spec item list
 	for name, spec := range s.Items {
-		if _, ok := newItems[name]; !ok {
+		if _, ok := desiredSpecItems[name]; !ok {
 			if err := spec.Cleanup(); err != nil {
 				return err
 			}
@@ -114,8 +120,7 @@ func (s *SpecList) Update() error {
 	return nil
 }
 
-// Watch is a convenience function to have all the configured specs start
-// watching.
+// Watch is a convenience function to have all the configured specs start watching
 func (s *SpecList) Watch() error {
 	for _, spec := range s.Items {
 		if err := spec.Watch(); err != nil {
@@ -209,7 +214,7 @@ func (s *SpecList) Has(target string) bool {
 
 // Get checks the spec list for a matching spec (by name) and returns that spec
 func (s *SpecList) Get(name string) (*Spec, error) {
-	items, err := allSpecs()
+	items, err := getExistingSpecItems()
 	if err != nil {
 		return nil, err
 	}
