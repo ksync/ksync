@@ -80,6 +80,7 @@ ksync version
 # Getting Started
 
 You can run through this via. a [katacoda scenario][katacoda] in your browser as well.
+Please create the RBAC roles and bindings following [this document](docs/rbac.md) if you have an RBAC enabled cluster.
 
 1. Install ksync. This will fetch the binary and put it at `/usr/local/bin`. Feel free to just download the release binary for your platform and install it yourself.
 
