@@ -25,17 +25,16 @@ import (
 	"github.com/vapor-ware/ksync/pkg/syncthing"
 )
 
-var tooSoonReset = 3 * time.Second
-
 // Folder is what controls the syncing between a local folder and a specific
 // container running in the remote cluster.
 type Folder struct { // nolint: maligned
-	SpecName        string
-	RemoteContainer *RemoteContainer
-	Reload          bool
-	LocalPath       string
-	RemotePath      string
-	Status          ServiceStatus
+	SpecName          string
+	RemoteContainer   *RemoteContainer
+	Reload            bool
+	ReloadWaitSeconds int
+	LocalPath         string
+	RemotePath        string
+	Status            ServiceStatus
 
 	LocalReadOnly  bool
 	RemoteReadOnly bool
@@ -59,14 +58,14 @@ type Folder struct { // nolint: maligned
 // NewFolder constructs a Folder based off the provided Service.
 func NewFolder(service *Service) *Folder {
 	return &Folder{
-		SpecName:        service.SpecDetails.Name,
-		RemoteContainer: service.RemoteContainer,
-		Reload:          service.SpecDetails.Reload,
-		LocalPath:       service.SpecDetails.LocalPath,
-		RemotePath:      service.SpecDetails.RemotePath,
-		LocalReadOnly:   service.SpecDetails.LocalReadOnly,
-		RemoteReadOnly:  service.SpecDetails.RemoteReadOnly,
-
+		SpecName:           service.SpecDetails.Name,
+		RemoteContainer:    service.RemoteContainer,
+		Reload:             service.SpecDetails.Reload,
+		ReloadWaitSeconds:  service.SpecDetails.ReloadWaitSeconds,
+		LocalPath:          service.SpecDetails.LocalPath,
+		RemotePath:         service.SpecDetails.RemotePath,
+		LocalReadOnly:      service.SpecDetails.LocalReadOnly,
+		RemoteReadOnly:     service.SpecDetails.RemoteReadOnly,
 		id: fmt.Sprintf("%s-%s",
 			service.SpecDetails.Name, service.RemoteContainer.PodName),
 
@@ -189,6 +188,7 @@ func (f *Folder) initServers(apiPort int32) error {
 // This is monitored from the local syncthing server.
 func (f *Folder) hotReload() error {
 	f.restartContainer = make(chan bool)
+	tooSoonReset := time.Duration(f.ReloadWaitSeconds) * time.Second
 
 	// TODO: this is pretty naive, there are definite edge cases here where the
 	// reload will happen but not actually get some files.

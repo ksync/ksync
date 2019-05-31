@@ -125,8 +125,9 @@ type SpecDetails struct {
 	LocalPath            string   `protobuf:"bytes,6,opt,name=local_path,json=localPath" json:"local_path,omitempty"`
 	RemotePath           string   `protobuf:"bytes,7,opt,name=remote_path,json=remotePath" json:"remote_path,omitempty"`
 	Reload               bool     `protobuf:"varint,8,opt,name=reload" json:"reload,omitempty"`
-	LocalReadOnly        bool     `protobuf:"varint,9,opt,name=local_read_only,json=localReadOnly" json:"local_read_only,omitempty"`
-	RemoteReadOnly       bool     `protobuf:"varint,10,opt,name=remote_read_only,json=remoteReadOnly" json:"remote_read_only,omitempty"`
+	ReloadWaitSeconds    int      `protobuf:"varint,9,opt,name=reload_wait_seconds" json:"reloadWaitSeconds,omitempty"`
+	LocalReadOnly        bool     `protobuf:"varint,10,opt,name=local_read_only,json=localReadOnly" json:"local_read_only,omitempty"`
+	RemoteReadOnly       bool     `protobuf:"varint,11,opt,name=remote_read_only,json=remoteReadOnly" json:"remote_read_only,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -210,6 +211,13 @@ func (m *SpecDetails) GetReload() bool {
 		return m.Reload
 	}
 	return false
+}
+
+func (m *SpecDetails) GetReloadWaitSeconds() int {
+	if m != nil {
+		return m.ReloadWaitSeconds
+	}
+	return 3
 }
 
 func (m *SpecDetails) GetLocalReadOnly() bool {
