@@ -96,7 +96,7 @@ func (c *Connection) connection(port int32) (int32, error) {
 func (c *Connection) Radar() (*grpc.ClientConn, error) {
 	localPort, err := c.connection(c.service.RadarPort)
 	if err != nil {
-		return nil, debug.ErrorLocation(err)
+		log.Fatal(err)
 	}
 
 	return grpc.Dial(fmt.Sprintf("127.0.0.1:%d", localPort), c.opts()...)
