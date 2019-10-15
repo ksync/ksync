@@ -6,6 +6,9 @@ metadata:
     app: max-cpu
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: max-cpu
   template:
     metadata:
       labels:

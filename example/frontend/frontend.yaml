@@ -50,6 +50,9 @@ metadata:
     type: example
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
   template:
     metadata:
       labels:

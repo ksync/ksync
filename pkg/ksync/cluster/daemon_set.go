@@ -19,6 +19,9 @@ func (s *Service) daemonSet() *appsv1.DaemonSet {
 			Labels:    s.labels,
 		},
 		Spec: appsv1.DaemonSetSpec{
+			Selector: &metav1.LabelSelector{
+				MatchLabels: s.labels,
+			},
 			Template: v1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: s.labels,
