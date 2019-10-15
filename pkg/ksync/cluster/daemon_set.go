@@ -5,20 +5,23 @@ import (
 	"time"
 
 	"github.com/spf13/viper"
-	"k8s.io/api/core/v1"
-	v1beta1 "k8s.io/api/extensions/v1beta1"
+	appsv1 "k8s.io/api/apps/v1"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-func (s *Service) daemonSet() *v1beta1.DaemonSet {
-	return &v1beta1.DaemonSet{
+func (s *Service) daemonSet() *appsv1.DaemonSet {
+	return &appsv1.DaemonSet{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: s.Namespace,
 			Name:      s.name,
 			Labels:    s.labels,
 		},
-		Spec: v1beta1.DaemonSetSpec{
+		Spec: appsv1.DaemonSetSpec{
+			Selector: &metav1.LabelSelector{
+				MatchLabels: s.labels,
+			},
 			Template: v1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: s.labels,
@@ -51,7 +54,7 @@ func (s *Service) daemonSet() *v1beta1.DaemonSet {
 							},
 							// TODO: resources
 							VolumeMounts: []v1.VolumeMount{
-								v1.VolumeMount{
+								{
 									Name:      "dockersock",
 									MountPath: viper.GetString("docker-socket"),
 								},
@@ -136,7 +139,7 @@ func (s *Service) daemonSet() *v1beta1.DaemonSet {
 					},
 				},
 			},
-			UpdateStrategy: v1beta1.DaemonSetUpdateStrategy{
+			UpdateStrategy: appsv1.DaemonSetUpdateStrategy{
 				Type: "RollingUpdate",
 			},
 		},
