@@ -254,8 +254,6 @@ workflows:
       - release:
           requires:
             - build
-            - lint
-            - test
           context: org-global
           filters:
             branches:
