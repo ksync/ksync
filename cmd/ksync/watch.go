@@ -9,9 +9,9 @@ import (
 	"github.com/spf13/viper"
 	daemon "github.com/timfallmk/go-daemon"
 
-	"github.com/vapor-ware/ksync/pkg/cli"
-	"github.com/vapor-ware/ksync/pkg/ksync"
-	"github.com/vapor-ware/ksync/pkg/ksync/server"
+	"github.com/ksync/ksync/pkg/cli"
+	"github.com/ksync/ksync/pkg/ksync"
+	"github.com/ksync/ksync/pkg/ksync/server"
 )
 
 type watchCmd struct {

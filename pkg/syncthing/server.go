@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-resty/resty"
+	"gopkg.in/resty.v1"
 	log "github.com/sirupsen/logrus"
 	"github.com/syncthing/syncthing/lib/config"
 	"github.com/syncthing/syncthing/lib/protocol"
 
-	"github.com/vapor-ware/ksync/pkg/debug"
+	"github.com/ksync/ksync/pkg/debug"
 )
 
 var connectRetries = 10

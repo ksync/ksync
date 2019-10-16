@@ -9,10 +9,10 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/vapor-ware/ksync/pkg/cli"
-	"github.com/vapor-ware/ksync/pkg/ksync"
-	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
-	"github.com/vapor-ware/ksync/pkg/ksync/doctor"
+	"github.com/ksync/ksync/pkg/cli"
+	"github.com/ksync/ksync/pkg/ksync"
+	"github.com/ksync/ksync/pkg/ksync/cluster"
+	"github.com/ksync/ksync/pkg/ksync/doctor"
 )
 
 var (

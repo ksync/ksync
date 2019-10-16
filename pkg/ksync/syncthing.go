@@ -14,9 +14,9 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
-	"github.com/vapor-ware/ksync/pkg/cli"
-	"github.com/vapor-ware/ksync/pkg/debug"
-	"github.com/vapor-ware/ksync/pkg/syncthing"
+	"github.com/ksync/ksync/pkg/cli"
+	"github.com/ksync/ksync/pkg/debug"
+	"github.com/ksync/ksync/pkg/syncthing"
 )
 
 var (

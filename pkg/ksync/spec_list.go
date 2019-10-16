@@ -13,8 +13,8 @@ import (
 	"github.com/spf13/viper"
 	yaml "gopkg.in/yaml.v2"
 
-	"github.com/vapor-ware/ksync/pkg/debug"
-	pb "github.com/vapor-ware/ksync/pkg/proto"
+	"github.com/ksync/ksync/pkg/debug"
+	pb "github.com/ksync/ksync/pkg/proto"
 )
 
 // SpecList is a list of specs.

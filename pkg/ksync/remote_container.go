@@ -10,8 +10,8 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/vapor-ware/ksync/pkg/debug"
-	pb "github.com/vapor-ware/ksync/pkg/proto"
+	"github.com/ksync/ksync/pkg/debug"
+	pb "github.com/ksync/ksync/pkg/proto"
 )
 
 // RemoteContainer is a specific container running on the remote cluster.

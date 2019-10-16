@@ -9,8 +9,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 
-	"github.com/vapor-ware/ksync/pkg/cli"
-	"github.com/vapor-ware/ksync/pkg/radar"
+	"github.com/ksync/ksync/pkg/cli"
+	"github.com/ksync/ksync/pkg/radar"
 )
 
 type serveCmd struct {

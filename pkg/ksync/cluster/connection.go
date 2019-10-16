@@ -8,7 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 
-	"github.com/vapor-ware/ksync/pkg/debug"
+	"github.com/ksync/ksync/pkg/debug"
 )
 
 var (

@@ -26,16 +26,16 @@ GO_VERSION=${GO_VERSION:-$(go version | awk '{ print $3 }')}
 # Setup ldflags for runs
 export LDFLAGS="\
     -w \
-    -X github.com/vapor-ware/ksync/pkg/ksync.GitCommit=${GIT_COMMIT} \
-    -X github.com/vapor-ware/ksync/pkg/ksync.BuildDate=${BUILD_DATE} \
-    -X github.com/vapor-ware/ksync/pkg/ksync.VersionString=${BINARY_VERSION} \
-    -X github.com/vapor-ware/ksync/pkg/ksync.GoVersion=${GO_VERSION} \
-    -X github.com/vapor-ware/ksync/pkg/ksync.GitTag=${CIRCLE_TAG} \
-    -X github.com/vapor-ware/ksync/pkg/radar.GitCommit=${GIT_COMMIT} \
-    -X github.com/vapor-ware/ksync/pkg/radar.BuildDate=${BUILD_DATE} \
-    -X github.com/vapor-ware/ksync/pkg/radar.VersionString=${BINARY_VERSION} \
-    -X github.com/vapor-ware/ksync/pkg/radar.GoVersion=${GO_VERSION} \
-    -X github.com/vapor-ware/ksync/pkg/radar.GitTag=${CIRCLE_TAG} \
+    -X github.com/ksync/ksync/pkg/ksync.GitCommit=${GIT_COMMIT} \
+    -X github.com/ksync/ksync/pkg/ksync.BuildDate=${BUILD_DATE} \
+    -X github.com/ksync/ksync/pkg/ksync.VersionString=${BINARY_VERSION} \
+    -X github.com/ksync/ksync/pkg/ksync.GoVersion=${GO_VERSION} \
+    -X github.com/ksync/ksync/pkg/ksync.GitTag=${CIRCLE_TAG} \
+    -X github.com/ksync/ksync/pkg/radar.GitCommit=${GIT_COMMIT} \
+    -X github.com/ksync/ksync/pkg/radar.BuildDate=${BUILD_DATE} \
+    -X github.com/ksync/ksync/pkg/radar.VersionString=${BINARY_VERSION} \
+    -X github.com/ksync/ksync/pkg/radar.GoVersion=${GO_VERSION} \
+    -X github.com/ksync/ksync/pkg/radar.GitTag=${CIRCLE_TAG} \
     ${LDFLAGS:-} \
 "
 

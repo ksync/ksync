@@ -4,7 +4,7 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"golang.org/x/net/context"
 
-	pb "github.com/vapor-ware/ksync/pkg/proto"
+	pb "github.com/ksync/ksync/pkg/proto"
 )
 
 // GetSpecList returns the list of all registered specs.

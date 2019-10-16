@@ -11,13 +11,13 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/vapor-ware/ksync/pkg/debug"
-	pb "github.com/vapor-ware/ksync/pkg/proto"
+	"github.com/ksync/ksync/pkg/debug"
+	pb "github.com/ksync/ksync/pkg/proto"
 )
 
 var (
 	// ImageName is the docker image to use for running the cluster service.
-	ImageName = "vaporio/ksync"
+	ImageName = "ksync/ksync"
 )
 
 // SetImage sets the package-wide image to used for running the cluster service.

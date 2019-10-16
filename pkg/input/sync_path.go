@@ -69,7 +69,7 @@ func (s *SyncPath) Validator() error {
 	if !path.IsAbs(s.Remote) {
 		return fmt.Errorf("remote path must be absolute")
 	}
-	// Removing this temporarily to ensure .git is not checked. See issue https://github.com/vapor-ware/ksync/issues/151 and https://github.com/vapor-ware/ksync/issues/127
+	// Removing this temporarily to ensure .git is not checked. See issue https://github.com/ksync/ksync/issues/151 and https://github.com/ksync/ksync/issues/127
 	//
 	// if err := s.localPathHasPermission(); err != nil {
 	// 	return err

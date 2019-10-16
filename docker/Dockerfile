@@ -1,5 +1,5 @@
 FROM alpine
-MAINTAINER Thomas Rampelberg <thomasr@vapor.io>
+MAINTAINER Thomas Rampelberg <thomasr@saunter.org>
 
 ENV DOCKER_OS=linux
 ENV DOCKER_ARCH=amd64

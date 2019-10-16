@@ -6,7 +6,7 @@ import (
 	"github.com/jpillora/overseer/fetcher"
 	"github.com/timfallmk/overseer"
 
-	"github.com/vapor-ware/ksync/pkg/cli"
+	"github.com/ksync/ksync/pkg/cli"
 )
 
 const (

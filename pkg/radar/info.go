@@ -5,8 +5,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 
-	"github.com/vapor-ware/ksync/pkg/debug"
-	pb "github.com/vapor-ware/ksync/pkg/proto"
+	"github.com/ksync/ksync/pkg/debug"
+	pb "github.com/ksync/ksync/pkg/proto"
 )
 
 // These values will be stamped at build time
