@@ -231,9 +231,6 @@ workflows:
   github-push:
     jobs:
       - build:
-          requires:
-            - lint
-            - test
           context: org-global
           filters:
             tags:
