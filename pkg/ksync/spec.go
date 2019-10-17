@@ -9,9 +9,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
 
-	"github.com/vapor-ware/ksync/pkg/debug"
-	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
-	pb "github.com/vapor-ware/ksync/pkg/proto"
+	"github.com/ksync/ksync/pkg/debug"
+	"github.com/ksync/ksync/pkg/ksync/cluster"
+	pb "github.com/ksync/ksync/pkg/proto"
 )
 
 // SpecStatus is the status of a spec

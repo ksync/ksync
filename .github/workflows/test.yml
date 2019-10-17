@@ -1,0 +1,54 @@
+name: Tests
+
+on:
+  pull_request: {}
+
+jobs:
+  test:
+    name: Run tests
+    runs-on: ubuntu-18.04
+
+    steps:
+    - uses: actions/setup-go@v1
+      with:
+        go-version: 1.13.1
+
+    - name: Checkout code
+      uses: actions/checkout@v1
+
+    - name: Install kubectl
+      run: |
+        VERSION=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
+        curl -LO https://storage.googleapis.com/kubernetes-release/release/${VERSION}/bin/linux/amd64/kubectl
+        chmod +x ./kubectl
+        sudo mv ./kubectl /usr/local/bin/kubectl
+
+    - name: Setup cluster
+      run: |
+        make cluster-setup
+        mkdir ~/.kube
+        mv $(k3d get-kubeconfig) ~/.kube/config
+
+    - name: Run unit tests
+      run: |
+        make ci-test
+
+    # - name: Build images
+    #   env:
+    #     PUSH_TOKEN: ${{ secrets.PUSH_TOKEN }}
+    #   run: |
+    #     echo ${PUSH_TOKEN} | \
+    #       docker login -u ksyncrobot --password-stdin
+    #     make docker-binary docker-build docker-push
+
+    # - name: Run radar
+    #   run: |
+    #     make build-cmd
+    #     bin/ksync init || true
+    #     kubectl -n kube-system get all
+    #     NAME=$(kubectl -n kube-system get po -lapp=ksync -oname)
+    #     kubectl -n kube-system describe ${NAME}
+    #     for n in ksync syncthing; do
+    #       kubectl -n kube-system logs ${NAME} -c ${n}
+    #     done
+    #     kubectl -n kube-system wait --for=condition=Ready pod -lapp=ksync --timeout=1s

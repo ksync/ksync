@@ -19,10 +19,10 @@ import (
 	"github.com/syncthing/syncthing/lib/events"
 	"github.com/syncthing/syncthing/lib/fs"
 
-	"github.com/vapor-ware/ksync/pkg/debug"
-	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
-	pb "github.com/vapor-ware/ksync/pkg/proto"
-	"github.com/vapor-ware/ksync/pkg/syncthing"
+	"github.com/ksync/ksync/pkg/debug"
+	"github.com/ksync/ksync/pkg/ksync/cluster"
+	pb "github.com/ksync/ksync/pkg/proto"
+	"github.com/ksync/ksync/pkg/syncthing"
 )
 
 var tooSoonReset = 3 * time.Second

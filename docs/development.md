@@ -6,7 +6,7 @@ cd ${GOPATH}/src/github.com/vapor-ware/ksync
 go install cmd/*
 ```
 
-**Note**: If you compile the binaries yourself the output of `ksync version` may not be correct. Only the binaries on the [releases](https://github.com/vapor-ware/ksync/releases) page are stamped with this information.
+**Note**: If you compile the binaries yourself the output of `ksync version` may not be correct. Only the binaries on the [releases](https://github.com/ksync/ksync/releases) page are stamped with this information.
 
 The makefile has some convenient helpers:
 
@@ -29,13 +29,6 @@ brew install protobuf
 go get -u github.com/golang/protobuf/protoc-gen-go
 ```
 
-- [dep][dep]
-
-```bash
-go install -u github.com/golang/dep/cmd/dep
-```
-
 [protoc]: https://github.com/golang/protobuf/
 [protoc-gen-go]: https://github.com/golang/protobuf/
-[dep]: https://github.com/golang/dep/
 [mirror]: https://github.com/stephenh/mirror

@@ -9,7 +9,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 
-	pb "github.com/vapor-ware/ksync/pkg/proto"
+	pb "github.com/ksync/ksync/pkg/proto"
 )
 
 type radarServer struct{}

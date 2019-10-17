@@ -1,0 +1,40 @@
+name: Publish
+
+on:
+  push:
+    tags:
+    - '*'
+
+jobs:
+  build:
+    name: Generate Artifacts
+    runs-on: ubuntu-18.04
+
+    steps:
+    - uses: actions/setup-go@v1
+      with:
+        go-version: 1.13.1
+
+    - name: Checkout code
+      uses: actions/checkout@v1
+
+    - name: Build CLI
+      run: |
+        make build-ci
+
+    - name: Build images
+      run: |
+        make docker-binary docker-build
+
+    - name: Push commit specific images
+      env:
+        PUSH_TOKEN: ${{ secrets.PUSH_TOKEN }}
+      run: |
+        echo ${PUSH_TOKEN} | \
+          docker login -u ksyncrobot --password-stdin
+        make docker-push
+
+    - uses: actions/upload-artifact@v1
+      with:
+        name: bin
+        path: bin

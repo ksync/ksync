@@ -17,8 +17,8 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
-	"github.com/vapor-ware/ksync/pkg/cli"
-	pb "github.com/vapor-ware/ksync/pkg/proto"
+	"github.com/ksync/ksync/pkg/cli"
+	pb "github.com/ksync/ksync/pkg/proto"
 )
 
 type getCmd struct {

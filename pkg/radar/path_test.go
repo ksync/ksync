@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	// "github.com/stretchr/testify/require"
 
-	pb "github.com/vapor-ware/ksync/pkg/proto"
+	pb "github.com/ksync/ksync/pkg/proto"
 )
 
 func TestGetBasePath(t *testing.T) {

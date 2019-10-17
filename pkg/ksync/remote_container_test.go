@@ -6,7 +6,7 @@ import (
 	// "github.com/stretchr/testify/assert"
 	// "github.com/stretchr/testify/require"
 
-	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
+	"github.com/ksync/ksync/pkg/ksync/cluster"
 )
 
 func init() {

@@ -8,8 +8,8 @@ import (
 	"github.com/mitchellh/mapstructure"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/vapor-ware/ksync/pkg/debug"
-	pb "github.com/vapor-ware/ksync/pkg/proto"
+	"github.com/ksync/ksync/pkg/debug"
+	pb "github.com/ksync/ksync/pkg/proto"
 )
 
 var (

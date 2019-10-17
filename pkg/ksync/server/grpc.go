@@ -12,9 +12,9 @@ import (
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 
-	"github.com/vapor-ware/ksync/pkg/ksync"
-	pb "github.com/vapor-ware/ksync/pkg/proto"
-	"github.com/vapor-ware/ksync/pkg/syncthing"
+	"github.com/ksync/ksync/pkg/ksync"
+	pb "github.com/ksync/ksync/pkg/proto"
+	"github.com/ksync/ksync/pkg/syncthing"
 )
 
 type ksyncServer struct {

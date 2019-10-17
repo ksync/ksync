@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/viper"
 	authorizationapi "k8s.io/api/authorization/v1"
 
-	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
+	"github.com/ksync/ksync/pkg/ksync/cluster"
 )
 
 var (

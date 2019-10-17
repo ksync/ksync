@@ -41,7 +41,7 @@ Download the [latest release][latest-release] and install it yourself.
 Grab the source and build the binary.
 
 ```shell
-go get github.com/vapor-ware/ksync/cmd/ksync
+go get github.com/ksync/ksync/cmd/ksync
 ```
 
 More detailed information is in the [development documentation](docs/development.md).
@@ -235,7 +235,7 @@ You can run through this via. a [katacoda scenario][katacoda] in your browser as
 
 - `The configured docker storage root (/dind/docker) on node <node> does not match the storage root specified: /var/lib/docker. Please check your remote storage root or pass the correct root in init with --docker-root.`
 
-    You're using [Docker in Docker Kubernetes](https://github.com/kubernetes-sigs/kubeadm-dind-cluster) (or some other setup) which uses a different directory structure for it's root. You may follow the steps in [Issue #212](https://github.com/vapor-ware/ksync/issues/212) to specify a different root directory.
+    You're using [Docker in Docker Kubernetes](https://github.com/kubernetes-sigs/kubeadm-dind-cluster) (or some other setup) which uses a different directory structure for it's root. You may follow the steps in [Issue #212](https://github.com/ksync/ksync/issues/212) to specify a different root directory.
 
 - `FATA[0000] rpc error: code = Unavailable desc = transport is closing`
 
@@ -249,7 +249,7 @@ You can run through this via. a [katacoda scenario][katacoda] in your browser as
 
 - `ksync watch` exits with `signal loss detected. shutting down` when changing local networks
 
-    This occurs due to [changes in adapter state when changing networks](https://github.com/vapor-ware/ksync/issues/247) (e.g. switching wifi networks, toggling VPNs, etc.). The change in adapter state causes all existing tunnels (which `ksync` uses to communicate with various components) to close, terminating the connection to the cluster and causing the `watch` process to exit.
+    This occurs due to [changes in adapter state when changing networks](https://github.com/ksync/ksync/issues/247) (e.g. switching wifi networks, toggling VPNs, etc.). The change in adapter state causes all existing tunnels (which `ksync` uses to communicate with various components) to close, terminating the connection to the cluster and causing the `watch` process to exit.
 
     Restarting `watch` will recreate the tunnels and solve this issue. If this occurs frequently, or networks are changed often, it may be beneficial to place `ksync watch` under process control, automatically restarting after an unclean exit.
 
@@ -265,7 +265,7 @@ More detailed documentation can be found in the [docs](docs) directory.
 
 [atom]: https://atom.io/
 [st3]: https://www.sublimetext.com/
-[latest-release]: https://github.com/vapor-ware/ksync/releases
+[latest-release]: https://github.com/ksync/ksync/releases
 [k8s-setup]: https://kubernetes.io/docs/setup/pick-right-solution/
 [GKE]: https://cloud.google.com/kubernetes-engine/docs/quickstart
 [minikube]: https://github.com/kubernetes/minikube

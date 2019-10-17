@@ -12,10 +12,10 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
-	"github.com/vapor-ware/ksync/pkg/cli"
-	"github.com/vapor-ware/ksync/pkg/ksync"
-	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
-	pb "github.com/vapor-ware/ksync/pkg/proto"
+	"github.com/ksync/ksync/pkg/cli"
+	"github.com/ksync/ksync/pkg/ksync"
+	"github.com/ksync/ksync/pkg/ksync/cluster"
+	pb "github.com/ksync/ksync/pkg/proto"
 )
 
 type reloadCmd struct {

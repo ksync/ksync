@@ -12,7 +12,7 @@ import (
 	"k8s.io/client-go/tools/portforward"
 	"k8s.io/client-go/transport/spdy"
 
-	"github.com/vapor-ware/ksync/pkg/debug"
+	"github.com/ksync/ksync/pkg/debug"
 )
 
 // Tunnel is the connection between the local host and a specific pod in the

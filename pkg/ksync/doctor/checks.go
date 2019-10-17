@@ -1,7 +1,7 @@
 package doctor
 
 import (
-	"github.com/vapor-ware/ksync/pkg/cli"
+	"github.com/ksync/ksync/pkg/cli"
 )
 
 // Check provides the definition of check that is named and validates something.

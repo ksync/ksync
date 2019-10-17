@@ -13,7 +13,7 @@ import (
 
 	"github.com/spf13/viper"
 
-	pb "github.com/vapor-ware/ksync/pkg/proto"
+	pb "github.com/ksync/ksync/pkg/proto"
 )
 
 // RestartSyncthing restarts the syncthing sidecar to this radar process. This is

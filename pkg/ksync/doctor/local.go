@@ -10,8 +10,8 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
-	"github.com/vapor-ware/ksync/pkg/ksync"
-	pb "github.com/vapor-ware/ksync/pkg/proto"
+	"github.com/ksync/ksync/pkg/ksync"
+	pb "github.com/ksync/ksync/pkg/proto"
 )
 
 // nolint: staticcheck

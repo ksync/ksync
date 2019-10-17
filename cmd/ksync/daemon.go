@@ -5,7 +5,7 @@ import (
 
 	daemon "github.com/sevlyar/go-daemon"
 
-	"github.com/vapor-ware/ksync/pkg/cli"
+	"github.com/ksync/ksync/pkg/cli"
 )
 
 func getDaemonContext() *daemon.Context {

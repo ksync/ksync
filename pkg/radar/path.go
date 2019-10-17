@@ -5,7 +5,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 
-	pb "github.com/vapor-ware/ksync/pkg/proto"
+	pb "github.com/ksync/ksync/pkg/proto"
 )
 
 // GetBasePath takes a container path and returns the absolute path on the

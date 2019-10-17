@@ -10,8 +10,8 @@ import (
 	"github.com/spf13/viper"
 	"golang.org/x/net/context"
 
-	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
-	pb "github.com/vapor-ware/ksync/pkg/proto"
+	"github.com/ksync/ksync/pkg/ksync/cluster"
+	pb "github.com/ksync/ksync/pkg/proto"
 )
 
 var (

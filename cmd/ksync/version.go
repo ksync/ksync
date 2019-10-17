@@ -8,9 +8,9 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	"github.com/vapor-ware/ksync/pkg/cli"
-	"github.com/vapor-ware/ksync/pkg/ksync"
-	"github.com/vapor-ware/ksync/pkg/ksync/cluster"
+	"github.com/ksync/ksync/pkg/cli"
+	"github.com/ksync/ksync/pkg/ksync"
+	"github.com/ksync/ksync/pkg/ksync/cluster"
 )
 
 type versionCmd struct {
