@@ -1,4 +1,4 @@
-IMAGE := vaporio/ksync-example:latest
+IMAGE := ksync/ksync-example:latest
 
 serve:
 	python -m flask run --port=8080

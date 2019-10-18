@@ -1,4 +1,4 @@
-IMAGE := vaporio/ksync-example-frontend:latest
+IMAGE := ksync/ksync-example-frontend:latest
 
 serve:
 	npm run start

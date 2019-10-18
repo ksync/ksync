@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/dustinkirkland/golang-petname"
+	petname "github.com/dustinkirkland/golang-petname"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -23,7 +23,7 @@ type createCmd struct {
 func (cmd *createCmd) new() *cobra.Command {
 	long := `Create a new spec to sync files between a local and remote directory
   for specific containers running on the cluster.`
-	example := `ksync create --local-read-only /code /go/src/github.com/vapor-ware/code`
+	example := `ksync create --local-read-only /code /go/src/github.com/ksync/code`
 
 	cmd.Init("ksync", &cobra.Command{
 		Use:     "create [flags] [local path] [remote path]",

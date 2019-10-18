@@ -17,7 +17,7 @@ Here are the components retrieved during `init`:
 
 #### Remote
 
-1. The remote server portion of `ksync` (called `radar`) uses a docker image. The nodes in the remote cluster attempt to pull the docker image `ksync/ksync` from [Docker Hub](https://hub.docker.com/r/vaporio/ksync/). The tag matches the release version. You can pull this image into your cluster's image registry manually.
+1. The remote server portion of `ksync` (called `radar`) uses a docker image. The nodes in the remote cluster attempt to pull the docker image `ksync/ksync` from [Docker Hub](https://hub.docker.com/r/ksync/ksync/). The tag matches the release version. You can pull this image into your cluster's image registry manually.
 
 2. You can also specify a different image to use when running `init` by supplying the flag `--image=my-repo/ksync:tag`.
 

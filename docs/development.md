@@ -1,8 +1,8 @@
 You can also get the code and compile it yourself. If you have `go` installed you can run the following.
 
 ```shell
-go get github.com/vapor-ware/ksync
-cd ${GOPATH}/src/github.com/vapor-ware/ksync
+go get github.com/ksync/ksync
+cd ${GOPATH}/src/github.com/ksync/ksync
 go install cmd/*
 ```
 

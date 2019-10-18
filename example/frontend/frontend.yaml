@@ -60,7 +60,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: vaporio/ksync-example-frontend
+          image: ksync/ksync-example-frontend
           imagePullPolicy: Always
 
           resources:

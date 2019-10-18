@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	repoUsername = "vapor-ware"
+	repoUsername = "ksync"
 	repoName     = "ksync"
 )
 

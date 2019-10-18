@@ -32,7 +32,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: vaporio/ksync-example
+          image: ksync/ksync-example
           imagePullPolicy: Always
 
           resources:

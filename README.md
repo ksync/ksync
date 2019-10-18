@@ -1,7 +1,6 @@
 <img align="left" src="logos/ksync_logo_color.png">
 
-<img align="right" src="https://goreportcard.com/badge/github.com/vapor-ware/ksync">
-<img align="right" src="https://circleci.com/gh/vapor-ware/ksync.svg?style=svg&circle-token=429269824f09028301b6e65310bd0cea8031d292">
+<img align="right" src="https://goreportcard.com/badge/github.com/ksync/ksync">
 
 <br clear="all" />
 
@@ -29,7 +28,7 @@ You can also download the [latest release][latest-release] and install it yourse
 ### Linux/MacOSX
 
 ```bash
-curl https://vapor-ware.github.io/gimme-that/gimme.sh | bash
+curl https://ksync.github.io/gimme-that/gimme.sh | bash
 ```
 
 ### Windows
@@ -84,7 +83,7 @@ You can run through this via. a [katacoda scenario][katacoda] in your browser as
 1. Install ksync. This will fetch the binary and put it at `/usr/local/bin`. Feel free to just download the release binary for your platform and install it yourself.
 
     ```bash
-    curl https://vapor-ware.github.io/gimme-that/gimme.sh | bash
+    curl https://ksync.github.io/gimme-that/gimme.sh | bash
     ```
 
 1. Initialize ksync and install the server component on your cluster. The server component is a DaemonSet that provides access to each node's filesystem. This will also go through a set of pre and postflight checks to verify that everything is working correctly. You can run these yourself by using `ksync doctor`.
@@ -102,7 +101,7 @@ You can run through this via. a [katacoda scenario][katacoda] in your browser as
 1. Add the [demo app][demo-app] to your cluster. This is a simple python app made with flask. Because ksync moves files around, it would work for any kind of data you'd like to move between your local system and the cluster.
 
     ```bash
-    kubectl apply -f https://vapor-ware.github.io/ksync/example/app/app.yaml
+    kubectl apply -f https://ksync.github.io/ksync/example/app/app.yaml
     ```
 
 1. Make sure that the app is ready and running.
@@ -177,7 +176,7 @@ You can run through this via. a [katacoda scenario][katacoda] in your browser as
 - Startup the [visualization][frontend] so you can see updates in real time. Save some files and change the replica count of app to see the updates.
 
     ```bash
-    kubectl apply -f https://vapor-ware.github.io/ksync/example/frontend/frontend.yaml
+    kubectl apply -f https://ksync.github.io/ksync/example/frontend/frontend.yaml
     kubectl get po \
         --selector=app=frontend \
         -o=custom-columns=:metadata.name \
@@ -245,7 +244,7 @@ You can run through this via. a [katacoda scenario][katacoda] in your browser as
 
     This is caused by a transient error in our CI pipeline when builds are released with the same git tag (how version matching is done). You may specify the image to use with the remote DaemonSet via the `--image` flag. An example to solve this problem with version `0.4` would be the following:
 
-    `ksync init --remote --image=vaporio/ksync:0.4.0`
+    `ksync init --remote --image=ksync/ksync:0.4.0`
 
 - `ksync watch` exits with `signal loss detected. shutting down` when changing local networks
 
@@ -269,6 +268,6 @@ More detailed documentation can be found in the [docs](docs) directory.
 [k8s-setup]: https://kubernetes.io/docs/setup/pick-right-solution/
 [GKE]: https://cloud.google.com/kubernetes-engine/docs/quickstart
 [minikube]: https://github.com/kubernetes/minikube
-[demo-app]: https://vapor-ware.github.io/ksync/example/app/app.yaml
-[frontend]: https://vapor-ware.github.io/ksync/example/frontend/frontend.yaml
-[katacoda]: https://www.katacoda.com/vaporio/scenarios/ksync
+[demo-app]: https://ksync.github.io/ksync/example/app/app.yaml
+[frontend]: https://ksync.github.io/ksync/example/frontend/frontend.yaml
+[katacoda]: https://www.katacoda.com/ksync/scenarios/ksync
