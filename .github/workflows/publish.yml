@@ -18,6 +18,9 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v1
 
+    - name: Tag
+      uses: mathieudutour/github-tag-action@v1
+
     - name: Build CLI
       env:
         BINARY_VERSION: "Release"
