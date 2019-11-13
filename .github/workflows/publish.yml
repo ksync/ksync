@@ -45,6 +45,7 @@ jobs:
       uses: meeDamian/github-release@v1.0.1
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
+        gzip: false
         files: >
           bin/ksync_darwin_amd64
           bin/ksync_linux_amd64
