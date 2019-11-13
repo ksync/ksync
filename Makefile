@@ -16,6 +16,10 @@ MUTABLE_IMAGE   := ${IMAGE_BASE}:${MUTABLE_VERSION}
 # IMAGE_TAG       := ${IMAGE_BASE}:${CIRCLE_TAG}
 # endif
 
+ifdef GITHUB_REF
+IMAGE_TAG       := ${IMAGE_BASE}:${GITHUB_REF}
+endif
+
 # CMD       ?= bin/ksync --log-level=debug watch
 
 GO        ?= go
@@ -27,12 +31,12 @@ LDFLAGS   := -w \
 	-X github.com/ksync/ksync/pkg/ksync.BuildDate=${BUILD_DATE} \
 	-X github.com/ksync/ksync/pkg/ksync.VersionString=${BINARY_VERSION} \
 	-X github.com/ksync/ksync/pkg/ksync.GoVersion=${GO_VERSION} \
-	-X github.com/ksync/ksync/pkg/ksync.GitTag=${CIRCLE_TAG} \
+	-X github.com/ksync/ksync/pkg/ksync.GitTag=${GITHUB_REF} \
 	-X github.com/ksync/ksync/pkg/radar.GitCommit=${GIT_COMMIT} \
 	-X github.com/ksync/ksync/pkg/radar.BuildDate=${BUILD_DATE} \
 	-X github.com/ksync/ksync/pkg/radar.VersionString=${BINARY_VERSION} \
 	-X github.com/ksync/ksync/pkg/radar.GoVersion=${GO_VERSION} \
-	-X github.com/ksync/ksync/pkg/radar.GitTag=${CIRCLE_TAG} \
+	-X github.com/ksync/ksync/pkg/radar.GitTag=${GITHUB_REF} \
 	${LDFLAGS}
 
 GOFLAGS   :=
