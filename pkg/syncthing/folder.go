@@ -23,6 +23,7 @@ func (s *Server) SetFolder(folder *config.FolderConfiguration) error {
 	folder.FSWatcherEnabled = true
 	folder.FSWatcherDelayS = 1
 	folder.MaxConflicts = 0
+	folder.CopyOwnershipFromParent = true
 
 	s.RemoveFolder(folder.ID)
 
