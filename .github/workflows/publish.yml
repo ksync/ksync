@@ -41,6 +41,12 @@ jobs:
         name: bin
         path: bin
 
+    - name: Create changelog
+      uses: teaminkling/autologger@1.0.1
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_repository: ${{ github.repository }}
+
     - name: Upload assets to release
       uses: meeDamian/github-release@v1.0.1
       with:
