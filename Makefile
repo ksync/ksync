@@ -17,6 +17,7 @@ MUTABLE_IMAGE   := ${IMAGE_BASE}:${MUTABLE_VERSION}
 # endif
 
 ifdef GITHUB_REF
+GITHUB_REF 			:= $(notdir ${GITHUB_REF})
 IMAGE_TAG       := ${IMAGE_BASE}:${GITHUB_REF}
 endif
 
