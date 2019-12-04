@@ -50,7 +50,7 @@ jobs:
       uses: timfallmk/github-changelog-generator-action@master
       id: changelog
       with:
-        since-tag: steps.id.outputs.last-tag
+        since-tag: ${{ steps.id.outputs.last-tag }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload assets to release
