@@ -44,7 +44,9 @@ jobs:
     - name: Get Last Tag
       id: tag
       run: |
-        echo ::set-output name=last-tag::'$(git describe --abbrev=0 --tags `git rev-list --tags --skip=1 --max-count=1`)'
+        LAST_TAG='$(git describe --abbrev=0 --tags `git rev-list --tags --skip=1 --max-count=1`)'
+        echo $LAST_TAG
+        echo ::set-output name=last-tag::${LAST_TAG}
 
     - name: Create changelog
       uses: timfallmk/github-changelog-generator-action@master
