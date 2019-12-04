@@ -42,16 +42,15 @@ jobs:
         path: bin
 
     - name: Create changelog
-      uses: teaminkling/autologger@1.0.1
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        github_repository: ${{ github.repository }}
+      uses: timfallmk/github-changelog-generator-action@0.0.1
+      id: changelog
 
     - name: Upload assets to release
       uses: meeDamian/github-release@v1.0.1
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         gzip: false
+        body: ${{ steps.changelog.outputs.CHANGELOG }}
         files: >
           bin/ksync_darwin_amd64
           bin/ksync_linux_amd64
