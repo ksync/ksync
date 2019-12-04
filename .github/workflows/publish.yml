@@ -42,8 +42,11 @@ jobs:
         path: bin
 
     - name: Get Last Tag
-      uses: timfallmk/previous-git-tag-action@master
       id: tag
+      run: |
+        LAST_TAG='$(git describe --abbrev=0 --tags `git rev-list --tags --skip=1 --max-count=1`)'
+        echo $LAST_TAG
+        echo ::set-output name=last-tag::${LAST_TAG}
 
     - name: Create changelog
       uses: timfallmk/github-changelog-generator-action@master
