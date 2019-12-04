@@ -44,6 +44,8 @@ jobs:
     - name: Create changelog
       uses: timfallmk/github-changelog-generator-action@master
       id: changelog
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload assets to release
       uses: meeDamian/github-release@v1.0.1
