@@ -42,7 +42,7 @@ jobs:
         path: bin
 
     - name: Create changelog
-      uses: timfallmk/github-changelog-generator-action@0.0.2
+      uses: timfallmk/github-changelog-generator-action@master
       id: changelog
 
     - name: Upload assets to release
