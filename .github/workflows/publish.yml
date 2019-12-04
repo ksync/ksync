@@ -45,6 +45,7 @@ jobs:
       id: tag
       run: |
         LAST_TAG='$(git describe --abbrev=0 --tags `git rev-list --tags --skip=1 --max-count=1`)'
+        LAST_TAG=eval ${LAG_TAG}
         echo $LAST_TAG
         echo ::set-output name=last-tag::${LAST_TAG}
 
