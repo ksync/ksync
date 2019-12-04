@@ -41,10 +41,16 @@ jobs:
         name: bin
         path: bin
 
+    - name: Get Last Tag
+      id: tag
+      run: |
+        echo ::set-output name=last-tag::'$(git describe --abbrev=0 --tags `git rev-list --tags --skip=1 --max-count=1`)'
+
     - name: Create changelog
       uses: timfallmk/github-changelog-generator-action@master
       id: changelog
       with:
+        since-tag: steps.id.outputs.last-tag
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload assets to release
