@@ -41,19 +41,23 @@ jobs:
         name: bin
         path: bin
 
-    - name: Get Last Tag
+    - name: Previous Tag
+      uses: timfallmk/previous-git-tag-action@master
       id: tag
-      run: |
-        LAST_TAG='$(git describe --abbrev=0 --tags `git rev-list --tags --skip=1 --max-count=1`)'
-        LAST_TAG=eval ${LAG_TAG}
-        echo $LAST_TAG
-        echo ::set-output name=last-tag::${LAST_TAG}
+
+    # - name: Get Last Tag
+    #   id: tag
+    #   run: |
+    #     LAST_TAG='$(git describe --abbrev=0 --tags `git rev-list --tags --skip=1 --max-count=1`)'
+    #     LAST_TAG=eval ${LAG_TAG}
+    #     echo $LAST_TAG
+    #     echo ::set-output name=last-tag::${LAST_TAG}
 
     - name: Create changelog
       uses: timfallmk/github-changelog-generator-action@master
       id: changelog
       with:
-        since-tag: ${{ steps.tag.outputs.last-tag }}
+        since-tag: ${{ steps.tag.outputs.previous-tag }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload assets to release
