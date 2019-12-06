@@ -59,6 +59,7 @@ jobs:
       with:
         since-tag: ${{ steps.tag.outputs.previous-tag }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
+        github-repo: ${{ env.GITHUB_REPOSITORY }}
 
     - name: Upload assets to release
       uses: meeDamian/github-release@v1.0.1
