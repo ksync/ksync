@@ -65,12 +65,11 @@ jobs:
         echo ${{ steps.changelog.outputs.CHANGELOG }}
 
     - name: Upload assets to release
-      uses: meeDamian/github-release@v1.0.1
+      uses: timfallmk/github-release@master
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         gzip: false
-        body: >
-          '${{ steps.changelog.outputs.CHANGELOG }}'
+        body: '${{ steps.changelog.outputs.CHANGELOG }}'
         files: >
           bin/ksync_darwin_amd64
           bin/ksync_linux_amd64
