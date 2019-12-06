@@ -69,7 +69,8 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         gzip: false
-        body: '${{ steps.changelog.outputs.CHANGELOG }}'
+        body: >
+          '${{ steps.changelog.outputs.CHANGELOG }}'
         files: >
           bin/ksync_darwin_amd64
           bin/ksync_linux_amd64
