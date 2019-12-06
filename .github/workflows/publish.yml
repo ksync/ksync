@@ -65,7 +65,7 @@ jobs:
         echo ${{ steps.changelog.outputs.CHANGELOG }}
 
     - name: Upload assets to release
-      uses: timfallmk/github-release@master
+      uses: timfallmk/github-release@patch-1
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         gzip: false
