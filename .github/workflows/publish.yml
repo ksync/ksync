@@ -64,16 +64,30 @@ jobs:
     - run: |
         echo ${{ steps.changelog.outputs.CHANGELOG }}
 
-    - name: Upload assets to release
-      uses: timfallmk/github-release@patch-1
+    - name: Create a new release
+      uses: actions/create-release@v1
+      id: create_release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        gzip: false
+        tag_name: ${{ github.ref }}
+        draft: true
         body: '${{ steps.changelog.outputs.CHANGELOG }}'
-        files: >
-          bin/ksync_darwin_amd64
-          bin/ksync_linux_amd64
-          bin/ksync_windows_amd64.exe
-          bin/radar_darwin_amd64
-          bin/radar_linux_amd64
-          bin/radar_windows_amd64.exe
+
+    # Temporary until actions/upload-release-asset supports multiple files
+    - name: Upload assets to release
+      uses: Roang-zero1/github-upload-release-artifacts-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        args:
+          - bin/
+
+# This needs fixing to allow multiple files (https://github.com/actions/upload-artifact/issues/3#issuecomment-524442814)
+    # - name: Upload assets to release
+    #   uses: actions/upload-release-asset@1.0.1
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   with:
+    #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+    #     asset_path:
