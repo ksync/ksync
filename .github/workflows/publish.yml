@@ -72,7 +72,6 @@ jobs:
       with:
         tag_name: ${{ github.ref }}
         release_name: ${{ github.ref }}
-        draft: true
         body: '${{ steps.changelog.outputs.CHANGELOG }}'
 
     # Temporary until actions/upload-release-asset supports multiple files
