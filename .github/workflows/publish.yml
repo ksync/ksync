@@ -81,7 +81,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         args:
-          - bin/
+        - bin/
 
 # This needs fixing to allow multiple files (https://github.com/actions/upload-artifact/issues/3#issuecomment-524442814)
     # - name: Upload assets to release
