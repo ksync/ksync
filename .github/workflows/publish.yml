@@ -62,7 +62,7 @@ jobs:
         github-repo: 'ksync/ksync'
 
     - run: |
-        echo "${{ steps.changelog.outputs.CHANGELOG }}"
+        echo '${{ steps.changelog.outputs.CHANGELOG }}'
 
     - name: Create a new release
       uses: actions/create-release@master
