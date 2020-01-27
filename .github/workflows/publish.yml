@@ -65,7 +65,7 @@ jobs:
         echo ${{ steps.changelog.outputs.CHANGELOG }}
 
     - name: Create a new release
-      uses: actions/create-release@v1
+      uses: actions/create-release@master
       id: create_release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
