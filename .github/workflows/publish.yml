@@ -36,6 +36,17 @@ jobs:
           docker login -u ksyncrobot --password-stdin
         make docker-push
 
+    - name: Push images to GPR
+      uses: machine-learning-apps/gpr-docker-publish@v1.3
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        IMAGE_NAME: 'ksync'
+        TAG: "git-${{ env.GITHUB_SHA }}"
+        DOCKERFILE_PATH: 'docker/Dockerfile'
+        BUILD_CONTEXT: './'
+        cache: true
+
     - uses: actions/upload-artifact@v1
       with:
         name: bin
