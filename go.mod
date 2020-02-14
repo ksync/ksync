@@ -3,14 +3,16 @@ module github.com/ksync/ksync
 go 1.13
 
 require (
-	cloud.google.com/go v0.52.0 // indirect
+	cloud.google.com/go v0.53.0 // indirect
+	github.com/AudriusButkevicius/go-nat-pmp v0.0.0-20160522074932-452c97607362 // indirect
+	github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78 // indirect
 	github.com/Microsoft/go-winio v0.4.14 // indirect
-	github.com/aws/aws-sdk-go v1.28.9 // indirect
+	github.com/aws/aws-sdk-go v1.29.3 // indirect
 	github.com/bkaradzic/go-lz4 v1.0.0 // indirect
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/briandowns/spinner v1.8.0
 	github.com/cenkalti/backoff v2.2.1+incompatible
-	github.com/containerd/containerd v1.3.2 // indirect
+	github.com/containerd/containerd v1.3.3 // indirect
 	github.com/docker/distribution v2.7.1+incompatible // indirect
 	github.com/docker/docker v1.4.2-0.20191112174331-c83188248e9c
 	github.com/docker/go-connections v0.4.0 // indirect
@@ -21,11 +23,11 @@ require (
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/fatih/structs v1.1.0
 	github.com/fsnotify/fsnotify v1.4.7
-	github.com/go-gl/glfw v0.0.0-20190409004039-e6da0acd62b1 // indirect
 	github.com/golang/protobuf v1.3.3
 	github.com/google/gofuzz v1.1.0 // indirect
-	github.com/googleapis/gnostic v0.4.0 // indirect
-	github.com/grpc-ecosystem/go-grpc-middleware v1.1.0
+	github.com/googleapis/gnostic v0.4.1 // indirect
+	github.com/gorilla/mux v1.7.4 // indirect
+	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
 	github.com/imdario/mergo v0.3.8
 	github.com/jpillora/overseer v0.0.0-20191216115108-e26c3c66567f
 	github.com/json-iterator/go v1.1.9 // indirect
@@ -36,6 +38,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.8 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/mapstructure v1.1.2
+	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
@@ -43,7 +46,7 @@ require (
 	github.com/phayes/permbits v0.0.0-20190612203442-39d7c581d2ee
 	github.com/pkg/errors v0.9.1
 	github.com/sevlyar/go-daemon v0.1.5
-	github.com/shirou/gopsutil v2.19.12+incompatible // indirect
+	github.com/shirou/gopsutil v2.20.1+incompatible // indirect
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/cast v1.3.1
 	github.com/spf13/cobra v0.0.5
@@ -51,20 +54,20 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.6.2
 	github.com/stretchr/testify v1.4.0
-	github.com/syncthing/syncthing v1.3.3
+	github.com/syncthing/syncthing v1.3.4
 	github.com/timfallmk/go-daemon v0.1.3-0.20180206012933-0e4d2554c235
-	github.com/timfallmk/overseer v0.0.0-20171218213912-3f6a00445e03
-	golang.org/x/crypto v0.0.0-20200128174031-69ecbb4d6d5d
-	golang.org/x/net v0.0.0-20200114155413-6afb5195e5aa
-	golang.org/x/sys v0.0.0-20200124204421-9fbb57f87de9 // indirect
+	github.com/timfallmk/overseer v0.0.0-20200214205711-64f40ac3a421
+	golang.org/x/crypto v0.0.0-20200214034016-1d94cc7ab1c6
+	golang.org/x/net v0.0.0-20200202094626-16171245cfb2
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
-	google.golang.org/genproto v0.0.0-20200128133413-58ce757ed39b // indirect
-	google.golang.org/grpc v1.27.0
-	gopkg.in/ini.v1 v1.51.1 // indirect
+	google.golang.org/grpc v1.27.1
+	gopkg.in/ini.v1 v1.52.0 // indirect
 	gopkg.in/resty.v1 v1.12.0
 	gopkg.in/yaml.v2 v2.2.8
-	k8s.io/api v0.17.2
-	k8s.io/apimachinery v0.17.2
+	gotest.tools v2.2.0+incompatible // indirect
+	k8s.io/api v0.17.3
+	k8s.io/apimachinery v0.17.3
 	k8s.io/client-go v0.0.0-20191016111102-bec269661e48
 	k8s.io/utils v0.0.0-20200124190032-861946025e34 // indirect
+	sigs.k8s.io/yaml v1.2.0 // indirect
 )
