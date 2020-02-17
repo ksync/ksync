@@ -4,7 +4,6 @@ go 1.13
 
 require (
 	cloud.google.com/go v0.53.0 // indirect
-	github.com/AudriusButkevicius/go-nat-pmp v0.0.0-20160522074932-452c97607362 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78 // indirect
 	github.com/Microsoft/go-winio v0.4.14 // indirect
 	github.com/aws/aws-sdk-go v1.29.3 // indirect
@@ -25,7 +24,6 @@ require (
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/golang/protobuf v1.3.3
 	github.com/google/gofuzz v1.1.0 // indirect
-	github.com/googleapis/gnostic v0.4.1 // indirect
 	github.com/gorilla/mux v1.7.4 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
 	github.com/imdario/mergo v0.3.8
@@ -67,7 +65,7 @@ require (
 	gotest.tools v2.2.0+incompatible // indirect
 	k8s.io/api v0.17.3
 	k8s.io/apimachinery v0.17.3
-	k8s.io/client-go v0.0.0-20191016111102-bec269661e48
+	k8s.io/client-go v0.17.3
 	k8s.io/utils v0.0.0-20200124190032-861946025e34 // indirect
 	sigs.k8s.io/yaml v1.2.0 // indirect
 )
