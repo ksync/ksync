@@ -3,7 +3,7 @@ You can also get the code and compile it yourself. If you have `go` installed yo
 ```shell
 go get github.com/ksync/ksync
 cd ${GOPATH}/src/github.com/ksync/ksync
-go install cmd/*
+go install ./cmd/*
 ```
 
 **Note**: If you compile the binaries yourself the output of `ksync version` may not be correct. Only the binaries on the [releases](https://github.com/ksync/ksync/releases) page are stamped with this information.
