@@ -148,10 +148,10 @@ func (s *Spec) Watch() error {
 }
 
 func (s *Spec) handleEvent(event watch.Event) error {
-	pod := event.Object.(*v1.Pod)
 	if event.Type != watch.Modified && event.Type != watch.Added {
 		return nil
 	}
+	pod := event.Object.(*v1.Pod)
 
 	log.WithFields(log.Fields{
 		"type":    event.Type,
