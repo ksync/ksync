@@ -57,6 +57,8 @@ github.com/blang/semver v3.5.1+incompatible h1:cQNTCjp13qL8KC3Nbxr/y2Bqb63oX6wdn
 github.com/blang/semver v3.5.1+incompatible/go.mod h1:kRBLl5iJ+tD4TcOOxsy/0fnwebNt5EWlYSAyrTnjyyk=
 github.com/briandowns/spinner v1.8.0 h1:SeidJ8ASAayR4Wxl5Of54LHqgi8s6sBvAHg4kxKxia4=
 github.com/briandowns/spinner v1.8.0/go.mod h1://Zf9tMcxfRUA36V23M6YGEAv+kECGfvpnLTnb8n4XQ=
+github.com/briandowns/spinner v1.9.0 h1:+OMAisemaHar1hjuJ3Z2hIvNhQl9Y7GLPWUwwz2Pxo8=
+github.com/briandowns/spinner v1.9.0/go.mod h1://Zf9tMcxfRUA36V23M6YGEAv+kECGfvpnLTnb8n4XQ=
 github.com/calmh/xdr v1.1.0 h1:U/Dd4CXNLoo8EiQ4ulJUXkgO1/EyQLgDKLgpY1SOoJE=
 github.com/calmh/xdr v1.1.0/go.mod h1:E8sz2ByAdXC8MbANf1LCRYzedSnnc+/sXXJs/PVqoeg=
 github.com/ccding/go-stun v0.0.0-20180726100737-be486d185f3d/go.mod h1:3FK1bMar37f7jqVY7q/63k3OMX1c47pGCufzt3X0sYE=
