@@ -218,6 +218,11 @@ You can run through this via. a [katacoda scenario][katacoda] in your browser as
 
 - OverlayFS (overlay2)
 
+# PodSecurityPolicy
+
+ksync uses volumes of type HostPath which may be forbidden by the default pod security policy in your cluster.
+In this case you can instruct ksync to create a suitable pod security policy by using the `--psp` flag of `ksync init`
+
 # Troubleshooting
 
 - Nothing is happening and `ksync get` says that it is `waiting`.
