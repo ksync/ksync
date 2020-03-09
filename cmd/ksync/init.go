@@ -82,7 +82,7 @@ func (i *initCmd) new() *cobra.Command {
 	flags.BoolP(
 		"psp",
 		"p",
-		false,
+		true,
 		"create/upgrade psp.")
 	if err := i.BindFlag("psp"); err != nil {
 		log.Fatal(err)

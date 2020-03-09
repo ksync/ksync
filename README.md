@@ -220,8 +220,9 @@ You can run through this via. a [katacoda scenario][katacoda] in your browser as
 
 # PodSecurityPolicy
 
-ksync uses volumes of type HostPath which may be forbidden by the default pod security policy in your cluster.
-In this case you can instruct ksync to create a suitable pod security policy by using the `--psp` flag of `ksync init`
+By default ksync create a PodSecurityPolicy (to allow it to use HostPath).
+If for some reason this PodSecurityPolicy is not suitable, it can be disabled by using the `--psp=false` of `ksync init`.
+ksync would still create and assign a service account, so another PodSecurityPolicy can be applied.
 
 # Troubleshooting
 
