@@ -1,6 +1,6 @@
 module github.com/ksync/ksync
 
-go 1.13
+go 1.14
 
 require (
 	cloud.google.com/go v0.53.0 // indirect
@@ -9,7 +9,7 @@ require (
 	github.com/aws/aws-sdk-go v1.29.3 // indirect
 	github.com/bkaradzic/go-lz4 v1.0.0 // indirect
 	github.com/blang/semver v3.5.1+incompatible
-	github.com/briandowns/spinner v1.8.0
+	github.com/briandowns/spinner v1.9.0
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/containerd/containerd v1.3.3 // indirect
 	github.com/docker/distribution v2.7.1+incompatible // indirect
@@ -22,7 +22,7 @@ require (
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/fatih/structs v1.1.0
 	github.com/fsnotify/fsnotify v1.4.7
-	github.com/golang/protobuf v1.3.3
+	github.com/golang/protobuf v1.3.4
 	github.com/google/gofuzz v1.1.0 // indirect
 	github.com/gorilla/mux v1.7.4 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
@@ -47,11 +47,11 @@ require (
 	github.com/shirou/gopsutil v2.20.1+incompatible // indirect
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/cast v1.3.1
-	github.com/spf13/cobra v0.0.5
+	github.com/spf13/cobra v0.0.6
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.6.2
-	github.com/stretchr/testify v1.4.0
+	github.com/stretchr/testify v1.5.1
 	github.com/syncthing/syncthing v1.3.4
 	github.com/timfallmk/go-daemon v0.1.3-0.20180206012933-0e4d2554c235
 	github.com/timfallmk/overseer v0.0.0-20200214205711-64f40ac3a421
