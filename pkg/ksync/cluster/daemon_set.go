@@ -7,12 +7,26 @@ import (
 	"github.com/spf13/viper"
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/api/policy/v1beta1"
+	policyv1beta "k8s.io/api/policy/v1beta1"
+	rbacv1 "k8s.io/api/rbac/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-func (s *Service) daemonSet() *appsv1.DaemonSet {
-	return &appsv1.DaemonSet{
+type creationFunc func(bool) error
+
+func (s *Service) creationFuncs(withPSP bool) []creationFunc {
+	funcs := []creationFunc{s.createDaemonSet, s.createServiceAccount}
+	if withPSP {
+		funcs = append(funcs, s.createPSP, s.createClusterRole, s.createClusterRoleBinding)
+	}
+	return funcs
+}
+
+func (s *Service) createDaemonSet(upgrade bool) error {
+	daemonSet := &appsv1.DaemonSet{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: s.Namespace,
 			Name:      s.name,
@@ -110,6 +124,7 @@ func (s *Service) daemonSet() *appsv1.DaemonSet {
 					NodeSelector: map[string]string{
 						"beta.kubernetes.io/os": "linux",
 					},
+					ServiceAccountName: s.name,
 					// TODO: add HostPathType
 					Volumes: []v1.Volume{
 						v1.Volume{
@@ -144,4 +159,152 @@ func (s *Service) daemonSet() *appsv1.DaemonSet {
 			},
 		},
 	}
+
+	collection := Client.AppsV1().DaemonSets(s.Namespace)
+
+	if _, err := collection.Create(daemonSet); err != nil {
+		if !errors.IsAlreadyExists(err) {
+			return err
+		}
+	}
+
+	if upgrade {
+		if _, err := collection.Update(daemonSet); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s *Service) createServiceAccount(upgrade bool) error {
+	serviceAccount := &v1.ServiceAccount{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: s.Namespace,
+			Name:      s.name,
+			Labels:    s.labels,
+		},
+	}
+
+	collection := Client.CoreV1().ServiceAccounts(s.Namespace)
+
+	if _, err := collection.Create(serviceAccount); err != nil {
+		if !errors.IsAlreadyExists(err) {
+			return err
+		}
+	}
+
+	if upgrade {
+		if _, err := collection.Update(serviceAccount); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s *Service) createPSP(upgrade bool) error {
+	psp := &policyv1beta.PodSecurityPolicy{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   s.name,
+			Labels: s.labels,
+		},
+		Spec: policyv1beta.PodSecurityPolicySpec{
+			FSGroup: policyv1beta.FSGroupStrategyOptions{
+				Rule: policyv1beta.FSGroupStrategyRunAsAny,
+			},
+			RunAsUser: policyv1beta.RunAsUserStrategyOptions{
+				Rule: policyv1beta.RunAsUserStrategyRunAsAny,
+			},
+			SELinux: policyv1beta.SELinuxStrategyOptions{
+				Rule: policyv1beta.SELinuxStrategyRunAsAny,
+			},
+			SupplementalGroups: policyv1beta.SupplementalGroupsStrategyOptions{
+				Rule: policyv1beta.SupplementalGroupsStrategyRunAsAny,
+			},
+			Volumes: []v1beta1.FSType{
+				v1beta1.HostPath,
+				v1beta1.Secret,
+			},
+		},
+	}
+
+	collection := Client.PolicyV1beta1().PodSecurityPolicies()
+
+	if _, err := collection.Create(psp); err != nil {
+		if !errors.IsAlreadyExists(err) {
+			return err
+		}
+	}
+
+	if upgrade {
+		if _, err := collection.Update(psp); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s *Service) createClusterRole(upgrade bool) error {
+	clusterRole := &rbacv1.ClusterRole{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   s.name,
+			Labels: s.labels,
+		},
+		Rules: []rbacv1.PolicyRule{
+			{
+				Verbs:         []string{"use"},
+				APIGroups:     []string{"policy"},
+				Resources:     []string{"podsecuritypolicies"},
+				ResourceNames: []string{s.name},
+			},
+		},
+	}
+
+	collection := Client.RbacV1().ClusterRoles()
+
+	if _, err := collection.Create(clusterRole); err != nil {
+		if !errors.IsAlreadyExists(err) {
+			return err
+		}
+	}
+
+	if upgrade {
+		if _, err := collection.Update(clusterRole); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s *Service) createClusterRoleBinding(upgrade bool) error {
+	clusterRoleBinding := &rbacv1.ClusterRoleBinding{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   s.name,
+			Labels: s.labels,
+		},
+		RoleRef: rbacv1.RoleRef{
+			APIGroup: "rbac.authorization.k8s.io",
+			Kind:     "ClusterRole",
+			Name:     s.name,
+		},
+		Subjects: []rbacv1.Subject{{
+			Kind:      "ServiceAccount",
+			Name:      s.name,
+			Namespace: s.Namespace,
+		}},
+	}
+
+	collection := Client.RbacV1().ClusterRoleBindings()
+
+	if _, err := collection.Create(clusterRoleBinding); err != nil {
+		if !errors.IsAlreadyExists(err) {
+			return err
+		}
+	}
+
+	if upgrade {
+		if _, err := collection.Update(clusterRoleBinding); err != nil {
+			return err
+		}
+	}
+	return nil
 }

@@ -183,17 +183,9 @@ func (s *Service) NodeNames() ([]string, error) {
 }
 
 // Run starts (or upgrades) the ksync daemonset on the remote cluster.
-func (s *Service) Run(upgrade bool) error {
-	daemonSets := Client.AppsV1().DaemonSets(s.Namespace)
-
-	if _, err := daemonSets.Create(s.daemonSet()); err != nil {
-		if !errors.IsAlreadyExists(err) {
-			return err
-		}
-	}
-
-	if upgrade {
-		if _, err := daemonSets.Update(s.daemonSet()); err != nil {
+func (s *Service) Run(upgrade, withPSP bool) error {
+	for _, f := range s.creationFuncs(true) {
+		if err := f(upgrade); err != nil {
 			return err
 		}
 	}

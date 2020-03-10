@@ -33,15 +33,15 @@ func TestServiceRun(t *testing.T) {
 	service := NewService()
 	require.NotPanics(t, func() { NewService() })
 
-	// Normal run without upgrade
-	err := service.Run(false)
+	// Normal run without upgrade & psp
+	err := service.Run(false, false)
 
 	assert.NoError(t, err)
 	assert.NotEmpty(t, service)
 
-	// Run with upgrade
+	// Run with upgrade & psp
 	// TODO: Use a new `radar` object here?
-	err = service.Run(true)
+	err = service.Run(true, true)
 
 	assert.NoError(t, err)
 	assert.NotEmpty(t, service)

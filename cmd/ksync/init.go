@@ -79,6 +79,15 @@ func (i *initCmd) new() *cobra.Command {
 		log.Fatal(err)
 	}
 
+	flags.BoolP(
+		"psp",
+		"p",
+		true,
+		"create/upgrade psp.")
+	if err := i.BindFlag("psp"); err != nil {
+		log.Fatal(err)
+	}
+
 	return i.Cmd
 }
 
@@ -138,7 +147,7 @@ func (i *initCmd) initRemote() {
 	fmt.Println("==== Cluster Environment ====")
 
 	add := func() error {
-		return cluster.NewService().Run(i.Viper.GetBool("upgrade"))
+		return cluster.NewService().Run(i.Viper.GetBool("upgrade"), i.Viper.GetBool("psp"))
 	}
 
 	if err := cli.TaskOut("Adding ksync to the cluster", add); err != nil {
