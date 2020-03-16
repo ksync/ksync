@@ -52,7 +52,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.6.2
 	github.com/stretchr/testify v1.5.1
-	github.com/syncthing/syncthing v1.3.4
+	github.com/syncthing/syncthing v1.4.0
 	github.com/timfallmk/go-daemon v0.1.3-0.20180206012933-0e4d2554c235
 	github.com/timfallmk/overseer v0.0.0-20200214205711-64f40ac3a421
 	golang.org/x/crypto v0.0.0-20200214034016-1d94cc7ab1c6
