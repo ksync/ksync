@@ -228,7 +228,7 @@ ksync would still create and assign a service account, so another PodSecurityPol
 
 - Nothing is happening and `ksync get` says that it is `waiting`.
 
-    This is the state where the cluster is being monitored and it doesn't look like there is anything to do. Make sure you're
+    This is the state where the cluster is being monitored and it doesn't look like there is anything to do. Make sure you're specifying the correct namespace: `ksync create -n <namespace>...`, even when you have kubectl set to use `<namespace>` by default.
 
 - `ERROR Path ... does not exist on the server`
 
