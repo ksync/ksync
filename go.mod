@@ -26,7 +26,7 @@ require (
 	github.com/google/gofuzz v1.1.0 // indirect
 	github.com/gorilla/mux v1.7.4 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
-	github.com/imdario/mergo v0.3.8
+	github.com/imdario/mergo v0.3.9
 	github.com/jpillora/overseer v0.0.0-20191216115108-e26c3c66567f
 	github.com/json-iterator/go v1.1.9 // indirect
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0 // indirect
