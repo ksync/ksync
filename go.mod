@@ -22,7 +22,7 @@ require (
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/fatih/structs v1.1.0
 	github.com/fsnotify/fsnotify v1.4.9
-	github.com/golang/protobuf v1.3.5
+	github.com/golang/protobuf v1.4.0
 	github.com/google/gofuzz v1.1.0 // indirect
 	github.com/gorilla/mux v1.7.4 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
@@ -51,10 +51,10 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.6.3
 	github.com/stretchr/testify v1.5.1
-	github.com/syncthing/syncthing v1.4.2
+	github.com/syncthing/syncthing v1.6.0
 	github.com/timfallmk/go-daemon v0.1.3-0.20180206012933-0e4d2554c235
 	github.com/timfallmk/overseer v0.0.0-20200214205711-64f40ac3a421
-	golang.org/x/crypto v0.0.0-20200220183623-bac4c82f6975
+	golang.org/x/crypto v0.0.0-20200423211502-4bdfaf469ed5
 	golang.org/x/net v0.0.0-20200202094626-16171245cfb2
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
 	google.golang.org/grpc v1.29.1
