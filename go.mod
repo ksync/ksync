@@ -9,7 +9,7 @@ require (
 	github.com/aws/aws-sdk-go v1.29.3 // indirect
 	github.com/bkaradzic/go-lz4 v1.0.0 // indirect
 	github.com/blang/semver v3.5.1+incompatible
-	github.com/briandowns/spinner v1.10.0
+	github.com/briandowns/spinner v1.11.1
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/containerd/containerd v1.3.3 // indirect
 	github.com/docker/distribution v2.7.1+incompatible // indirect
