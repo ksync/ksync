@@ -29,7 +29,6 @@ require (
 	github.com/imdario/mergo v0.3.9
 	github.com/jpillora/overseer v0.0.0-20191216115108-e26c3c66567f
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0 // indirect
-	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/logrusorgru/aurora v0.0.0-20200102142835-e9ef32dff381
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/mattn/go-runewidth v0.0.8 // indirect
@@ -44,7 +43,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/sevlyar/go-daemon v0.1.5
 	github.com/shirou/gopsutil v2.20.1+incompatible // indirect
-	github.com/sirupsen/logrus v1.5.0
+	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/cast v1.3.1
 	github.com/spf13/cobra v0.0.7
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
