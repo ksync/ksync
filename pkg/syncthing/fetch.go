@@ -74,6 +74,9 @@ func Fetch(path string) error {
 	case "windows":
 		log.Debug("found windows binary")
 		binaryReader, err = UnpackWindows(archiveReader)
+	case "darwin":
+		log.Debug("found mac binary")
+		binaryReader, err = UnpackMac(archiveReader)
 	// We should do some other platform detection here for completeness
 	default:
 		log.Debug("found binary")
@@ -127,6 +130,34 @@ func UnpackWindows(reader io.Reader) (io.Reader, error) {
 
 	for _, f := range zipReader.File {
 		if strings.HasSuffix(f.Name, "syncthing.exe") && !strings.Contains(f.Name, "sig") {
+			file, err := f.Open()
+			return file, err
+		}
+	}
+
+	return nil, fmt.Errorf("no syncthing binary found")
+}
+
+// UnpackWindows unpacks the zip archive and returns a reader containing the binary
+func UnpackMac(reader io.Reader) (io.Reader, error) {
+	log.Debug("decompressing")
+
+	// `encoding/tar` and `encoding/zip` are implemented just differently enough
+	// to force us into doing all this stupid shit. See what you've reduced me to?
+	b, err := ioutil.ReadAll(reader)
+	if err != nil {
+		return nil, err
+	}
+	readerAt := bytes.NewReader(b)
+
+	zipReader, err := zip.NewReader(readerAt, getSize(readerAt))
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: Narrow down file more specifically and exclude others
+	for _, f := range zipReader.File {
+		if strings.HasSuffix(f.Name, "syncthing") && !strings.Contains(f.Name, "sig") {
 			file, err := f.Open()
 			return file, err
 		}
