@@ -42,7 +42,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         IMAGE_NAME: 'ksync'
-        INPUT_TAG: "git-${{ env.GITHUB_SHA }}"
+        TAG: "git-${{ github.sha }}"
         DOCKERFILE_PATH: 'docker/Dockerfile'
         BUILD_CONTEXT: './'
         cache: true
