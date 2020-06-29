@@ -4,23 +4,23 @@ on:
   push:
     tags:
     - '*'
+env:
+  BINARY_VERSION: "Release"
 
 jobs:
   build:
     name: Generate Artifacts
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
 
     steps:
-    - uses: actions/setup-go@v1
+    - uses: actions/setup-go@v2
       with:
         go-version: 1.14
 
     - name: Checkout code
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
 
     - name: Build CLI
-      env:
-        BINARY_VERSION: "Release"
       run: |
         make build-ci
 
@@ -37,17 +37,17 @@ jobs:
         make docker-push
 
     - name: Push images to GPR
-      uses: machine-learning-apps/gpr-docker-publish@v1.3
+      uses: machine-learning-apps/gpr-docker-publish@v1.4
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         IMAGE_NAME: 'ksync'
-        TAG: "git-${{ env.GITHUB_SHA }}"
+        INPUT_TAG: "git-${{ env.GITHUB_SHA }}"
         DOCKERFILE_PATH: 'docker/Dockerfile'
         BUILD_CONTEXT: './'
         cache: true
 
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v2
       with:
         name: bin
         path: bin
