@@ -114,7 +114,7 @@ test:
 .PHONY: cluster-setup
 cluster-setup:
 ifndef HAS_K3D
-	wget -q -O - https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash
+	wget -q -O - https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
 endif
 	k3d create --wait 30
 
