@@ -26,10 +26,10 @@ require (
 	github.com/google/gofuzz v1.1.0 // indirect
 	github.com/gorilla/mux v1.7.4 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
-	github.com/imdario/mergo v0.3.9
-	github.com/jpillora/overseer v0.0.0-20191216115108-e26c3c66567f
+	github.com/imdario/mergo v0.3.10
+	github.com/jpillora/overseer v1.1.6
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0 // indirect
-	github.com/logrusorgru/aurora v0.0.0-20200102142835-e9ef32dff381
+	github.com/logrusorgru/aurora v2.0.3+incompatible
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/mattn/go-runewidth v0.0.8 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
@@ -45,7 +45,7 @@ require (
 	github.com/shirou/gopsutil v2.20.1+incompatible // indirect
 	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/cast v1.3.1
-	github.com/spf13/cobra v0.0.7
+	github.com/spf13/cobra v1.0.0
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.0
@@ -53,8 +53,8 @@ require (
 	github.com/syncthing/syncthing v1.7.1
 	github.com/timfallmk/go-daemon v0.1.3-0.20180206012933-0e4d2554c235
 	github.com/timfallmk/overseer v0.0.0-20200214205711-64f40ac3a421
-	golang.org/x/crypto v0.0.0-20200423211502-4bdfaf469ed5
-	golang.org/x/net v0.0.0-20200202094626-16171245cfb2
+	golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899
+	golang.org/x/net v0.0.0-20200707034311-ab3426394381
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
 	google.golang.org/grpc v1.30.0
 	gopkg.in/ini.v1 v1.52.0 // indirect
