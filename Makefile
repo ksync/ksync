@@ -116,7 +116,7 @@ cluster-setup:
 ifndef HAS_K3D
 	wget -q -O - https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
 endif
-	k3d cluster create --wait 30
+	k3d cluster create --wait
 
 ## ------- UNUSED
 

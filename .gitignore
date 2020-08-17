@@ -23,3 +23,5 @@ __pycache__
 
 # Using scss, css is a build artifact that gets placed everywhere.
 *.css
+
+.vscode
