@@ -9,30 +9,27 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-    - uses: actions/setup-go@v2
-      with:
-        go-version: 1.14
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.14
 
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Install kubectl
-      run: |
-        VERSION=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
-        curl -LO https://storage.googleapis.com/kubernetes-release/release/${VERSION}/bin/linux/amd64/kubectl
-        chmod +x ./kubectl
-        sudo mv ./kubectl /usr/local/bin/kubectl
+      - name: Install kubectl
+        run: |
+          VERSION=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
+          curl -LO https://storage.googleapis.com/kubernetes-release/release/${VERSION}/bin/linux/amd64/kubectl
+          chmod +x ./kubectl
+          sudo mv ./kubectl /usr/local/bin/kubectl
 
-    - name: Setup cluster
-      run: |
-        make cluster-setup
-        mkdir ~/.kube
-        mv $(k3d get-kubeconfig) ~/.kube/config
+      - name: Setup cluster
+        run: |
+          make cluster-setup
 
-    - name: Run unit tests
-      run: |
-        make ci-test
-
+      - name: Run unit tests
+        run: |
+          make ci-test
     # - name: Build images
     #   env:
     #     PUSH_TOKEN: ${{ secrets.PUSH_TOKEN }}
@@ -40,7 +37,6 @@ jobs:
     #     echo ${PUSH_TOKEN} | \
     #       docker login -u ksyncrobot --password-stdin
     #     make docker-binary docker-build docker-push
-
     # - name: Run radar
     #   run: |
     #     make build-cmd
