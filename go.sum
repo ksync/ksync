@@ -645,6 +645,7 @@ github.com/syncthing/syncthing v1.9.0 h1:R3bUg4hQXQXqi7mbtCBDDzp8AXIStmG9jnSdJ6m
 github.com/syncthing/syncthing v1.9.0/go.mod h1:bz0gkEIhmzJW/TndUumfEMVlHaauTBuj4Hg2PeZIxus=
 github.com/syncthing/syncthing v1.10.0 h1:6sCW1vvLJJUzUqO2qJaH/hmwYVT3nzDFRFc8F6zPBqU=
 github.com/syncthing/syncthing v1.10.0/go.mod h1:FXC30n1zli8M384xBQC1LLfYe39/YbX3K0QEt9XZTOk=
+github.com/syncthing/syncthing v1.11.1/go.mod h1:eVbp6IAAjBhcwBlZCWnZLADBxoAtfnG7swoJKS7p6/o=
 github.com/syndtr/goleveldb v1.0.1-0.20190923125748-758128399b1d h1:gZZadD8H+fF+n9CmNhYL1Y0dJB+kLOmKd7FbPJLeGHs=
 github.com/syndtr/goleveldb v1.0.1-0.20190923125748-758128399b1d/go.mod h1:9OrXJhf154huy1nPWmuSrkgjPUtUNhA+Zmy+6AESzuA=
 github.com/syndtr/goleveldb v1.0.1-0.20200815071216-d9e9293bd0f7/go.mod h1:u2MKkTVTVJWe5D1rCvame8WqhBd88EuIwODJZ1VHCPM=
@@ -829,6 +830,7 @@ golang.org/x/sys v0.0.0-20200519105757-fe76b779f299/go.mod h1:h1NjWce9XRLGQEsW7w
 golang.org/x/sys v0.0.0-20200814200057-3d37ad5750ed/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20200819171115-d785dc25833f h1:KJuwZVtZBVzDmEDtB2zro9CXkD9O0dpCv4o2LHbQIAw=
 golang.org/x/sys v0.0.0-20200819171115-d785dc25833f/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+golang.org/x/sys v0.0.0-20200922070232-aee5d888a860/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/text v0.0.0-20160726164857-2910a502d2bf/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
 golang.org/x/text v0.0.0-20170915032832-14c0d48ead0c/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
 golang.org/x/text v0.3.0 h1:g61tztE5qeGQ89tm6NTjjM9VPIm088od1l6aSorWRWg=
