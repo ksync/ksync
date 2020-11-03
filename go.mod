@@ -55,7 +55,7 @@ require (
 	golang.org/x/crypto v0.0.0-20200728195943-123391ffb6de
 	golang.org/x/net v0.0.0-20200813134508-3edf25e44fcc
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
-	google.golang.org/grpc v1.32.0
+	google.golang.org/grpc v1.33.1
 	gopkg.in/ini.v1 v1.52.0 // indirect
 	gopkg.in/resty.v1 v1.12.0
 	gopkg.in/yaml.v2 v2.3.0
