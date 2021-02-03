@@ -776,6 +776,7 @@ github.com/syncthing/syncthing v1.11.1/go.mod h1:eVbp6IAAjBhcwBlZCWnZLADBxoAtfnG
 github.com/syncthing/syncthing v1.12.0/go.mod h1:xcRScnhWPVujB0ZYY2uvK/PmxfyUBVfQeXPGcbYUx5g=
 github.com/syncthing/syncthing v1.12.1/go.mod h1:Wfd/GgipdSTeMH1mD4DDI4QcOGLm+SSJMVGA1emsKcA=
 github.com/syncthing/syncthing v1.13.0/go.mod h1:DkQrvxKIQqHd9p0xgqmQs3sJCkde4hkzyLSxQSAFmlY=
+github.com/syncthing/syncthing v1.13.1/go.mod h1:DkQrvxKIQqHd9p0xgqmQs3sJCkde4hkzyLSxQSAFmlY=
 github.com/syndtr/goleveldb v1.0.1-0.20190923125748-758128399b1d h1:gZZadD8H+fF+n9CmNhYL1Y0dJB+kLOmKd7FbPJLeGHs=
 github.com/syndtr/goleveldb v1.0.1-0.20190923125748-758128399b1d/go.mod h1:9OrXJhf154huy1nPWmuSrkgjPUtUNhA+Zmy+6AESzuA=
 github.com/syndtr/goleveldb v1.0.1-0.20200815071216-d9e9293bd0f7/go.mod h1:u2MKkTVTVJWe5D1rCvame8WqhBd88EuIwODJZ1VHCPM=
