@@ -52,14 +52,14 @@ require (
 	github.com/timfallmk/go-daemon v0.1.3-0.20180206012933-0e4d2554c235
 	github.com/timfallmk/overseer v0.0.0-20200214205711-64f40ac3a421
 	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897
-	golang.org/x/net v0.0.0-20201031054903-ff519b6c9102
+	golang.org/x/net v0.0.0-20201110031124-69a78807bb2b
 	google.golang.org/grpc v1.35.0
 	gopkg.in/ini.v1 v1.52.0 // indirect
 	gopkg.in/resty.v1 v1.12.0
 	gopkg.in/yaml.v2 v2.4.0
 	gotest.tools v2.2.0+incompatible // indirect
 	k8s.io/api v0.17.4
-	k8s.io/apimachinery v0.17.4
+	k8s.io/apimachinery v0.20.4
 	k8s.io/client-go v0.17.4
 	k8s.io/utils v0.0.0-20200124190032-861946025e34 // indirect
 	sigs.k8s.io/yaml v1.2.0 // indirect
