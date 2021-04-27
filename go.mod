@@ -24,7 +24,7 @@ require (
 	github.com/golang/protobuf v1.5.2
 	github.com/google/gofuzz v1.1.0 // indirect
 	github.com/gorilla/mux v1.7.4 // indirect
-	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
+	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/imdario/mergo v0.3.12
 	github.com/jpillora/overseer v1.1.6
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0 // indirect
