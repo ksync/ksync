@@ -1,0 +1,46 @@
+version: 2
+updates:
+- package-ecosystem: gomod
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "10:00"
+    timezone: America/Los_Angeles
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: k8s.io/api
+    versions:
+    - "> 0.17.4"
+  - dependency-name: k8s.io/api
+    versions:
+    - ">= 0.18.a, < 0.19"
+  - dependency-name: k8s.io/api
+    versions:
+    - ">= 0.19.a, < 0.20"
+  - dependency-name: k8s.io/apimachinery
+    versions:
+    - "> 0.17.4"
+  - dependency-name: k8s.io/apimachinery
+    versions:
+    - ">= 0.18.a, < 0.19"
+  - dependency-name: k8s.io/apimachinery
+    versions:
+    - ">= 0.19.a, < 0.20"
+  - dependency-name: k8s.io/client-go
+    versions:
+    - "> 0.17.4"
+  - dependency-name: k8s.io/client-go
+    versions:
+    - ">= 0.18.a, < 0.19"
+  - dependency-name: k8s.io/client-go
+    versions:
+    - ">= 0.19.a, < 0.20"
+  - dependency-name: google.golang.org/grpc
+    versions:
+    - 1.36.1
+  - dependency-name: github.com/syncthing/syncthing
+    versions:
+    - 1.14.0
+  - dependency-name: github.com/sirupsen/logrus
+    versions:
+    - 1.7.1
