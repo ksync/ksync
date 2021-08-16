@@ -271,7 +271,7 @@ More detailed documentation can be found in the [docs](docs) directory.
 [atom]: https://atom.io/
 [st3]: https://www.sublimetext.com/
 [latest-release]: https://github.com/ksync/ksync/releases
-[k8s-setup]: https://kubernetes.io/docs/setup/pick-right-solution/
+[k8s-setup]: https://kubernetes.io/docs/setup/
 [GKE]: https://cloud.google.com/kubernetes-engine/docs/quickstart
 [minikube]: https://github.com/kubernetes/minikube
 [demo-app]: https://ksync.github.io/ksync/example/app/app.yaml
