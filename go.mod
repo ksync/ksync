@@ -48,6 +48,7 @@ require (
 	github.com/timfallmk/overseer v0.0.0-20200214205711-64f40ac3a421
 	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897
 	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4
+	golang.org/x/sys v0.0.0-20210819135213-f52c844e1c1c // indirect
 	google.golang.org/grpc v1.38.0
 	gopkg.in/resty.v1 v1.12.0
 	gopkg.in/yaml.v2 v2.4.0
