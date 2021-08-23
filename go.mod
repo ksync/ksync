@@ -19,7 +19,7 @@ require (
 	github.com/elazarl/goproxy v0.0.0-20191011121108-aa519ddbe484 // indirect
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/fatih/structs v1.1.0
-	github.com/fsnotify/fsnotify v1.4.9
+	github.com/fsnotify/fsnotify v1.5.0
 	github.com/golang/protobuf v1.5.2
 	github.com/google/gofuzz v1.1.0 // indirect
 	github.com/gorilla/mux v1.7.4 // indirect
