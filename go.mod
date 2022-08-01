@@ -7,7 +7,7 @@ require (
 	github.com/Microsoft/go-winio v0.4.14 // indirect
 	github.com/bkaradzic/go-lz4 v1.0.0 // indirect
 	github.com/blang/semver v3.5.1+incompatible
-	github.com/briandowns/spinner v1.18.1
+	github.com/briandowns/spinner v1.19.0
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/containerd/containerd v1.3.3 // indirect
 	github.com/docker/distribution v2.7.1+incompatible // indirect
