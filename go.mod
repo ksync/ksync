@@ -18,7 +18,7 @@ require (
 	github.com/dustinkirkland/golang-petname v0.0.0-20191129215211-8e5a1ed0cff0
 	github.com/elazarl/goproxy v0.0.0-20191011121108-aa519ddbe484 // indirect
 	github.com/fatih/structs v1.1.0
-	github.com/fsnotify/fsnotify v1.5.1
+	github.com/fsnotify/fsnotify v1.6.0
 	github.com/golang/protobuf v1.5.2
 	github.com/google/gofuzz v1.1.0 // indirect
 	github.com/gorilla/mux v1.7.4 // indirect
