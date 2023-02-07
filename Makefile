@@ -67,6 +67,11 @@ endif
 		--output="bin/{{ .Dir }}_{{ .OS }}_{{ .Arch }}" \
 		-os="!netbsd !freebsd !openbsd" -arch="amd64" \
 		./cmd/...
+	${GOBIN}/gox --ldflags "${LDFLAGS}" \
+		--parallel=10 \
+		--output="bin/{{ .Dir }}_{{ .OS }}_{{ .Arch }}" \
+		-os="darwin linux" -arch="arm64" \
+		./cmd/...
 
 .PHONY: docker-binary
 docker-binary: BINDIR = $(CURDIR)/bin
