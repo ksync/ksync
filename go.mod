@@ -3,15 +3,13 @@ module github.com/ksync/ksync
 go 1.15
 
 require (
-	github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78 // indirect
 	github.com/Microsoft/go-winio v0.4.14 // indirect
 	github.com/bkaradzic/go-lz4 v1.0.0 // indirect
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/briandowns/spinner v1.18.1
 	github.com/cenkalti/backoff v2.2.1+incompatible
-	github.com/containerd/containerd v1.3.3 // indirect
 	github.com/docker/distribution v2.7.1+incompatible // indirect
-	github.com/docker/docker v1.4.2-0.20191112174331-c83188248e9c
+	github.com/docker/docker v23.0.1+incompatible
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/docker/spdystream v0.0.0-20181023171402-6480d4af844c // indirect
@@ -21,7 +19,6 @@ require (
 	github.com/fsnotify/fsnotify v1.5.1
 	github.com/golang/protobuf v1.5.2
 	github.com/google/gofuzz v1.1.0 // indirect
-	github.com/gorilla/mux v1.7.4 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/imdario/mergo v0.3.12
 	github.com/jpillora/overseer v1.1.6
@@ -29,6 +26,7 @@ require (
 	github.com/logrusorgru/aurora v2.0.3+incompatible
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/mapstructure v1.4.3
+	github.com/moby/term v0.0.0-20221205130635-1aeaba878587 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
@@ -50,7 +48,7 @@ require (
 	google.golang.org/grpc v1.43.0
 	gopkg.in/resty.v1 v1.12.0
 	gopkg.in/yaml.v2 v2.4.0
-	gotest.tools v2.2.0+incompatible // indirect
+	gotest.tools/v3 v3.4.0 // indirect
 	k8s.io/api v0.17.4
 	k8s.io/apimachinery v0.17.4
 	k8s.io/client-go v0.17.4
