@@ -7,7 +7,6 @@ import (
 	"github.com/spf13/viper"
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/api/policy/v1beta1"
 	policyv1beta "k8s.io/api/policy/v1beta1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -220,9 +219,9 @@ func (s *Service) createPSP(upgrade bool) error {
 			SupplementalGroups: policyv1beta.SupplementalGroupsStrategyOptions{
 				Rule: policyv1beta.SupplementalGroupsStrategyRunAsAny,
 			},
-			Volumes: []v1beta1.FSType{
-				v1beta1.HostPath,
-				v1beta1.Secret,
+			Volumes: []policyv1beta.FSType{
+				policyv1beta.HostPath,
+				policyv1beta.Secret,
 			},
 		},
 	}
