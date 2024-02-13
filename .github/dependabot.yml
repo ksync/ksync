@@ -3,10 +3,14 @@ updates:
 - package-ecosystem: gomod
   directory: "/"
   schedule:
-    interval: daily
+    interval: yearly
     time: "10:00"
     timezone: America/Los_Angeles
   open-pull-requests-limit: 10
+  groups:
+      general-updates:
+        patterns:
+          - "*"
   ignore:
   - dependency-name: k8s.io/api
     versions:
